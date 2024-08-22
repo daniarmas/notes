@@ -1,4 +1,4 @@
-package domaincache
+package domain
 
 import (
 	"context"

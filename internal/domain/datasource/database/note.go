@@ -1,4 +1,4 @@
-package domaindatabase
+package domain
 
 import (
 	"context"
