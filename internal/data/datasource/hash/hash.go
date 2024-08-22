@@ -8,7 +8,7 @@ import (
 type hashDatasource struct {
 }
 
-func NewBcryptHash() domainhashds.HashDs {
+func NewBcryptHashDatasource() domainhashds.HashDs {
 	return &hashDatasource{}
 }
 
