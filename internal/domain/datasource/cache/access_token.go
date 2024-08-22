@@ -3,7 +3,7 @@ package database
 import (
 	"context"
 
-	"github.com/daniarmas/notes/internal/entity"
+	"github.com/daniarmas/notes/internal/domain/entity"
 	"github.com/google/uuid"
 )
 
