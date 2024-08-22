@@ -1,6 +1,6 @@
-package domainhashds
+package domain
 
-type HashDs interface {
+type HashDatasource interface {
 	Hash(value string) (string, error)
 	CheckHash(value, hash string) bool
 }
