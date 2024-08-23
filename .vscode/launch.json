@@ -13,9 +13,10 @@
             "args": [
                 "run"
             ],
-            // "env": {
-            //     "APP_REST_PORT": "8080"
-            // },
+            "env": {
+                "APP_REST_HOST": "localhost",
+                "APP_REST_PORT": "8888"
+            },
         }
     ]
 }
