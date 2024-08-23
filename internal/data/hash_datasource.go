@@ -1,7 +1,7 @@
-package datahashds
+package data
 
 import (
-	"github.com/daniarmas/notes/internal/domain/datasource/hash"
+	"github.com/daniarmas/notes/internal/domain"
 	"golang.org/x/crypto/bcrypt"
 )
 
