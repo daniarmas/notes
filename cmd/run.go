@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/daniarmas/notes/internal/config"
 	"github.com/spf13/cobra"
 )
 
@@ -12,7 +13,8 @@ var runCmd = &cobra.Command{
 	Short: "Run the server",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Server Running...")
+		cfg := config.LoadConfig()
+		fmt.Println(cfg.AppRestPort)
 	},
 }
 
