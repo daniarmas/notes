@@ -25,7 +25,7 @@ func run(ctx context.Context, w io.Writer, args []string) error {
 	cfg := config.LoadConfig()
 	srv := server.NewServer(cfg)
 	httpServer := &http.Server{
-		Addr:    net.JoinHostPort(cfg.AppRestHost, cfg.AppRestPort),
+		Addr:    net.JoinHostPort("0.0.0.0", "8080"),
 		Handler: srv,
 	}
 	go func() {
