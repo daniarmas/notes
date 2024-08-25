@@ -5,25 +5,32 @@ import (
 )
 
 type Configuration struct {
-	AppRestHost string
-	AppRestPort string
-	DatabaseUrl string
+	DatabaseUrl   string
+	RedisHost     string
+	RedisPort     string
+	RedisPassword string
+	RedisDb       string
 }
 
 func LoadConfig() *Configuration {
 	config := Configuration{
-		AppRestHost: os.Getenv("APP_REST_HOST"),
-		AppRestPort: os.Getenv("APP_REST_PORT"),
-		DatabaseUrl: os.Getenv("DATABASE_URL"),
-	}
-	if config.AppRestHost == "" {
-		config.AppRestHost = "localhost"
-	}
-	if config.AppRestPort == "" {
-		config.AppRestPort = "8080"
+		DatabaseUrl:   os.Getenv("DATABASE_URL"),
+		RedisHost:     os.Getenv("REDIS_HOST"),
+		RedisPort:     os.Getenv("REDIS_PORT"),
+		RedisPassword: os.Getenv("REDIS_PASSWORD"),
+		RedisDb:       os.Getenv("REDIS_DB"),
 	}
 	if config.DatabaseUrl == "" {
 		config.DatabaseUrl = "postgresql://root@localhost:26257/defaultdb?sslmode=disable"
+	}
+	if config.RedisHost == "" {
+		config.RedisHost = "localhost"
+	}
+	if config.RedisPort == "" {
+		config.RedisPort = "6379"
+	}
+	if config.RedisDb == "" {
+		config.RedisHost = "0"
 	}
 	return &config
 }
