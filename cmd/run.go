@@ -14,7 +14,9 @@ import (
 	"time"
 
 	"github.com/daniarmas/notes/internal/config"
+	"github.com/daniarmas/notes/internal/database"
 	"github.com/daniarmas/notes/internal/server"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/spf13/cobra"
 )
 
@@ -22,14 +24,21 @@ func run(ctx context.Context, w io.Writer, args []string) error {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
+	// Config
 	cfg := config.LoadConfig()
+
+	// Database connection
+	db := database.Open(cfg)
+	defer database.Close(db)
+
+	// Http server
 	srv := server.NewServer(cfg)
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort("0.0.0.0", "8080"),
 		Handler: srv,
 	}
 	go func() {
-		log.Printf("listening on %s\n", httpServer.Addr)
+		log.Printf("Http server listening on %s\n", httpServer.Addr)
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			fmt.Fprintf(os.Stderr, "error listening and serving: %s\n", err)
 		}
