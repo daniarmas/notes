@@ -13,6 +13,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/daniarmas/notes/internal/cache"
 	"github.com/daniarmas/notes/internal/config"
 	"github.com/daniarmas/notes/internal/database"
 	"github.com/daniarmas/notes/internal/server"
@@ -30,6 +31,10 @@ func run(ctx context.Context, w io.Writer, args []string) error {
 	// Database connection
 	db := database.Open(cfg)
 	defer database.Close(db)
+
+	// Cache connection
+	rdb := cache.OpenRedis(cfg)
+	defer cache.CloseRedis(rdb)
 
 	// Http server
 	srv := server.NewServer(cfg)
