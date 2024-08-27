@@ -1,7 +1,9 @@
 package config
 
 import (
+	"log"
 	"os"
+	"strconv"
 )
 
 type Configuration struct {
@@ -9,7 +11,7 @@ type Configuration struct {
 	RedisHost     string
 	RedisPort     string
 	RedisPassword string
-	RedisDb       string
+	RedisDb       int
 }
 
 func LoadConfig() *Configuration {
@@ -18,7 +20,6 @@ func LoadConfig() *Configuration {
 		RedisHost:     os.Getenv("REDIS_HOST"),
 		RedisPort:     os.Getenv("REDIS_PORT"),
 		RedisPassword: os.Getenv("REDIS_PASSWORD"),
-		RedisDb:       os.Getenv("REDIS_DB"),
 	}
 	if config.DatabaseUrl == "" {
 		config.DatabaseUrl = "postgresql://root@localhost:26257/defaultdb?sslmode=disable"
@@ -29,8 +30,14 @@ func LoadConfig() *Configuration {
 	if config.RedisPort == "" {
 		config.RedisPort = "6379"
 	}
-	if config.RedisDb == "" {
-		config.RedisHost = "0"
+	if os.Getenv("REDIS_DB") == "" {
+		config.RedisDb = 0
+	} else {
+		number, err := strconv.Atoi(os.Getenv("REDIS_DB"))
+		if err != nil {
+			log.Fatalf("REDIS_DB enviroment variable must be a valid integer value")
+		}
+		config.RedisDb = number
 	}
 	return &config
 }
