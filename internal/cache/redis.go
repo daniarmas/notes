@@ -9,6 +9,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+// Open the redis connection
 func OpenRedis(cfg *config.Configuration) *redis.Client {
 	address := net.JoinHostPort(cfg.RedisHost, cfg.RedisPort)
 	rdb := redis.NewClient(&redis.Options{
@@ -26,4 +27,13 @@ func OpenRedis(cfg *config.Configuration) *redis.Client {
 
 	log.Printf("Connected to Redis server at %s\n", address)
 	return rdb
+}
+
+// Close the Redis connection gracefully
+func CloseRedis(client *redis.Client) {
+	err := client.Close()
+	if err != nil {
+		log.Fatalf("Error closing Redis connection: %v", err)
+	}
+	log.Println("Redis connection closed")
 }

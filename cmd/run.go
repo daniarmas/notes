@@ -32,7 +32,9 @@ func run(ctx context.Context, w io.Writer, args []string) error {
 	db := database.Open(cfg)
 	defer database.Close(db)
 
-	cache.OpenRedis(cfg)
+	// Cache connection
+	rdb := cache.OpenRedis(cfg)
+	defer cache.CloseRedis(rdb)
 
 	// Http server
 	srv := server.NewServer(cfg)
