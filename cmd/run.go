@@ -29,8 +29,8 @@ func run(ctx context.Context, w io.Writer, args []string) error {
 	cfg := config.LoadConfig()
 
 	// Database connection
-	db := database.Open(cfg)
-	defer database.Close(db)
+	db := database.Open(cfg, true)
+	defer database.Close(db, true)
 
 	// Cache connection
 	rdb := cache.OpenRedis(cfg)

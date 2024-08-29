@@ -9,7 +9,7 @@ import (
 )
 
 // Open opens a database specified by its database driver name and a driver-specific data source name, usually consisting of at least a database name and connection information.
-func Open(cfg *config.Configuration) *sql.DB {
+func Open(cfg *config.Configuration, showLog bool) *sql.DB {
 	var db *sql.DB
 	var err error
 
@@ -37,8 +37,9 @@ func Open(cfg *config.Configuration) *sql.DB {
 			time.Sleep(initialBackoff * time.Duration(attempt))
 			continue
 		}
-
-		log.Println("Connected to the database")
+		if showLog {
+			log.Println("Connected to the database")
+		}
 		return db
 	}
 
@@ -46,7 +47,9 @@ func Open(cfg *config.Configuration) *sql.DB {
 	return nil
 }
 
-func Close(db *sql.DB) {
+func Close(db *sql.DB, showLog bool) {
 	db.Close()
-	log.Println("Database connection closed")
+	if showLog {
+		log.Println("Database connection closed")
+	}
 }
