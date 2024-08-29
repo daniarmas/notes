@@ -1,12 +1,13 @@
 /*
 Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
 import (
-	"fmt"
+	"log"
 
+	"github.com/daniarmas/notes/internal/config"
+	"github.com/daniarmas/notes/internal/database"
 	"github.com/spf13/cobra"
 )
 
@@ -21,7 +22,40 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("database called")
+		// Config
+		cfg := config.LoadConfig()
+
+		// Database connection
+		db := database.Open(cfg, false)
+		defer database.Close(db, false)
+
+		// Create notes_database if not exists
+		stmt, err := db.Prepare("CREATE DATABASE IF NOT EXISTS notes_database;")
+		if err != nil {
+			log.Fatal(err)
+		}
+		_, err = stmt.Exec()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Create users table if not exists
+		stmt, err = db.Prepare(`
+		CREATE TABLE IF NOT EXISTS users (
+    		id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    		name STRING NOT NULL,
+    		email STRING NOT NULL UNIQUE,
+			password STRING NOT NULL,
+    		create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    		update_time TIMESTAMP
+		);`)
+		if err != nil {
+			log.Fatal(err)
+		}
+		_, err = stmt.Exec()
+		if err != nil {
+			log.Fatal(err)
+		}
 	},
 }
 
