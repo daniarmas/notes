@@ -22,7 +22,7 @@ func LoadConfig() *Configuration {
 		RedisPassword: os.Getenv("REDIS_PASSWORD"),
 	}
 	if config.DatabaseUrl == "" {
-		config.DatabaseUrl = "postgresql://root@localhost:26257/defaultdb?sslmode=disable"
+		config.DatabaseUrl = "postgresql://root@localhost:26257/notes_database?sslmode=disable"
 	}
 	if config.RedisHost == "" {
 		config.RedisHost = "localhost"
