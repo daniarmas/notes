@@ -8,6 +8,7 @@ import (
 
 type Configuration struct {
 	DatabaseUrl   string
+	JwtSecret     string
 	RedisHost     string
 	RedisPort     string
 	RedisPassword string
@@ -20,6 +21,9 @@ func LoadConfig() *Configuration {
 		RedisHost:     os.Getenv("REDIS_HOST"),
 		RedisPort:     os.Getenv("REDIS_PORT"),
 		RedisPassword: os.Getenv("REDIS_PASSWORD"),
+	}
+	if config.JwtSecret == "" {
+		log.Fatalf("JWT_SECRET enviroment variable is required")
 	}
 	if config.DatabaseUrl == "" {
 		config.DatabaseUrl = "postgresql://root@localhost:26257/notes_database?sslmode=disable"
