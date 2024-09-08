@@ -7,9 +7,47 @@ package database
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/google/uuid"
 )
+
+const createNote = `-- name: CreateNote :one
+INSERT INTO notes (
+  user_id, title, content, background_color
+) VALUES (
+  $1, $2, $3, $4
+)
+RETURNING id, user_id, title, content, background_color, create_time, update_time, delete_time
+`
+
+type CreateNoteParams struct {
+	UserID          uuid.UUID
+	Title           sql.NullString
+	Content         sql.NullString
+	BackgroundColor sql.NullString
+}
+
+func (q *Queries) CreateNote(ctx context.Context, arg CreateNoteParams) (Note, error) {
+	row := q.db.QueryRowContext(ctx, createNote,
+		arg.UserID,
+		arg.Title,
+		arg.Content,
+		arg.BackgroundColor,
+	)
+	var i Note
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Title,
+		&i.Content,
+		&i.BackgroundColor,
+		&i.CreateTime,
+		&i.UpdateTime,
+		&i.DeleteTime,
+	)
+	return i, err
+}
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
