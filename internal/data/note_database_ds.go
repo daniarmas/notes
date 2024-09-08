@@ -39,8 +39,26 @@ func (d *noteDatabaseDs) CreateNote(ctx context.Context, note *domain.Note) (*do
 	}, nil
 }
 
-func (d *noteDatabaseDs) ListNote(ctx context.Context) (*[]domain.Note, error) {
-	return nil, nil
+func (d *noteDatabaseDs) ListNotesByUserId(ctx context.Context, user_id uuid.UUID) (*[]domain.Note, error) {
+	res, err := d.queries.ListNotesByUserId(ctx, user_id)
+	if err != nil {
+		return nil, err
+	}
+	// Preallocate slice with the length of the result set
+	response := make([]domain.Note, 0, len(res))
+	for _, note := range res {
+		response = append(response, domain.Note{
+			Id:              note.ID,
+			UserId:          note.UserID,
+			Title:           note.Title.String,
+			Content:         note.Content.String,
+			BackgroundColor: note.BackgroundColor.String,
+			CreateTime:      note.CreateTime,
+			UpdateTime:      note.UpdateTime.Time,
+			DeleteTime:      note.DeleteTime.Time,
+		})
+	}
+	return &response, nil
 }
 
 func (d *noteDatabaseDs) GetNote(ctx context.Context, id uuid.UUID) (*domain.Note, error) {

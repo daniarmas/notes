@@ -10,6 +10,9 @@ INSERT INTO users (
 )
 RETURNING *;
 
+-- name: ListNotesByUserId :many
+SELECT * FROM notes WHERE user_id = $1;
+
 -- name: CreateNote :one
 INSERT INTO notes (
   user_id, title, content, background_color
