@@ -20,14 +20,13 @@
             }
         },
         {
-            "name": "Launch seed command",
+            "name": "Launch command",
             "type": "go",
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}",
             "args": [
-                "create",
-                "seed"
+                "test"
             ],
             "env": {
                 "APP_REST_HOST": "localhost",

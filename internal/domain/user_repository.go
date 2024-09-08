@@ -32,7 +32,7 @@ func (d *userRepo) CreateUser(ctx context.Context, user *User) (*User, error) {
 	}
 	// Cache the user asynchronously, don't block the main operation
 	go func() {
-		_, err = d.UserCacheDs.CreateUser(ctx, user)
+		err = d.UserCacheDs.CreateUser(ctx, user)
 		if err != nil {
 			log.Println(err)
 		}
