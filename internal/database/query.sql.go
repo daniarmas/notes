@@ -12,6 +12,33 @@ import (
 	"github.com/google/uuid"
 )
 
+const createAccessToken = `-- name: CreateAccessToken :one
+INSERT INTO access_tokens (
+  user_id, refresh_token_id
+) VALUES (
+  $1, $2
+)
+RETURNING id, user_id, refresh_token_id, create_time, update_time
+`
+
+type CreateAccessTokenParams struct {
+	UserID         uuid.UUID
+	RefreshTokenID uuid.UUID
+}
+
+func (q *Queries) CreateAccessToken(ctx context.Context, arg CreateAccessTokenParams) (AccessToken, error) {
+	row := q.db.QueryRowContext(ctx, createAccessToken, arg.UserID, arg.RefreshTokenID)
+	var i AccessToken
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.RefreshTokenID,
+		&i.CreateTime,
+		&i.UpdateTime,
+	)
+	return i, err
+}
+
 const createNote = `-- name: CreateNote :one
 INSERT INTO notes (
   user_id, title, content, background_color
@@ -72,6 +99,33 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Name,
 		&i.Email,
 		&i.Password,
+		&i.CreateTime,
+		&i.UpdateTime,
+	)
+	return i, err
+}
+
+const deleteAccessTokenById = `-- name: DeleteAccessTokenById :exec
+DELETE FROM access_tokens WHERE id = $1
+`
+
+func (q *Queries) DeleteAccessTokenById(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteAccessTokenById, id)
+	return err
+}
+
+const getAccessTokenByUserId = `-- name: GetAccessTokenByUserId :one
+SELECT id, user_id, refresh_token_id, create_time, update_time FROM access_tokens
+WHERE user_id = $1 LIMIT 1
+`
+
+func (q *Queries) GetAccessTokenByUserId(ctx context.Context, userID uuid.UUID) (AccessToken, error) {
+	row := q.db.QueryRowContext(ctx, getAccessTokenByUserId, userID)
+	var i AccessToken
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.RefreshTokenID,
 		&i.CreateTime,
 		&i.UpdateTime,
 	)
