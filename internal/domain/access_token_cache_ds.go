@@ -8,6 +8,6 @@ import (
 
 type AccessTokenCacheDs interface {
 	GetAccessToken(ctx context.Context, id uuid.UUID) (*AccessToken, error)
-	CreateAccessToken(ctx context.Context, accessToken *AccessToken) (*AccessToken, error)
+	CreateAccessToken(ctx context.Context, accessToken *AccessToken) error
 	DeleteAccessToken(ctx context.Context, id uuid.UUID) error
 }
