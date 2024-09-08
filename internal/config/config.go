@@ -21,12 +21,13 @@ func LoadConfig() *Configuration {
 		RedisHost:     os.Getenv("REDIS_HOST"),
 		RedisPort:     os.Getenv("REDIS_PORT"),
 		RedisPassword: os.Getenv("REDIS_PASSWORD"),
+		JwtSecret:     os.Getenv("JWT_SECRET"),
 	}
 	if config.JwtSecret == "" {
 		log.Fatalf("JWT_SECRET enviroment variable is required")
 	}
 	if config.DatabaseUrl == "" {
-		config.DatabaseUrl = "postgresql://root@localhost:26257/notes_database?sslmode=disable"
+		config.DatabaseUrl = "postgresql://root@localhost:26257/postgres?sslmode=disable"
 	}
 	if config.RedisHost == "" {
 		config.RedisHost = "localhost"

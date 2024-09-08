@@ -30,7 +30,7 @@ to quickly create a Cobra application.`,
 		defer database.Close(db, false)
 
 		// Create notes_database if not exists
-		stmt, err := db.Prepare("CREATE DATABASE IF NOT EXISTS notes_database;")
+		stmt, err := db.Prepare("CREATE DATABASE IF NOT EXISTS postgres;")
 		if err != nil {
 			log.Fatal(err)
 		}
