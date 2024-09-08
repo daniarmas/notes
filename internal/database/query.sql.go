@@ -7,9 +7,47 @@ package database
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/google/uuid"
 )
+
+const createNote = `-- name: CreateNote :one
+INSERT INTO notes (
+  user_id, title, content, background_color
+) VALUES (
+  $1, $2, $3, $4
+)
+RETURNING id, user_id, title, content, background_color, create_time, update_time, delete_time
+`
+
+type CreateNoteParams struct {
+	UserID          uuid.UUID
+	Title           sql.NullString
+	Content         sql.NullString
+	BackgroundColor sql.NullString
+}
+
+func (q *Queries) CreateNote(ctx context.Context, arg CreateNoteParams) (Note, error) {
+	row := q.db.QueryRowContext(ctx, createNote,
+		arg.UserID,
+		arg.Title,
+		arg.Content,
+		arg.BackgroundColor,
+	)
+	var i Note
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Title,
+		&i.Content,
+		&i.BackgroundColor,
+		&i.CreateTime,
+		&i.UpdateTime,
+		&i.DeleteTime,
+	)
+	return i, err
+}
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
@@ -57,4 +95,40 @@ func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.UpdateTime,
 	)
 	return i, err
+}
+
+const listNotesByUserId = `-- name: ListNotesByUserId :many
+SELECT id, user_id, title, content, background_color, create_time, update_time, delete_time FROM notes WHERE user_id = $1
+`
+
+func (q *Queries) ListNotesByUserId(ctx context.Context, userID uuid.UUID) ([]Note, error) {
+	rows, err := q.db.QueryContext(ctx, listNotesByUserId, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Note
+	for rows.Next() {
+		var i Note
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Title,
+			&i.Content,
+			&i.BackgroundColor,
+			&i.CreateTime,
+			&i.UpdateTime,
+			&i.DeleteTime,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

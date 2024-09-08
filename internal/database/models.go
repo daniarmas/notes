@@ -11,6 +11,17 @@ import (
 	"github.com/google/uuid"
 )
 
+type Note struct {
+	ID              uuid.UUID
+	UserID          uuid.UUID
+	Title           sql.NullString
+	Content         sql.NullString
+	BackgroundColor sql.NullString
+	CreateTime      time.Time
+	UpdateTime      sql.NullTime
+	DeleteTime      sql.NullTime
+}
+
 type User struct {
 	ID         uuid.UUID
 	Name       string
