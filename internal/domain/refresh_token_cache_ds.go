@@ -8,6 +8,6 @@ import (
 
 type RefreshTokenCacheDs interface {
 	GetRefreshToken(ctx context.Context, id uuid.UUID) (*RefreshToken, error)
-	CreateRefreshToken(ctx context.Context, refreshToken *RefreshToken) (*RefreshToken, error)
+	CreateRefreshToken(ctx context.Context, refreshToken *RefreshToken) error
 	DeleteRefreshToken(ctx context.Context, id uuid.UUID) error
 }

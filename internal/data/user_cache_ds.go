@@ -31,7 +31,7 @@ func (u *User) ParseToDomain() *domain.User {
 	}
 }
 
-func ParseFromDomain(user *domain.User) *User {
+func parseUserFromDomain(user *domain.User) *User {
 	return &User{
 		Id:         user.Id.String(),
 		Name:       user.Name,
@@ -63,7 +63,7 @@ func (ds *userCacheDs) GetUser(ctx context.Context, id uuid.UUID) (*domain.User,
 
 func (ds *userCacheDs) CreateUser(ctx context.Context, user *domain.User) error {
 	key := fmt.Sprintf("user:%s", user.Id)
-	_, err := ds.redis.HSet(ctx, key, ParseFromDomain(user)).Result()
+	_, err := ds.redis.HSet(ctx, key, parseUserFromDomain(user)).Result()
 	if err != nil {
 		return err
 	}
@@ -72,7 +72,7 @@ func (ds *userCacheDs) CreateUser(ctx context.Context, user *domain.User) error 
 
 func (ds *userCacheDs) UpdateUser(ctx context.Context, user *domain.User) error {
 	key := fmt.Sprintf("user:%s", user.Id)
-	_, err := ds.redis.HSet(ctx, key, ParseFromDomain(user)).Result()
+	_, err := ds.redis.HSet(ctx, key, parseUserFromDomain(user)).Result()
 	if err != nil {
 		return err
 	}
