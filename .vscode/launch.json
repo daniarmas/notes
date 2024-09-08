@@ -17,7 +17,23 @@
                 "APP_REST_HOST": "localhost",
                 "APP_REST_PORT": "8888",
                 "JWT_SECRET": "hnnOExD`vb9_$M.U&eO[jcJ#Q?pP*U"
-            },
+            }
+        },
+        {
+            "name": "Launch seed command",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}",
+            "args": [
+                "create",
+                "seed"
+            ],
+            "env": {
+                "APP_REST_HOST": "localhost",
+                "APP_REST_PORT": "8888",
+                "JWT_SECRET": "hnnOExD`vb9_$M.U&eO[jcJ#Q?pP*U"
+            }
         }
     ]
 }
