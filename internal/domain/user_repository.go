@@ -9,7 +9,6 @@ import (
 
 type UserRepository interface {
 	CreateUser(ctx context.Context, user *User) (*User, error)
-	UpdateUser(ctx context.Context, user *User) (*User, error)
 	GetUser(ctx context.Context, id uuid.UUID) (*User, error)
 }
 
@@ -38,20 +37,6 @@ func (d *userRepo) CreateUser(ctx context.Context, user *User) (*User, error) {
 			log.Println(err)
 		}
 	}()
-	return user, nil
-}
-
-func (d *userRepo) UpdateUser(ctx context.Context, user *User) (*User, error) {
-	// Update the user on the database
-	user, err := d.UserDatabaseDs.UpdateUser(ctx, user)
-	if err != nil {
-		return nil, err
-	}
-	// Update the user on the cache
-	_, err = d.UserCacheDs.UpdateUser(ctx, user)
-	if err != nil {
-		return nil, err
-	}
 	return user, nil
 }
 

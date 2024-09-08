@@ -8,6 +8,5 @@ import (
 
 type UserDatabaseDs interface {
 	CreateUser(ctx context.Context, user *User) (*User, error)
-	UpdateUser(ctx context.Context, user *User) (*User, error)
 	GetUser(ctx context.Context, id uuid.UUID) (*User, error)
 }
