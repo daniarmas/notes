@@ -114,13 +114,13 @@ func (q *Queries) DeleteAccessTokenById(ctx context.Context, id uuid.UUID) error
 	return err
 }
 
-const getAccessTokenByUserId = `-- name: GetAccessTokenByUserId :one
+const getAccessTokenById = `-- name: GetAccessTokenById :one
 SELECT id, user_id, refresh_token_id, create_time, update_time FROM access_tokens
-WHERE user_id = $1 LIMIT 1
+WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetAccessTokenByUserId(ctx context.Context, userID uuid.UUID) (AccessToken, error) {
-	row := q.db.QueryRowContext(ctx, getAccessTokenByUserId, userID)
+func (q *Queries) GetAccessTokenById(ctx context.Context, id uuid.UUID) (AccessToken, error) {
+	row := q.db.QueryRowContext(ctx, getAccessTokenById, id)
 	var i AccessToken
 	err := row.Scan(
 		&i.ID,

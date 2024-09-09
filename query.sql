@@ -21,9 +21,9 @@ INSERT INTO notes (
 )
 RETURNING *;
 
--- name: GetAccessTokenByUserId :one
+-- name: GetAccessTokenById :one
 SELECT * FROM access_tokens
-WHERE user_id = $1 LIMIT 1;
+WHERE id = $1 LIMIT 1;
 
 -- name: CreateAccessToken :one
 INSERT INTO access_tokens (
