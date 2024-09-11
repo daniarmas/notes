@@ -76,6 +76,27 @@ func (q *Queries) CreateNote(ctx context.Context, arg CreateNoteParams) (Note, e
 	return i, err
 }
 
+const createRefreshToken = `-- name: CreateRefreshToken :one
+INSERT INTO refresh_tokens (
+  user_id
+) VALUES (
+  $1
+)
+RETURNING id, user_id, create_time, update_time
+`
+
+func (q *Queries) CreateRefreshToken(ctx context.Context, userID uuid.UUID) (RefreshToken, error) {
+	row := q.db.QueryRowContext(ctx, createRefreshToken, userID)
+	var i RefreshToken
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.CreateTime,
+		&i.UpdateTime,
+	)
+	return i, err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
   name, email, password
@@ -114,6 +135,15 @@ func (q *Queries) DeleteAccessTokenById(ctx context.Context, id uuid.UUID) error
 	return err
 }
 
+const deleteRefreshTokenById = `-- name: DeleteRefreshTokenById :exec
+DELETE FROM refresh_tokens WHERE id = $1
+`
+
+func (q *Queries) DeleteRefreshTokenById(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteRefreshTokenById, id)
+	return err
+}
+
 const getAccessTokenById = `-- name: GetAccessTokenById :one
 SELECT id, user_id, refresh_token_id, create_time, update_time FROM access_tokens
 WHERE id = $1 LIMIT 1
@@ -126,6 +156,23 @@ func (q *Queries) GetAccessTokenById(ctx context.Context, id uuid.UUID) (AccessT
 		&i.ID,
 		&i.UserID,
 		&i.RefreshTokenID,
+		&i.CreateTime,
+		&i.UpdateTime,
+	)
+	return i, err
+}
+
+const getRefreshTokenById = `-- name: GetRefreshTokenById :one
+SELECT id, user_id, create_time, update_time FROM refresh_tokens
+WHERE id = $1 LIMIT 1
+`
+
+func (q *Queries) GetRefreshTokenById(ctx context.Context, id uuid.UUID) (RefreshToken, error) {
+	row := q.db.QueryRowContext(ctx, getRefreshTokenById, id)
+	var i RefreshToken
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
 		&i.CreateTime,
 		&i.UpdateTime,
 	)
