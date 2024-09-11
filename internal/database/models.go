@@ -11,6 +11,14 @@ import (
 	"github.com/google/uuid"
 )
 
+type AccessToken struct {
+	ID             uuid.UUID
+	UserID         uuid.UUID
+	RefreshTokenID uuid.UUID
+	CreateTime     time.Time
+	UpdateTime     sql.NullTime
+}
+
 type Note struct {
 	ID              uuid.UUID
 	UserID          uuid.UUID

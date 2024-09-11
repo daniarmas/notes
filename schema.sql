@@ -23,3 +23,20 @@ CREATE TABLE IF NOT EXISTS notes (
     	REFERENCES users(id)
     	ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS access_tokens (
+	id UUID DEFAULT gen_random_uuid(),
+	user_id UUID NOT NULL,
+	refresh_token_id UUID NOT NULL,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    update_time TIMESTAMP,
+	CONSTRAINT pk PRIMARY KEY (id),
+	CONSTRAINT fk_user
+    	FOREIGN KEY (user_id) 
+    	REFERENCES users(id)
+    	ON DELETE CASCADE,
+	CONSTRAINT fk_refresh_token
+    	FOREIGN KEY (refresh_token_id) 
+    	REFERENCES refresh_tokens(id)
+    	ON DELETE CASCADE
+);
