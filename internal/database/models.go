@@ -30,6 +30,13 @@ type Note struct {
 	DeleteTime      sql.NullTime
 }
 
+type RefreshToken struct {
+	ID         uuid.UUID
+	UserID     uuid.UUID
+	CreateTime time.Time
+	UpdateTime sql.NullTime
+}
+
 type User struct {
 	ID         uuid.UUID
 	Name       string
