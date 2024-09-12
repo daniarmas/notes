@@ -10,6 +10,7 @@ import (
 type UserRepository interface {
 	CreateUser(ctx context.Context, user *User) (*User, error)
 	GetUserById(ctx context.Context, id uuid.UUID) (*User, error)
+	GetUserByEmail(ctx context.Context, email string) (*User, error)
 }
 
 type userRepo struct {
@@ -50,6 +51,15 @@ func (d *userRepo) GetUserById(ctx context.Context, id uuid.UUID) (*User, error)
 		if err != nil {
 			return nil, err
 		}
+	}
+	return user, nil
+}
+
+func (d *userRepo) GetUserByEmail(ctx context.Context, email string) (*User, error) {
+	// Get the user from the database
+	user, err := d.UserDatabaseDs.GetUserByEmail(ctx, email)
+	if err != nil {
+		return nil, err
 	}
 	return user, nil
 }
