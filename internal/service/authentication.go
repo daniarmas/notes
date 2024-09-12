@@ -1,6 +1,10 @@
 package service
 
-import "github.com/daniarmas/notes/internal/domain"
+import (
+	"context"
+
+	"github.com/daniarmas/notes/internal/domain"
+)
 
 type SignInResponse struct {
 	AccessToken  string
@@ -9,5 +13,23 @@ type SignInResponse struct {
 }
 
 type AuthenticationService interface {
-	SignIn(email string, password string) (*SignInResponse, error)
+	SignIn(ctx context.Context, email string, password string) (*SignInResponse, error)
+}
+
+type authenticationService struct {
+	UserRepository         domain.UserRepository
+	AccessTokenRepository  domain.AccessTokenRepository
+	RefreshTokenRepository domain.RefreshTokenRepository
+}
+
+func NewAuthenticationService(userRepository domain.UserRepository, accessTokenRepository domain.AccessTokenRepository, refreshTokenRepository domain.RefreshTokenRepository) AuthenticationService {
+	return &authenticationService{
+		UserRepository:         userRepository,
+		AccessTokenRepository:  accessTokenRepository,
+		RefreshTokenRepository: refreshTokenRepository,
+	}
+}
+
+func (s *authenticationService) SignIn(ctx context.Context, email string, password string) (*SignInResponse, error) {
+	return nil, nil
 }

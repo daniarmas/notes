@@ -42,7 +42,7 @@ to quickly create a Cobra application.`,
 		// Seed cache with mocked data...
 		uuid1, _ := uuid.NewRandom()
 		userCacheDs.CreateUser(ctx, &domain.User{Id: uuid1, Name: "user1", Email: "user1@email.com", Password: "user1", CreateTime: time.Now(), UpdateTime: time.Now()})
-		userCacheDs.GetUser(ctx, uuid1)
+		userCacheDs.GetUserById(ctx, uuid1)
 		userCacheDs.UpdateUser(ctx, &domain.User{Id: uuid1, Name: "user2", Email: "user1@email.com", Password: "user1", CreateTime: time.Now(), UpdateTime: time.Now()})
 		userCacheDs.DeleteUser(ctx, uuid1)
 	},

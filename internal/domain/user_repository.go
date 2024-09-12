@@ -9,7 +9,7 @@ import (
 
 type UserRepository interface {
 	CreateUser(ctx context.Context, user *User) (*User, error)
-	GetUser(ctx context.Context, id uuid.UUID) (*User, error)
+	GetUserById(ctx context.Context, id uuid.UUID) (*User, error)
 }
 
 type userRepo struct {
@@ -40,13 +40,13 @@ func (d *userRepo) CreateUser(ctx context.Context, user *User) (*User, error) {
 	return user, nil
 }
 
-func (d *userRepo) GetUser(ctx context.Context, id uuid.UUID) (*User, error) {
+func (d *userRepo) GetUserById(ctx context.Context, id uuid.UUID) (*User, error) {
 	// Get the user from cache
-	user, err := d.UserCacheDs.GetUser(ctx, id)
+	user, err := d.UserCacheDs.GetUserById(ctx, id)
 	if err != nil {
 		log.Println(err)
 		// Get the user from the database
-		user, err = d.UserDatabaseDs.GetUser(ctx, id)
+		user, err = d.UserDatabaseDs.GetUserById(ctx, id)
 		if err != nil {
 			return nil, err
 		}

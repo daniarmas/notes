@@ -52,7 +52,7 @@ func NewUserCacheDs(redis *redis.Client) domain.UserCacheDs {
 	}
 }
 
-func (ds *userCacheDs) GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+func (ds *userCacheDs) GetUserById(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	key := fmt.Sprintf("user:%s", id)
 	var response User
 	if err := ds.redis.HGetAll(ctx, key).Scan(&response); err != nil {

@@ -32,11 +32,12 @@ func (d *userDatabaseDs) CreateUser(ctx context.Context, user *domain.User) (*do
 		Id:         res.ID,
 		Name:       res.Name,
 		Email:      res.Email,
+		Password:   res.Password,
 		CreateTime: res.CreateTime,
 	}, nil
 }
 
-func (d *userDatabaseDs) GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+func (d *userDatabaseDs) GetUserById(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	res, err := d.queries.GetUserById(ctx, id)
 	if err != nil {
 		return nil, err
@@ -49,7 +50,7 @@ func (d *userDatabaseDs) GetUser(ctx context.Context, id uuid.UUID) (*domain.Use
 	return &domain.User{
 		Id:         res.ID,
 		Name:       res.Name,
-		Password:   "",
+		Password:   res.Password,
 		Email:      res.Email,
 		CreateTime: res.CreateTime,
 		UpdateTime: updateTime,
