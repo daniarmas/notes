@@ -31,7 +31,7 @@ func (r *accessTokenRepository) GetAccessToken(ctx context.Context, id uuid.UUID
 	if err != nil {
 		log.Println(err)
 		// Get the user from the database
-		accessToken, err = r.AccessTokenCacheDs.GetAccessToken(ctx, id)
+		accessToken, err = r.AccessTokenDatabaseDs.GetAccessToken(ctx, id)
 		if err != nil {
 			return nil, err
 		}
