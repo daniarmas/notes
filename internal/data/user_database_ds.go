@@ -56,3 +56,23 @@ func (d *userDatabaseDs) GetUserById(ctx context.Context, id uuid.UUID) (*domain
 		UpdateTime: updateTime,
 	}, nil
 }
+
+func (d *userDatabaseDs) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
+	res, err := d.queries.GetUserByEmail(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+	// Check if time is not null
+	var updateTime time.Time
+	if res.UpdateTime.Valid {
+		updateTime = res.UpdateTime.Time
+	}
+	return &domain.User{
+		Id:         res.ID,
+		Name:       res.Name,
+		Password:   res.Password,
+		Email:      res.Email,
+		CreateTime: res.CreateTime,
+		UpdateTime: updateTime,
+	}, nil
+}
