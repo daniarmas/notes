@@ -27,7 +27,12 @@ func (d *userDatabaseDs) CreateUser(ctx context.Context, user *domain.User) (*do
 		Password: user.Password,
 	})
 	if err != nil {
-		return nil, err
+		switch err.Error() {
+		case "ERROR: duplicate key value violates unique constraint \"users_email_key\" (SQLSTATE 23505)":
+			return nil, &customerrors.DuplicateRecord{Field: "email"}
+		default:
+			return nil, &customerrors.Unknown{}
+		}
 	}
 	return &domain.User{
 		Id:         res.ID,
