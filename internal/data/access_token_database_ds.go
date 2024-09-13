@@ -47,9 +47,10 @@ func (d *accessTokenDatabaseDs) GetAccessToken(ctx context.Context, id uuid.UUID
 	return parseAccessTokenToDomain(&res), nil
 }
 
-func (d *accessTokenDatabaseDs) DeleteAccessToken(ctx context.Context, id uuid.UUID) error {
-	if err := d.queries.DeleteAccessTokenById(ctx, id); err != nil {
-		return err
+func (d *accessTokenDatabaseDs) DeleteAccessTokenByUserId(ctx context.Context, userId uuid.UUID) (*uuid.UUID, error) {
+	id, err := d.queries.DeleteAccessTokenByUserId(ctx, userId)
+	if err != nil {
+		return nil, err
 	}
-	return nil
+	return &id, nil
 }

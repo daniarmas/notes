@@ -126,22 +126,26 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
-const deleteAccessTokenById = `-- name: DeleteAccessTokenById :exec
-DELETE FROM access_tokens WHERE id = $1
+const deleteAccessTokenByUserId = `-- name: DeleteAccessTokenByUserId :one
+DELETE FROM access_tokens WHERE user_id = $1 RETURNING id
 `
 
-func (q *Queries) DeleteAccessTokenById(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteAccessTokenById, id)
-	return err
+func (q *Queries) DeleteAccessTokenByUserId(ctx context.Context, userID uuid.UUID) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, deleteAccessTokenByUserId, userID)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
 }
 
-const deleteRefreshTokenById = `-- name: DeleteRefreshTokenById :exec
-DELETE FROM refresh_tokens WHERE id = $1
+const deleteRefreshTokenByUserId = `-- name: DeleteRefreshTokenByUserId :one
+DELETE FROM refresh_tokens WHERE user_id = $1 RETURNING id
 `
 
-func (q *Queries) DeleteRefreshTokenById(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteRefreshTokenById, id)
-	return err
+func (q *Queries) DeleteRefreshTokenByUserId(ctx context.Context, userID uuid.UUID) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, deleteRefreshTokenByUserId, userID)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
 }
 
 const getAccessTokenById = `-- name: GetAccessTokenById :one

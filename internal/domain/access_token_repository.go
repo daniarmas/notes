@@ -10,7 +10,7 @@ import (
 type AccessTokenRepository interface {
 	GetAccessToken(ctx context.Context, id uuid.UUID) (*AccessToken, error)
 	CreateAccessToken(ctx context.Context, accessToken *AccessToken) (*AccessToken, error)
-	DeleteAccessToken(ctx context.Context, id uuid.UUID) error
+	DeleteAccessTokenByUserId(ctx context.Context, userId uuid.UUID) error
 }
 
 type accessTokenRepository struct {
@@ -55,13 +55,14 @@ func (r *accessTokenRepository) CreateAccessToken(ctx context.Context, accessTok
 	return user, nil
 }
 
-func (r *accessTokenRepository) DeleteAccessToken(ctx context.Context, id uuid.UUID) error {
-	// Delete the access token on the database
-	err := r.AccessTokenDatabaseDs.DeleteAccessToken(ctx, id)
+func (r *accessTokenRepository) DeleteAccessTokenByUserId(ctx context.Context, userId uuid.UUID) error {
+	// Delete the refresh token on the database
+	id, err := r.AccessTokenDatabaseDs.DeleteAccessTokenByUserId(ctx, userId)
 	if err != nil {
 		return err
 	}
-	err = r.AccessTokenCacheDs.DeleteAccessToken(ctx, id)
+	// Delete the refresh token on the cache
+	err = r.AccessTokenCacheDs.DeleteAccessToken(ctx, *id)
 	if err != nil {
 		return err
 	}

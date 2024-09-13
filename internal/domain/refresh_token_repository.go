@@ -10,7 +10,7 @@ import (
 type RefreshTokenRepository interface {
 	GetRefreshToken(ctx context.Context, id uuid.UUID) (*RefreshToken, error)
 	CreateRefreshToken(ctx context.Context, refreshToken *RefreshToken) (*RefreshToken, error)
-	DeleteRefreshToken(ctx context.Context, id uuid.UUID) error
+	DeleteRefreshTokenByUserId(ctx context.Context, userId uuid.UUID) error
 }
 
 type refreshTokenRepository struct {
@@ -55,13 +55,14 @@ func (r *refreshTokenRepository) CreateRefreshToken(ctx context.Context, refresh
 	return user, nil
 }
 
-func (r *refreshTokenRepository) DeleteRefreshToken(ctx context.Context, id uuid.UUID) error {
+func (r *refreshTokenRepository) DeleteRefreshTokenByUserId(ctx context.Context, userId uuid.UUID) error {
 	// Delete the refresh token on the database
-	err := r.RefreshTokenDatabaseDs.DeleteRefreshToken(ctx, id)
+	id, err := r.RefreshTokenDatabaseDs.DeleteRefreshTokenByUserId(ctx, userId)
 	if err != nil {
 		return err
 	}
-	err = r.RefreshTokenCacheDs.DeleteRefreshToken(ctx, id)
+	// Delete the refresh token on the cache
+	err = r.RefreshTokenCacheDs.DeleteRefreshToken(ctx, *id)
 	if err != nil {
 		return err
 	}
