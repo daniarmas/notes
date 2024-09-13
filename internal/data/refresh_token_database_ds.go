@@ -52,7 +52,12 @@ func (d *refreshTokenDatabaseDs) GetRefreshTokenById(ctx context.Context, id uui
 func (d *refreshTokenDatabaseDs) DeleteRefreshTokenByUserId(ctx context.Context, userId uuid.UUID) (*uuid.UUID, error) {
 	id, err := d.queries.DeleteRefreshTokenByUserId(ctx, userId)
 	if err != nil {
-		return nil, err
+		switch err.Error() {
+		case "sql: no rows in result set":
+			return nil, &customerrors.RecordNotFound{}
+		default:
+			return nil, &customerrors.Unknown{}
+		}
 	}
 	return &id, nil
 }
