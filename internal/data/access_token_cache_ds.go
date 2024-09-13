@@ -87,7 +87,7 @@ func (ds *accessTokenCacheDs) CreateAccessToken(ctx context.Context, accessToken
 func (ds *accessTokenCacheDs) DeleteAccessToken(ctx context.Context, id uuid.UUID) error {
 	key := fmt.Sprintf("access_token:%s", id)
 	if _, err := ds.redis.Del(ctx, key).Result(); err != nil {
-		return err
+		return &customerrors.Unknown{}
 	}
 	return nil
 }
