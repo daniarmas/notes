@@ -19,14 +19,17 @@ type RefreshToken struct {
 }
 
 func (u *RefreshToken) ParseToDomain() *domain.RefreshToken {
-	id := uuid.MustParse(u.Id)
-	userId := uuid.MustParse(u.UserId)
-	return &domain.RefreshToken{
-		Id:         id,
-		UserId:     userId,
-		CreateTime: u.CreateTime,
-		UpdateTime: u.UpdateTime,
+	if u.Id != "" {
+		id := uuid.MustParse(u.Id)
+		userId := uuid.MustParse(u.UserId)
+		return &domain.RefreshToken{
+			Id:         id,
+			UserId:     userId,
+			CreateTime: u.CreateTime,
+			UpdateTime: u.UpdateTime,
+		}
 	}
+	return nil
 }
 
 func parseRefreshTokenFromDomain(refreshToken *domain.RefreshToken) *RefreshToken {
@@ -52,7 +55,10 @@ func (ds *refreshTokenCacheDs) GetRefreshToken(ctx context.Context, id uuid.UUID
 	key := fmt.Sprintf("refresh_token:%s", id)
 	var response RefreshToken
 	if err := ds.redis.HGetAll(ctx, key).Scan(&response); err != nil {
-		return nil, err
+		return nil, &customerrors.Unknown{}
+	}
+	if response.Id == "" {
+		return nil, &customerrors.RecordNotFound{}
 	}
 	return response.ParseToDomain(), nil
 }
