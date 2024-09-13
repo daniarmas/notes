@@ -31,7 +31,12 @@ func NewRefreshTokenDatabaseDs(queries *database.Queries) domain.RefreshTokenDat
 func (d *refreshTokenDatabaseDs) CreateRefreshToken(ctx context.Context, refreshToken *domain.RefreshToken) (*domain.RefreshToken, error) {
 	res, err := d.queries.CreateRefreshToken(ctx, refreshToken.UserId)
 	if err != nil {
-		return nil, err
+		switch err.Error() {
+		case "ERROR: insert on table \"refresh_tokens\" violates foreign key constraint \"fk_user\" (SQLSTATE 23503)":
+			return nil, &customerrors.ForeignKeyConstraint{Field: "user_id", ParentTable: "users"}
+		default:
+			return nil, &customerrors.Unknown{}
+		}
 	}
 	return parseRefreshTokenToDomain(&res), nil
 }
