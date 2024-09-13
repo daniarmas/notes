@@ -69,9 +69,17 @@ func (ds *accessTokenCacheDs) GetAccessToken(ctx context.Context, id uuid.UUID) 
 
 func (ds *accessTokenCacheDs) CreateAccessToken(ctx context.Context, accessToken *domain.AccessToken) error {
 	key := fmt.Sprintf("access_token:%s", accessToken.Id)
-	_, err := ds.redis.HSet(ctx, key, parseAccessTokenFromDomain(accessToken)).Result()
+
+	pipeline := ds.redis.TxPipeline()
+
+	// Add commands to the transaction
+	pipeline.HSet(ctx, key, parseAccessTokenFromDomain(accessToken)).Result()
+	pipeline.Expire(ctx, key, 59 * time.Minute) // Set expiration time
+
+	// Execute the transaction
+	_, err := pipeline.Exec(ctx)
 	if err != nil {
-		return err
+		return &customerrors.Unknown{}
 	}
 	return nil
 }
