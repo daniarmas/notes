@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/daniarmas/notes/internal/customerrors"
 	"github.com/daniarmas/notes/internal/domain"
 )
 
@@ -40,7 +41,12 @@ func (s *authenticationService) SignIn(ctx context.Context, email string, passwo
 	// Get the user by email
 	user, err := s.UserRepository.GetUserByEmail(ctx, email)
 	if err != nil {
-		return nil, err
+		switch err.(type) {
+		case *customerrors.RecordNotFound:
+			return nil, errors.New("user not exists")
+		default:
+			return nil, err
+		}
 	}
 	// Check if the user password is correct
 	if correct := s.HashDatasource.CheckHash(password, user.Password); !correct {
@@ -49,12 +55,22 @@ func (s *authenticationService) SignIn(ctx context.Context, email string, passwo
 	// Delete the existing access token
 	err = s.AccessTokenRepository.DeleteAccessTokenByUserId(ctx, user.Id)
 	if err != nil {
-		return nil, err
+		switch err.(type) {
+		case *customerrors.RecordNotFound:
+			// Do nothing
+		default:
+			return nil, err
+		}
 	}
 	// Delete the existing refresh token
 	err = s.RefreshTokenRepository.DeleteRefreshTokenByUserId(ctx, user.Id)
 	if err != nil {
-		return nil, err
+		switch err.(type) {
+		case *customerrors.RecordNotFound:
+			// Do nothing
+		default:
+			return nil, err
+		}
 	}
 	// Create a new refresh token
 	refreshToken, err := s.RefreshTokenRepository.CreateRefreshToken(ctx, &domain.RefreshToken{

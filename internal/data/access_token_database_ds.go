@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 
+	"github.com/daniarmas/notes/internal/customerrors"
 	"github.com/daniarmas/notes/internal/database"
 	"github.com/daniarmas/notes/internal/domain"
 	"github.com/google/uuid"
@@ -50,7 +51,12 @@ func (d *accessTokenDatabaseDs) GetAccessToken(ctx context.Context, id uuid.UUID
 func (d *accessTokenDatabaseDs) DeleteAccessTokenByUserId(ctx context.Context, userId uuid.UUID) (*uuid.UUID, error) {
 	id, err := d.queries.DeleteAccessTokenByUserId(ctx, userId)
 	if err != nil {
-		return nil, err
+		switch err.Error() {
+		case "sql: no rows in result set":
+			return nil, &customerrors.RecordNotFound{}
+		default:
+			return nil, &customerrors.Unknown{}
+		}
 	}
 	return &id, nil
 }

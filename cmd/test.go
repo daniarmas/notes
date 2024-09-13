@@ -63,7 +63,7 @@ to quickly create a Cobra application.`,
 		authenticationService := service.NewAuthenticationService(jwtDatasource, hashDatasource, userRepository, accessTokenRepository, refreshTokenRepository)
 
 		// Tests
-		res, err := authenticationService.SignIn(ctx, "user3@email.com", "user1")
+		res, err := authenticationService.SignIn(ctx, "user1@email.com", "user1")
 		if err != nil {
 			log.Println(err)
 		} else {
