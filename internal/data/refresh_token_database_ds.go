@@ -43,9 +43,10 @@ func (d *refreshTokenDatabaseDs) GetRefreshToken(ctx context.Context, id uuid.UU
 	return parseRefreshTokenToDomain(&res), nil
 }
 
-func (d *refreshTokenDatabaseDs) DeleteRefreshToken(ctx context.Context, id uuid.UUID) error {
-	if err := d.queries.DeleteRefreshTokenById(ctx, id); err != nil {
-		return err
+func (d *refreshTokenDatabaseDs) DeleteRefreshTokenByUserId(ctx context.Context, userId uuid.UUID) (*uuid.UUID, error) {
+	id, err := d.queries.DeleteRefreshTokenByUserId(ctx, userId)
+	if err != nil {
+		return nil, err
 	}
-	return nil
+	return &id, nil
 }

@@ -11,7 +11,7 @@ import (
 )
 
 type JwtDatasource interface {
-	CreateJWT(tokenMetadata *JWTMetadata, expirationTime time.Time) error
+	CreateJWT(tokenMetadata *JWTMetadata, expirationTime time.Time) (*string, error)
 	ParseJWT(tokenMetadata *JWTMetadata) error
 }
 
@@ -30,7 +30,7 @@ func NewJWTDatasource(cfg *config.Configuration) JwtDatasource {
 	}
 }
 
-func (j *jwtTokenDatasource) CreateJWT(tokenMetadata *JWTMetadata, expirationTime time.Time) error {
+func (j *jwtTokenDatasource) CreateJWT(tokenMetadata *JWTMetadata, expirationTime time.Time) (*string, error) {
 	hmacSecret := []byte(j.Config.JwtSecret)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
 		ExpiresAt: expirationTime.Unix(),
@@ -39,10 +39,10 @@ func (j *jwtTokenDatasource) CreateJWT(tokenMetadata *JWTMetadata, expirationTim
 	// Sign and get the complete encoded token as a string using the secret
 	tokenString, err := token.SignedString(hmacSecret)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	tokenMetadata.Token = tokenString
-	return nil
+	return &tokenString, nil
 }
 
 func (r *jwtTokenDatasource) ParseJWT(tokenMetadata *JWTMetadata) error {

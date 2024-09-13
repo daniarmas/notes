@@ -9,5 +9,5 @@ import (
 type RefreshTokenDatabaseDs interface {
 	GetRefreshToken(ctx context.Context, id uuid.UUID) (*RefreshToken, error)
 	CreateRefreshToken(ctx context.Context, refreshToken *RefreshToken) (*RefreshToken, error)
-	DeleteRefreshToken(ctx context.Context, id uuid.UUID) error
+	DeleteRefreshTokenByUserId(ctx context.Context, userId uuid.UUID) (*uuid.UUID, error)
 }

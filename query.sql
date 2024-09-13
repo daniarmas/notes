@@ -2,6 +2,10 @@
 SELECT * FROM users
 WHERE id = $1 LIMIT 1;
 
+-- name: GetUserByEmail :one
+SELECT * FROM users
+WHERE email = $1 LIMIT 1;
+
 -- name: CreateUser :one
 INSERT INTO users (
   name, email, password
@@ -33,8 +37,8 @@ INSERT INTO access_tokens (
 )
 RETURNING *;
 
--- name: DeleteAccessTokenById :exec
-DELETE FROM access_tokens WHERE id = $1;
+-- name: DeleteAccessTokenByUserId :one
+DELETE FROM access_tokens WHERE user_id = $1 RETURNING id;
 
 -- name: GetRefreshTokenById :one
 SELECT * FROM refresh_tokens
@@ -48,5 +52,5 @@ INSERT INTO refresh_tokens (
 )
 RETURNING *;
 
--- name: DeleteRefreshTokenById :exec
-DELETE FROM refresh_tokens WHERE id = $1;
+-- name: DeleteRefreshTokenByUserId :one
+DELETE FROM refresh_tokens WHERE user_id = $1 RETURNING id;
