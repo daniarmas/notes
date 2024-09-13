@@ -86,7 +86,6 @@ func (ds *userCacheDs) CreateUser(ctx context.Context, user *domain.User) error 
 }
 
 func (ds *userCacheDs) UpdateUser(ctx context.Context, user *domain.User) error {
-	
 	return ds.CreateUser(ctx, user)
 }
 
