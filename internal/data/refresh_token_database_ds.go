@@ -35,7 +35,7 @@ func (d *refreshTokenDatabaseDs) CreateRefreshToken(ctx context.Context, refresh
 	return parseRefreshTokenToDomain(&res), nil
 }
 
-func (d *refreshTokenDatabaseDs) GetRefreshToken(ctx context.Context, id uuid.UUID) (*domain.RefreshToken, error) {
+func (d *refreshTokenDatabaseDs) GetRefreshTokenById(ctx context.Context, id uuid.UUID) (*domain.RefreshToken, error) {
 	res, err := d.queries.GetRefreshTokenById(ctx, id)
 	if err != nil {
 		return nil, err
