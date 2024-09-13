@@ -5,13 +5,14 @@ package cmd
 
 import (
 	"context"
-	"time"
+	"log"
 
 	"github.com/daniarmas/notes/internal/cache"
 	"github.com/daniarmas/notes/internal/config"
 	"github.com/daniarmas/notes/internal/data"
+	"github.com/daniarmas/notes/internal/database"
 	"github.com/daniarmas/notes/internal/domain"
-	"github.com/google/uuid"
+	"github.com/daniarmas/notes/internal/service"
 	"github.com/spf13/cobra"
 )
 
@@ -32,19 +33,42 @@ to quickly create a Cobra application.`,
 		// Config
 		cfg := config.LoadConfig()
 
+		// Database connection
+		db := database.Open(cfg, true)
+		defer database.Close(db, true)
+
+		// Database queries
+		dbQueries := database.New(db)
+
 		// Cache connection
 		rdb := cache.OpenRedis(cfg)
 		defer cache.CloseRedis(rdb)
 
 		// Datasources
+		hashDatasource := data.NewBcryptHashDatasource()
+		jwtDatasource := domain.NewJWTDatasource(cfg)
 		userCacheDs := data.NewUserCacheDs(rdb)
+		userDatabaseDs := data.NewUserDatabaseDs(dbQueries)
+		accessTokenCacheDs := data.NewAccessTokenTokenCacheDs(rdb)
+		accessTokenDatabaseDs := data.NewAccessTokenDatabaseDs(dbQueries)
+		refreshTokenCacheDs := data.NewRefreshTokenCacheDs(rdb)
+		refreshTokenDatabaseDs := data.NewRefreshTokenDatabaseDs(dbQueries)
 
-		// Seed cache with mocked data...
-		uuid1, _ := uuid.NewRandom()
-		userCacheDs.CreateUser(ctx, &domain.User{Id: uuid1, Name: "user1", Email: "user1@email.com", Password: "user1", CreateTime: time.Now(), UpdateTime: time.Now()})
-		userCacheDs.GetUserById(ctx, uuid1)
-		userCacheDs.UpdateUser(ctx, &domain.User{Id: uuid1, Name: "user2", Email: "user1@email.com", Password: "user1", CreateTime: time.Now(), UpdateTime: time.Now()})
-		userCacheDs.DeleteUser(ctx, uuid1)
+		// Repositories
+		userRepository := domain.NewUserRepository(&userCacheDs, &userDatabaseDs)
+		accessTokenRepository := domain.NewAccessTokenRepository(&accessTokenCacheDs, &accessTokenDatabaseDs)
+		refreshTokenRepository := domain.NewRefreshTokenRepository(&refreshTokenCacheDs, &refreshTokenDatabaseDs)
+
+		// Services
+		authenticationService := service.NewAuthenticationService(jwtDatasource, hashDatasource, userRepository, accessTokenRepository, refreshTokenRepository)
+
+		// Tests
+		res, err := authenticationService.SignIn(ctx, "user3@email.com", "user1")
+		if err != nil {
+			log.Println(err)
+		} else {
+			log.Println(res)
+		}
 	},
 }
 

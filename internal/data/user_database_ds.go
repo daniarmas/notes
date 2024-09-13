@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/daniarmas/notes/internal/customerrors"
 	"github.com/daniarmas/notes/internal/database"
 	"github.com/daniarmas/notes/internal/domain"
 	"github.com/google/uuid"
@@ -13,7 +14,7 @@ type userDatabaseDs struct {
 	queries *database.Queries
 }
 
-func New(queries *database.Queries) domain.UserDatabaseDs {
+func NewUserDatabaseDs(queries *database.Queries) domain.UserDatabaseDs {
 	return &userDatabaseDs{
 		queries: queries,
 	}
@@ -60,7 +61,12 @@ func (d *userDatabaseDs) GetUserById(ctx context.Context, id uuid.UUID) (*domain
 func (d *userDatabaseDs) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
 	res, err := d.queries.GetUserByEmail(ctx, email)
 	if err != nil {
-		return nil, err
+		switch err.Error() {
+		case "sql: no rows in result set":
+			return nil, &customerrors.RecordNotFound{}
+		default:
+			return nil, &customerrors.Unknown{}
+		}
 	}
 	// Check if time is not null
 	var updateTime time.Time
