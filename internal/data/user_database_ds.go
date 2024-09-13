@@ -27,7 +27,12 @@ func (d *userDatabaseDs) CreateUser(ctx context.Context, user *domain.User) (*do
 		Password: user.Password,
 	})
 	if err != nil {
-		return nil, err
+		switch err.Error() {
+		case "ERROR: duplicate key value violates unique constraint \"users_email_key\" (SQLSTATE 23505)":
+			return nil, &customerrors.DuplicateRecord{Field: "email"}
+		default:
+			return nil, &customerrors.Unknown{}
+		}
 	}
 	return &domain.User{
 		Id:         res.ID,
@@ -41,7 +46,12 @@ func (d *userDatabaseDs) CreateUser(ctx context.Context, user *domain.User) (*do
 func (d *userDatabaseDs) GetUserById(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	res, err := d.queries.GetUserById(ctx, id)
 	if err != nil {
-		return nil, err
+		switch err.Error() {
+		case "sql: no rows in result set":
+			return nil, &customerrors.RecordNotFound{}
+		default:
+			return nil, &customerrors.Unknown{}
+		}
 	}
 	// Check if time is not null
 	var updateTime time.Time

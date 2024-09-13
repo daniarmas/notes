@@ -24,3 +24,6 @@ go.work.sum
 # env file
 .env
 .envrc
+
+# test file
+cmd/test_file.go
