@@ -55,7 +55,7 @@ func NewAccessTokenTokenCacheDs(redis *redis.Client) domain.AccessTokenCacheDs {
 	}
 }
 
-func (ds *accessTokenCacheDs) GetAccessToken(ctx context.Context, id uuid.UUID) (*domain.AccessToken, error) {
+func (ds *accessTokenCacheDs) GetAccessTokenById(ctx context.Context, id uuid.UUID) (*domain.AccessToken, error) {
 	key := fmt.Sprintf("access_token:%s", id)
 	var response AccessToken
 	if err := ds.redis.HGetAll(ctx, key).Scan(&response); err != nil {
@@ -74,7 +74,7 @@ func (ds *accessTokenCacheDs) CreateAccessToken(ctx context.Context, accessToken
 
 	// Add commands to the transaction
 	pipeline.HSet(ctx, key, parseAccessTokenFromDomain(accessToken)).Result()
-	pipeline.Expire(ctx, key, 59 * time.Minute) // Set expiration time
+	pipeline.Expire(ctx, key, 59*time.Minute) // Set expiration time
 
 	// Execute the transaction
 	_, err := pipeline.Exec(ctx)

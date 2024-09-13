@@ -27,7 +27,7 @@ func NewAccessTokenRepository(accessTokenCacheDs *AccessTokenCacheDs, accessToke
 
 func (r *accessTokenRepository) GetAccessToken(ctx context.Context, id uuid.UUID) (*AccessToken, error) {
 	// Get the access token from cache
-	accessToken, err := r.AccessTokenCacheDs.GetAccessToken(ctx, id)
+	accessToken, err := r.AccessTokenCacheDs.GetAccessTokenById(ctx, id)
 	if err != nil {
 		log.Println(err)
 		// Get the user from the database
