@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/daniarmas/notes/internal/customerrors"
 	"github.com/daniarmas/notes/internal/domain"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
@@ -19,16 +20,19 @@ type AccessToken struct {
 }
 
 func (u *AccessToken) ParseToDomain() *domain.AccessToken {
-	id := uuid.MustParse(u.Id)
-	userId := uuid.MustParse(u.UserId)
-	refreshTokenId := uuid.MustParse(u.RefreshTokenId)
-	return &domain.AccessToken{
-		Id:             id,
-		UserId:         userId,
-		RefreshTokenId: refreshTokenId,
-		CreateTime:     u.CreateTime,
-		UpdateTime:     u.UpdateTime,
+	if u.Id != "" {
+		id := uuid.MustParse(u.Id)
+		userId := uuid.MustParse(u.UserId)
+		refreshTokenId := uuid.MustParse(u.RefreshTokenId)
+		return &domain.AccessToken{
+			Id:             id,
+			UserId:         userId,
+			RefreshTokenId: refreshTokenId,
+			CreateTime:     u.CreateTime,
+			UpdateTime:     u.UpdateTime,
+		}
 	}
+	return nil
 }
 
 func parseAccessTokenFromDomain(accessToken *domain.AccessToken) *AccessToken {
@@ -51,20 +55,31 @@ func NewAccessTokenTokenCacheDs(redis *redis.Client) domain.AccessTokenCacheDs {
 	}
 }
 
-func (ds *accessTokenCacheDs) GetAccessToken(ctx context.Context, id uuid.UUID) (*domain.AccessToken, error) {
+func (ds *accessTokenCacheDs) GetAccessTokenById(ctx context.Context, id uuid.UUID) (*domain.AccessToken, error) {
 	key := fmt.Sprintf("access_token:%s", id)
 	var response AccessToken
 	if err := ds.redis.HGetAll(ctx, key).Scan(&response); err != nil {
-		return nil, err
+		return nil, &customerrors.Unknown{}
+	}
+	if response.Id == "" {
+		return nil, &customerrors.RecordNotFound{}
 	}
 	return response.ParseToDomain(), nil
 }
 
 func (ds *accessTokenCacheDs) CreateAccessToken(ctx context.Context, accessToken *domain.AccessToken) error {
 	key := fmt.Sprintf("access_token:%s", accessToken.Id)
-	_, err := ds.redis.HSet(ctx, key, parseAccessTokenFromDomain(accessToken)).Result()
+
+	pipeline := ds.redis.TxPipeline()
+
+	// Add commands to the transaction
+	pipeline.HSet(ctx, key, parseAccessTokenFromDomain(accessToken)).Result()
+	pipeline.Expire(ctx, key, 59*time.Minute) // Set expiration time
+
+	// Execute the transaction
+	_, err := pipeline.Exec(ctx)
 	if err != nil {
-		return err
+		return &customerrors.Unknown{}
 	}
 	return nil
 }
@@ -72,7 +87,7 @@ func (ds *accessTokenCacheDs) CreateAccessToken(ctx context.Context, accessToken
 func (ds *accessTokenCacheDs) DeleteAccessToken(ctx context.Context, id uuid.UUID) error {
 	key := fmt.Sprintf("access_token:%s", id)
 	if _, err := ds.redis.Del(ctx, key).Result(); err != nil {
-		return err
+		return &customerrors.Unknown{}
 	}
 	return nil
 }
