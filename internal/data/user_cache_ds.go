@@ -92,7 +92,7 @@ func (ds *userCacheDs) UpdateUser(ctx context.Context, user *domain.User) error 
 func (ds *userCacheDs) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	key := fmt.Sprintf("user:%s", id)
 	if _, err := ds.redis.Del(ctx, key).Result(); err != nil {
-		return err
+		return &customerrors.Unknown{}
 	}
 	return nil
 }
