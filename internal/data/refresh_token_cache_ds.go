@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/daniarmas/notes/internal/customerrors"
 	"github.com/daniarmas/notes/internal/domain"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
@@ -68,7 +69,7 @@ func (ds *refreshTokenCacheDs) CreateRefreshToken(ctx context.Context, refreshTo
 func (ds *refreshTokenCacheDs) DeleteRefreshToken(ctx context.Context, id uuid.UUID) error {
 	key := fmt.Sprintf("refresh_token:%s", id)
 	if _, err := ds.redis.Del(ctx, key).Result(); err != nil {
-		return err
+		return &customerrors.Unknown{}
 	}
 	return nil
 }
