@@ -86,12 +86,8 @@ func (ds *userCacheDs) CreateUser(ctx context.Context, user *domain.User) error 
 }
 
 func (ds *userCacheDs) UpdateUser(ctx context.Context, user *domain.User) error {
-	key := fmt.Sprintf("user:%s", user.Id)
-	_, err := ds.redis.HSet(ctx, key, parseUserFromDomain(user)).Result()
-	if err != nil {
-		return err
-	}
-	return nil
+	
+	return ds.CreateUser(ctx, user)
 }
 
 func (ds *userCacheDs) DeleteUser(ctx context.Context, id uuid.UUID) error {
