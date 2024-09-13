@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/daniarmas/notes/internal/customerrors"
 	"github.com/daniarmas/notes/internal/domain"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
@@ -19,16 +20,19 @@ type AccessToken struct {
 }
 
 func (u *AccessToken) ParseToDomain() *domain.AccessToken {
-	id := uuid.MustParse(u.Id)
-	userId := uuid.MustParse(u.UserId)
-	refreshTokenId := uuid.MustParse(u.RefreshTokenId)
-	return &domain.AccessToken{
-		Id:             id,
-		UserId:         userId,
-		RefreshTokenId: refreshTokenId,
-		CreateTime:     u.CreateTime,
-		UpdateTime:     u.UpdateTime,
+	if u.Id != "" {
+		id := uuid.MustParse(u.Id)
+		userId := uuid.MustParse(u.UserId)
+		refreshTokenId := uuid.MustParse(u.RefreshTokenId)
+		return &domain.AccessToken{
+			Id:             id,
+			UserId:         userId,
+			RefreshTokenId: refreshTokenId,
+			CreateTime:     u.CreateTime,
+			UpdateTime:     u.UpdateTime,
+		}
 	}
+	return nil
 }
 
 func parseAccessTokenFromDomain(accessToken *domain.AccessToken) *AccessToken {
@@ -55,7 +59,10 @@ func (ds *accessTokenCacheDs) GetAccessToken(ctx context.Context, id uuid.UUID) 
 	key := fmt.Sprintf("access_token:%s", id)
 	var response AccessToken
 	if err := ds.redis.HGetAll(ctx, key).Scan(&response); err != nil {
-		return nil, err
+		return nil, &customerrors.Unknown{}
+	}
+	if response.Id == "" {
+		return nil, &customerrors.RecordNotFound{}
 	}
 	return response.ParseToDomain(), nil
 }
