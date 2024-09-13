@@ -70,9 +70,17 @@ func (ds *userCacheDs) GetUserById(ctx context.Context, id uuid.UUID) (*domain.U
 
 func (ds *userCacheDs) CreateUser(ctx context.Context, user *domain.User) error {
 	key := fmt.Sprintf("user:%s", user.Id)
-	_, err := ds.redis.HSet(ctx, key, parseUserFromDomain(user)).Result()
+
+	pipeline := ds.redis.TxPipeline()
+
+	// Add commands to the transaction
+	pipeline.HSet(ctx, key, parseUserFromDomain(user)).Result()
+	pipeline.Expire(ctx, key, 1*time.Hour) // Set expiration time
+
+	// Execute the transaction
+	_, err := pipeline.Exec(ctx)
 	if err != nil {
-		return err
+		return &customerrors.Unknown{}
 	}
 	return nil
 }
