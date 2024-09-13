@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/daniarmas/notes/internal/customerrors"
 	"github.com/daniarmas/notes/internal/domain"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
@@ -18,14 +19,17 @@ type RefreshToken struct {
 }
 
 func (u *RefreshToken) ParseToDomain() *domain.RefreshToken {
-	id := uuid.MustParse(u.Id)
-	userId := uuid.MustParse(u.UserId)
-	return &domain.RefreshToken{
-		Id:         id,
-		UserId:     userId,
-		CreateTime: u.CreateTime,
-		UpdateTime: u.UpdateTime,
+	if u.Id != "" {
+		id := uuid.MustParse(u.Id)
+		userId := uuid.MustParse(u.UserId)
+		return &domain.RefreshToken{
+			Id:         id,
+			UserId:     userId,
+			CreateTime: u.CreateTime,
+			UpdateTime: u.UpdateTime,
+		}
 	}
+	return nil
 }
 
 func parseRefreshTokenFromDomain(refreshToken *domain.RefreshToken) *RefreshToken {
@@ -51,16 +55,27 @@ func (ds *refreshTokenCacheDs) GetRefreshToken(ctx context.Context, id uuid.UUID
 	key := fmt.Sprintf("refresh_token:%s", id)
 	var response RefreshToken
 	if err := ds.redis.HGetAll(ctx, key).Scan(&response); err != nil {
-		return nil, err
+		return nil, &customerrors.Unknown{}
+	}
+	if response.Id == "" {
+		return nil, &customerrors.RecordNotFound{}
 	}
 	return response.ParseToDomain(), nil
 }
 
 func (ds *refreshTokenCacheDs) CreateRefreshToken(ctx context.Context, refreshToken *domain.RefreshToken) error {
 	key := fmt.Sprintf("refresh_token:%s", refreshToken.Id)
-	_, err := ds.redis.HSet(ctx, key, parseRefreshTokenFromDomain(refreshToken)).Result()
+
+	pipeline := ds.redis.TxPipeline()
+
+	// Add commands to the transaction
+	pipeline.HSet(ctx, key, parseRefreshTokenFromDomain(refreshToken)).Result()
+	pipeline.Expire(ctx, key, 30*24*time.Hour) // Set expiration time
+
+	// Execute the transaction
+	_, err := pipeline.Exec(ctx)
 	if err != nil {
-		return err
+		return &customerrors.Unknown{}
 	}
 	return nil
 }
@@ -68,7 +83,7 @@ func (ds *refreshTokenCacheDs) CreateRefreshToken(ctx context.Context, refreshTo
 func (ds *refreshTokenCacheDs) DeleteRefreshToken(ctx context.Context, id uuid.UUID) error {
 	key := fmt.Sprintf("refresh_token:%s", id)
 	if _, err := ds.redis.Del(ctx, key).Result(); err != nil {
-		return err
+		return &customerrors.Unknown{}
 	}
 	return nil
 }
