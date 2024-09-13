@@ -59,9 +59,17 @@ func (ds *refreshTokenCacheDs) GetRefreshToken(ctx context.Context, id uuid.UUID
 
 func (ds *refreshTokenCacheDs) CreateRefreshToken(ctx context.Context, refreshToken *domain.RefreshToken) error {
 	key := fmt.Sprintf("refresh_token:%s", refreshToken.Id)
-	_, err := ds.redis.HSet(ctx, key, parseRefreshTokenFromDomain(refreshToken)).Result()
+
+	pipeline := ds.redis.TxPipeline()
+
+	// Add commands to the transaction
+	pipeline.HSet(ctx, key, parseRefreshTokenFromDomain(refreshToken)).Result()
+	pipeline.Expire(ctx, key, 30*24*time.Hour) // Set expiration time
+
+	// Execute the transaction
+	_, err := pipeline.Exec(ctx)
 	if err != nil {
-		return err
+		return &customerrors.Unknown{}
 	}
 	return nil
 }
