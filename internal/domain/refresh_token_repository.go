@@ -31,7 +31,7 @@ func (r *refreshTokenRepository) GetRefreshToken(ctx context.Context, id uuid.UU
 	if err != nil {
 		log.Println(err)
 		// Get the refresh from the database
-		refreshToken, err = r.RefreshTokenDatabaseDs.GetRefreshToken(ctx, id)
+		refreshToken, err = r.RefreshTokenDatabaseDs.GetRefreshTokenById(ctx, id)
 		if err != nil {
 			return nil, err
 		}

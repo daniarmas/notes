@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 
+	"github.com/daniarmas/notes/internal/customerrors"
 	"github.com/daniarmas/notes/internal/database"
 	"github.com/daniarmas/notes/internal/domain"
 	"github.com/google/uuid"
@@ -30,15 +31,25 @@ func NewRefreshTokenDatabaseDs(queries *database.Queries) domain.RefreshTokenDat
 func (d *refreshTokenDatabaseDs) CreateRefreshToken(ctx context.Context, refreshToken *domain.RefreshToken) (*domain.RefreshToken, error) {
 	res, err := d.queries.CreateRefreshToken(ctx, refreshToken.UserId)
 	if err != nil {
-		return nil, err
+		switch err.Error() {
+		case "ERROR: insert on table \"refresh_tokens\" violates foreign key constraint \"fk_user\" (SQLSTATE 23503)":
+			return nil, &customerrors.ForeignKeyConstraint{Field: "user_id", ParentTable: "users"}
+		default:
+			return nil, &customerrors.Unknown{}
+		}
 	}
 	return parseRefreshTokenToDomain(&res), nil
 }
 
-func (d *refreshTokenDatabaseDs) GetRefreshToken(ctx context.Context, id uuid.UUID) (*domain.RefreshToken, error) {
+func (d *refreshTokenDatabaseDs) GetRefreshTokenById(ctx context.Context, id uuid.UUID) (*domain.RefreshToken, error) {
 	res, err := d.queries.GetRefreshTokenById(ctx, id)
 	if err != nil {
-		return nil, err
+		switch err.Error() {
+		case "sql: no rows in result set":
+			return nil, &customerrors.RecordNotFound{}
+		default:
+			return nil, &customerrors.Unknown{}
+		}
 	}
 	return parseRefreshTokenToDomain(&res), nil
 }
@@ -46,7 +57,12 @@ func (d *refreshTokenDatabaseDs) GetRefreshToken(ctx context.Context, id uuid.UU
 func (d *refreshTokenDatabaseDs) DeleteRefreshTokenByUserId(ctx context.Context, userId uuid.UUID) (*uuid.UUID, error) {
 	id, err := d.queries.DeleteRefreshTokenByUserId(ctx, userId)
 	if err != nil {
-		return nil, err
+		switch err.Error() {
+		case "sql: no rows in result set":
+			return nil, &customerrors.RecordNotFound{}
+		default:
+			return nil, &customerrors.Unknown{}
+		}
 	}
 	return &id, nil
 }
