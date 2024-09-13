@@ -35,15 +35,27 @@ func (d *accessTokenDatabaseDs) CreateAccessToken(ctx context.Context, accessTok
 		RefreshTokenID: accessToken.RefreshTokenId,
 	})
 	if err != nil {
-		return nil, err
+		switch err.Error() {
+		case "ERROR: insert on table \"access_tokens\" violates foreign key constraint \"fk_refresh_token\" (SQLSTATE 23503)":
+			return nil, &customerrors.ForeignKeyConstraint{Field: "refresh_token_id", ParentTable: "refresh_tokens"}
+		case "ERROR: insert on table \"access_tokens\" violates foreign key constraint \"fk_user\" (SQLSTATE 23503)":
+			return nil, &customerrors.ForeignKeyConstraint{Field: "user_id", ParentTable: "users"}
+		default:
+			return nil, &customerrors.Unknown{}
+		}
 	}
 	return parseAccessTokenToDomain(&res), nil
 }
 
-func (d *accessTokenDatabaseDs) GetAccessToken(ctx context.Context, id uuid.UUID) (*domain.AccessToken, error) {
+func (d *accessTokenDatabaseDs) GetAccessTokenId(ctx context.Context, id uuid.UUID) (*domain.AccessToken, error) {
 	res, err := d.queries.GetAccessTokenById(ctx, id)
 	if err != nil {
-		return nil, err
+		switch err.Error() {
+		case "sql: no rows in result set":
+			return nil, &customerrors.RecordNotFound{}
+		default:
+			return nil, &customerrors.Unknown{}
+		}
 	}
 	return parseAccessTokenToDomain(&res), nil
 }

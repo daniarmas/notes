@@ -7,7 +7,7 @@ import (
 )
 
 type AccessTokenDatabaseDs interface {
-	GetAccessToken(ctx context.Context, id uuid.UUID) (*AccessToken, error)
+	GetAccessTokenId(ctx context.Context, id uuid.UUID) (*AccessToken, error)
 	CreateAccessToken(ctx context.Context, accessToken *AccessToken) (*AccessToken, error)
 	DeleteAccessTokenByUserId(ctx context.Context, userId uuid.UUID) (*uuid.UUID, error)
 }
