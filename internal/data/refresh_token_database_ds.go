@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 
+	"github.com/daniarmas/notes/internal/customerrors"
 	"github.com/daniarmas/notes/internal/database"
 	"github.com/daniarmas/notes/internal/domain"
 	"github.com/google/uuid"
@@ -38,7 +39,12 @@ func (d *refreshTokenDatabaseDs) CreateRefreshToken(ctx context.Context, refresh
 func (d *refreshTokenDatabaseDs) GetRefreshTokenById(ctx context.Context, id uuid.UUID) (*domain.RefreshToken, error) {
 	res, err := d.queries.GetRefreshTokenById(ctx, id)
 	if err != nil {
-		return nil, err
+		switch err.Error() {
+		case "sql: no rows in result set":
+			return nil, &customerrors.RecordNotFound{}
+		default:
+			return nil, &customerrors.Unknown{}
+		}
 	}
 	return parseRefreshTokenToDomain(&res), nil
 }
