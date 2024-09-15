@@ -13,11 +13,21 @@ func NewBcryptHashDatasource() domain.HashDatasource {
 }
 
 func (ds *hashDatasource) Hash(value string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(value), 10)
-	return string(bytes), err
+	hashedValue, err := bcrypt.GenerateFromPassword([]byte(value), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hashedValue), nil
 }
 
-func (ds *hashDatasource) CheckHash(value, hash string) bool {
+func (ds *hashDatasource) CheckHash(value, hash string) (bool, error) {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(value))
-	return err == nil
+	switch err {
+	case nil:
+		return true, nil
+	case bcrypt.ErrMismatchedHashAndPassword:
+		return false, nil
+	default:
+		return false, err
+	}
 }

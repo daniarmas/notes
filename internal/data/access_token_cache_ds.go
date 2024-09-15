@@ -19,23 +19,42 @@ type AccessToken struct {
 	UpdateTime     time.Time `redis:"update_time"`
 }
 
-func (u *AccessToken) ParseToDomain() *domain.AccessToken {
-	if u.Id != "" {
-		id := uuid.MustParse(u.Id)
-		userId := uuid.MustParse(u.UserId)
-		refreshTokenId := uuid.MustParse(u.RefreshTokenId)
-		return &domain.AccessToken{
-			Id:             id,
-			UserId:         userId,
-			RefreshTokenId: refreshTokenId,
-			CreateTime:     u.CreateTime,
-			UpdateTime:     u.UpdateTime,
-		}
+func (u *AccessToken) ParseToDomain() (*domain.AccessToken, error) {
+	if u.Id == "" {
+		return nil, nil
 	}
-	return nil
+
+	// Parse UUIDs and handle potential errors
+	id, err := uuid.Parse(u.Id)
+	if err != nil {
+		return nil, err
+	}
+	userId, err := uuid.Parse(u.UserId)
+	if err != nil {
+		return nil, err
+	}
+	refreshTokenId, err := uuid.Parse(u.RefreshTokenId)
+	if err != nil {
+		return nil, err
+	}
+
+	// Return the parsed domain.AccessToken
+	return &domain.AccessToken{
+		Id:             id,
+		UserId:         userId,
+		RefreshTokenId: refreshTokenId,
+		CreateTime:     u.CreateTime,
+		UpdateTime:     u.UpdateTime,
+	}, nil
 }
 
 func parseAccessTokenFromDomain(accessToken *domain.AccessToken) *AccessToken {
+	// Check if the input accessToken is nil
+	if accessToken == nil {
+		return nil
+	}
+
+	// Convert domain.AccessToken to AccessToken
 	return &AccessToken{
 		Id:             accessToken.Id.String(),
 		UserId:         accessToken.UserId.String(),
@@ -64,7 +83,7 @@ func (ds *accessTokenCacheDs) GetAccessTokenById(ctx context.Context, id uuid.UU
 	if response.Id == "" {
 		return nil, &customerrors.RecordNotFound{}
 	}
-	return response.ParseToDomain(), nil
+	return response.ParseToDomain()
 }
 
 func (ds *accessTokenCacheDs) CreateAccessToken(ctx context.Context, accessToken *domain.AccessToken) error {
