@@ -49,9 +49,16 @@ func (s *authenticationService) SignIn(ctx context.Context, email string, passwo
 		}
 	}
 	// Check if the user password is correct
-	if correct := s.HashDatasource.CheckHash(password, user.Password); !correct {
-		return nil, errors.New("password incorrect")
+	correct, err := s.HashDatasource.CheckHash(password, user.Password)
+	if err != nil {
+		return nil, err
 	}
+
+	// If the password is incorrect, return an error
+	if !correct {
+		return nil, errors.New("incorrect password")
+	}
+	
 	// Delete the existing access token
 	err = s.AccessTokenRepository.DeleteAccessTokenByUserId(ctx, user.Id)
 	if err != nil {

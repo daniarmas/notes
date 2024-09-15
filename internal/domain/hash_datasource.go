@@ -9,5 +9,5 @@ type HashDatasource interface {
 	Hash(value string) (string, error)
 	// CheckHash verifies if the given hash matches the hash of the provided value.
 	// It returns true if the hash matches, false otherwise.
-	CheckHash(value, hash string) bool
+	CheckHash(value, hash string) (bool, error)
 }
