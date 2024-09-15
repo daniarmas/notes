@@ -14,13 +14,19 @@ type accessTokenDatabaseDs struct {
 }
 
 func parseAccessTokenToDomain(accessToken *database.AccessToken) *domain.AccessToken {
-	return &domain.AccessToken{
-		Id:             accessToken.ID,
-		UserId:         accessToken.UserID,
-		RefreshTokenId: accessToken.RefreshTokenID,
-		CreateTime:     accessToken.CreateTime,
-		UpdateTime:     accessToken.UpdateTime.Time,
-	}
+    // Check if the input accessToken is nil
+    if accessToken == nil {
+        return nil
+    }
+
+    // Convert database.AccessToken to domain.AccessToken
+    return &domain.AccessToken{
+        Id:             accessToken.ID,
+        UserId:         accessToken.UserID,
+        RefreshTokenId: accessToken.RefreshTokenID,
+        CreateTime:     accessToken.CreateTime,
+        UpdateTime:     accessToken.UpdateTime.Time,
+    }
 }
 
 func NewAccessTokenDatabaseDs(queries *database.Queries) domain.AccessTokenDatabaseDs {
