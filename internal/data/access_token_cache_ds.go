@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/daniarmas/notes/internal/customerrors"
@@ -98,6 +99,7 @@ func (ds *accessTokenCacheDs) CreateAccessToken(ctx context.Context, accessToken
 	// Execute the transaction
 	_, err := pipeline.Exec(ctx)
 	if err != nil {
+		slog.Error(err.Error())
 		return &customerrors.Unknown{}
 	}
 	return nil

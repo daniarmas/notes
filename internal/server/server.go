@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/daniarmas/notes/internal/server/controller"
+	"github.com/daniarmas/notes/internal/server/middleware"
 	"github.com/daniarmas/notes/internal/service"
 )
 
@@ -17,6 +18,7 @@ func NewServer(
 		authenticationService,
 	)
 	var handler http.Handler = mux
+	handler = middleware.LoggingMiddleware(handler)
 	return handler
 }
 
