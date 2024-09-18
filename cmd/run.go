@@ -15,8 +15,11 @@ import (
 
 	"github.com/daniarmas/notes/internal/cache"
 	"github.com/daniarmas/notes/internal/config"
+	"github.com/daniarmas/notes/internal/data"
 	"github.com/daniarmas/notes/internal/database"
+	"github.com/daniarmas/notes/internal/domain"
 	"github.com/daniarmas/notes/internal/server"
+	"github.com/daniarmas/notes/internal/service"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/spf13/cobra"
 )
@@ -32,12 +35,33 @@ func run(ctx context.Context, w io.Writer, args []string) error {
 	db := database.Open(cfg, true)
 	defer database.Close(db, true)
 
+	// Database queries
+	dbQueries := database.New(db)
+
 	// Cache connection
 	rdb := cache.OpenRedis(cfg)
 	defer cache.CloseRedis(rdb)
 
+	// Datasources
+	hashDatasource := data.NewBcryptHashDatasource()
+	jwtDatasource := domain.NewJWTDatasource(cfg)
+	userCacheDs := data.NewUserCacheDs(rdb)
+	userDatabaseDs := data.NewUserDatabaseDs(dbQueries)
+	accessTokenCacheDs := data.NewAccessTokenTokenCacheDs(rdb)
+	accessTokenDatabaseDs := data.NewAccessTokenDatabaseDs(dbQueries)
+	refreshTokenCacheDs := data.NewRefreshTokenCacheDs(rdb)
+	refreshTokenDatabaseDs := data.NewRefreshTokenDatabaseDs(dbQueries)
+
+	// Repositories
+	userRepository := domain.NewUserRepository(&userCacheDs, &userDatabaseDs)
+	accessTokenRepository := domain.NewAccessTokenRepository(&accessTokenCacheDs, &accessTokenDatabaseDs)
+	refreshTokenRepository := domain.NewRefreshTokenRepository(&refreshTokenCacheDs, &refreshTokenDatabaseDs)
+
+	// Services
+	authenticationService := service.NewAuthenticationService(jwtDatasource, hashDatasource, userRepository, accessTokenRepository, refreshTokenRepository)
+
 	// Http server
-	srv := server.NewServer(cfg)
+	srv := server.NewServer(authenticationService)
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort("0.0.0.0", "8080"),
 		Handler: srv,
