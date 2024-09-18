@@ -1,41 +1,31 @@
 package server
 
 import (
-	"encoding/json"
 	"net/http"
 
-	"github.com/daniarmas/notes/internal/config"
+	"github.com/daniarmas/notes/internal/server/controller"
+	"github.com/daniarmas/notes/internal/service"
 )
 
-// Instantiate a net/http server...
+// NewServer creates a new HTTP server
 func NewServer(
-	config *config.Configuration,
+	authenticationService service.AuthenticationService,
 ) http.Handler {
 	mux := http.NewServeMux()
 	addRoutes(
 		mux,
-		config,
+		authenticationService,
 	)
 	var handler http.Handler = mux
 	return handler
 }
 
+// addRoutes adds the routes to the HTTP server
 func addRoutes(
 	mux *http.ServeMux,
-	config *config.Configuration,
+	authenticationService service.AuthenticationService,
 ) {
 	mux.Handle("/", http.NotFoundHandler())
-	mux.HandleFunc("GET /health", handleHealthCheck)
-}
-
-// healthcheck handler
-func handleHealthCheck(w http.ResponseWriter, r *http.Request) {
-	// HealthCheckResponse represents the structure of the health check response
-	type HealthCheckResponse struct {
-		Status string `json:"status"`
-	}
-	response := HealthCheckResponse{Status: "healthy"}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+	mux.HandleFunc("GET /health", controller.HandleHealthCheck)
+	mux.HandleFunc("POST /sign-in", controller.HandleSignIn(authenticationService))
 }

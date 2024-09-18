@@ -43,7 +43,7 @@ func (s *authenticationService) SignIn(ctx context.Context, email string, passwo
 	if err != nil {
 		switch err.(type) {
 		case *customerrors.RecordNotFound:
-			return nil, errors.New("user not exists")
+			return nil, errors.New("invalid credentials")
 		default:
 			return nil, err
 		}
@@ -56,9 +56,9 @@ func (s *authenticationService) SignIn(ctx context.Context, email string, passwo
 
 	// If the password is incorrect, return an error
 	if !correct {
-		return nil, errors.New("incorrect password")
+		return nil, errors.New("invalid credentials")
 	}
-	
+
 	// Delete the existing access token
 	err = s.AccessTokenRepository.DeleteAccessTokenByUserId(ctx, user.Id)
 	if err != nil {
@@ -88,7 +88,8 @@ func (s *authenticationService) SignIn(ctx context.Context, email string, passwo
 	}
 	// Create a new access token
 	accessToken, err := s.AccessTokenRepository.CreateAccessToken(ctx, &domain.AccessToken{
-		UserId: user.Id,
+		UserId:         user.Id,
+		RefreshTokenId: refreshToken.Id,
 	})
 	if err != nil {
 		return nil, err
