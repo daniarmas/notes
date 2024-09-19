@@ -9,7 +9,8 @@ type HealthCheckResponse struct {
 	Status string `json:"status"`
 }
 
-// HealthCheckHandler is the handler for the health check endpoint
+
+// HealthCheckHandler handles HTTP requests for checking the health status of the server.
 func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	res := HealthCheckResponse{Status: "healthy"}
 	StatusOk(w, r, res)
