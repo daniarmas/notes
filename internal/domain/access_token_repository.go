@@ -2,8 +2,9 @@ package domain
 
 import (
 	"context"
-	"log"
+	"log/slog"
 
+	"github.com/daniarmas/notes/internal/server/utils"
 	"github.com/google/uuid"
 )
 
@@ -29,7 +30,16 @@ func (r *accessTokenRepository) GetAccessToken(ctx context.Context, id uuid.UUID
 	// Get the access token from cache
 	accessToken, err := r.AccessTokenCacheDs.GetAccessTokenById(ctx, id)
 	if err != nil {
-		log.Println(err)
+		slog.LogAttrs(
+			context.Background(),
+			slog.LevelError,
+			"Failed to get access token from cache",
+			slog.String("error", err.Error()),
+			slog.String("request_id", utils.ExtractRequestIdFromContext(ctx)),
+			slog.String("file", utils.GetFileName()),
+			slog.String("function", utils.GetFunctionName()),
+			slog.Int("line", utils.GetLineNumber()),
+		)
 		// Get the user from the database
 		accessToken, err = r.AccessTokenDatabaseDs.GetAccessTokenId(ctx, id)
 		if err != nil {
@@ -40,18 +50,27 @@ func (r *accessTokenRepository) GetAccessToken(ctx context.Context, id uuid.UUID
 }
 
 func (r *accessTokenRepository) CreateAccessToken(ctx context.Context, accessToken *AccessToken) (*AccessToken, error) {
-	// Save the access token on the database
+	// Save the access token in the database
 	user, err := r.AccessTokenDatabaseDs.CreateAccessToken(ctx, accessToken)
 	if err != nil {
 		return nil, err
 	}
-	// Cache the access token asynchronously, don't block the main operation
-	go func() {
-		err = r.AccessTokenCacheDs.CreateAccessToken(ctx, user)
-		if err != nil {
-			log.Println(err)
-		}
-	}()
+
+	// Cache the access token
+	err = r.AccessTokenCacheDs.CreateAccessToken(ctx, user)
+	if err != nil {
+		slog.LogAttrs(
+			context.Background(),
+			slog.LevelError,
+			"Failed to cache access token",
+			slog.String("error", err.Error()),
+			slog.String("request_id", utils.ExtractRequestIdFromContext(ctx)),
+			slog.String("file", utils.GetFileName()),
+			slog.String("function", utils.GetFunctionName()),
+			slog.Int("line", utils.GetLineNumber()),
+		)
+	}
+
 	return user, nil
 }
 

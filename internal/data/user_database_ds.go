@@ -31,7 +31,7 @@ func (d *userDatabaseDs) CreateUser(ctx context.Context, user *domain.User) (*do
 		case "ERROR: duplicate key value violates unique constraint \"users_email_key\" (SQLSTATE 23505)":
 			return nil, &customerrors.DuplicateRecord{Field: "email"}
 		default:
-			return nil, &customerrors.Unknown{}
+			return nil, err
 		}
 	}
 	return &domain.User{
@@ -50,7 +50,7 @@ func (d *userDatabaseDs) GetUserById(ctx context.Context, id uuid.UUID) (*domain
 		case "sql: no rows in result set":
 			return nil, &customerrors.RecordNotFound{}
 		default:
-			return nil, &customerrors.Unknown{}
+			return nil, err
 		}
 	}
 	// Check if time is not null
@@ -75,7 +75,7 @@ func (d *userDatabaseDs) GetUserByEmail(ctx context.Context, email string) (*dom
 		case "sql: no rows in result set":
 			return nil, &customerrors.RecordNotFound{}
 		default:
-			return nil, &customerrors.Unknown{}
+			return nil, err
 		}
 	}
 	// Check if time is not null

@@ -29,7 +29,7 @@ func run(ctx context.Context) error {
 	defer cancel()
 
 	// SLogger
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
 
 	// Config

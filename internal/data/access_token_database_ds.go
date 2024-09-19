@@ -14,19 +14,19 @@ type accessTokenDatabaseDs struct {
 }
 
 func parseAccessTokenToDomain(accessToken *database.AccessToken) *domain.AccessToken {
-    // Check if the input accessToken is nil
-    if accessToken == nil {
-        return nil
-    }
+	// Check if the input accessToken is nil
+	if accessToken == nil {
+		return nil
+	}
 
-    // Convert database.AccessToken to domain.AccessToken
-    return &domain.AccessToken{
-        Id:             accessToken.ID,
-        UserId:         accessToken.UserID,
-        RefreshTokenId: accessToken.RefreshTokenID,
-        CreateTime:     accessToken.CreateTime,
-        UpdateTime:     accessToken.UpdateTime.Time,
-    }
+	// Convert database.AccessToken to domain.AccessToken
+	return &domain.AccessToken{
+		Id:             accessToken.ID,
+		UserId:         accessToken.UserID,
+		RefreshTokenId: accessToken.RefreshTokenID,
+		CreateTime:     accessToken.CreateTime,
+		UpdateTime:     accessToken.UpdateTime.Time,
+	}
 }
 
 func NewAccessTokenDatabaseDs(queries *database.Queries) domain.AccessTokenDatabaseDs {
@@ -47,7 +47,7 @@ func (d *accessTokenDatabaseDs) CreateAccessToken(ctx context.Context, accessTok
 		case "ERROR: insert on table \"access_tokens\" violates foreign key constraint \"fk_user\" (SQLSTATE 23503)":
 			return nil, &customerrors.ForeignKeyConstraint{Field: "user_id", ParentTable: "users"}
 		default:
-			return nil, &customerrors.Unknown{}
+			return nil, err
 		}
 	}
 	return parseAccessTokenToDomain(&res), nil
@@ -60,7 +60,7 @@ func (d *accessTokenDatabaseDs) GetAccessTokenId(ctx context.Context, id uuid.UU
 		case "sql: no rows in result set":
 			return nil, &customerrors.RecordNotFound{}
 		default:
-			return nil, &customerrors.Unknown{}
+			return nil, err
 		}
 	}
 	return parseAccessTokenToDomain(&res), nil
@@ -73,7 +73,7 @@ func (d *accessTokenDatabaseDs) DeleteAccessTokenByUserId(ctx context.Context, u
 		case "sql: no rows in result set":
 			return nil, &customerrors.RecordNotFound{}
 		default:
-			return nil, &customerrors.Unknown{}
+			return nil, err
 		}
 	}
 	return &id, nil

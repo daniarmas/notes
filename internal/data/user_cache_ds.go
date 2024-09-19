@@ -60,7 +60,7 @@ func (ds *userCacheDs) GetUserById(ctx context.Context, id uuid.UUID) (*domain.U
 	key := fmt.Sprintf("user:%s", id)
 	var response User
 	if err := ds.redis.HGetAll(ctx, key).Scan(&response); err != nil {
-		return nil, &customerrors.Unknown{}
+		return nil, err
 	}
 	if response.Id == "" {
 		return nil, &customerrors.RecordNotFound{}
@@ -80,7 +80,7 @@ func (ds *userCacheDs) CreateUser(ctx context.Context, user *domain.User) error 
 	// Execute the transaction
 	_, err := pipeline.Exec(ctx)
 	if err != nil {
-		return &customerrors.Unknown{}
+		return err
 	}
 	return nil
 }
@@ -92,7 +92,7 @@ func (ds *userCacheDs) UpdateUser(ctx context.Context, user *domain.User) error 
 func (ds *userCacheDs) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	key := fmt.Sprintf("user:%s", id)
 	if _, err := ds.redis.Del(ctx, key).Result(); err != nil {
-		return &customerrors.Unknown{}
+		return err
 	}
 	return nil
 }
