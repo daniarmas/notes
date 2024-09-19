@@ -4,9 +4,11 @@ import (
 	"context"
 	"path/filepath"
 	"runtime"
-
-	"github.com/daniarmas/notes/internal/server/middleware"
 )
+
+type contextKey string
+
+const RequestIDKey contextKey = "request-id"
 
 // GetFileName returns the file name of the caller
 func GetFileName() string {
@@ -42,7 +44,7 @@ func GetLineNumber() int {
 }
 
 func ExtractRequestIdFromContext(ctx context.Context) string {
-	if requestID, ok := ctx.Value(middleware.RequestIDKey).(string); ok {
+	if requestID, ok := ctx.Value(RequestIDKey).(string); ok {
 		return requestID
 	}
 	return "unknown"

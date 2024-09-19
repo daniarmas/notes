@@ -3,8 +3,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"log"
-	"log/slog"
 	"net"
 	"net/http"
 	"os"
@@ -14,6 +12,7 @@ import (
 	"time"
 
 	"github.com/daniarmas/notes/internal/cache"
+	"github.com/daniarmas/notes/internal/clog"
 	"github.com/daniarmas/notes/internal/config"
 	"github.com/daniarmas/notes/internal/data"
 	"github.com/daniarmas/notes/internal/database"
@@ -28,9 +27,8 @@ func run(ctx context.Context) error {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
-	// SLogger
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
-	slog.SetDefault(logger)
+	// Custom logger
+	clog.NewClog()
 
 	// Config
 	cfg := config.LoadConfig()
@@ -71,9 +69,10 @@ func run(ctx context.Context) error {
 		Handler: srv,
 	}
 	go func() {
-		log.Printf("Http server listening on %s\n", httpServer.Addr)
+		msg := fmt.Sprintf("Http server listening on %s\n", httpServer.Addr)
+		clog.Info(ctx, msg, nil)
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			fmt.Fprintf(os.Stderr, "error listening and serving: %s\n", err)
+			clog.Error(ctx, "error listening and serving", err)
 		}
 	}()
 	var wg sync.WaitGroup
@@ -84,7 +83,7 @@ func run(ctx context.Context) error {
 		shutdownCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 		defer cancel()
 		if err := httpServer.Shutdown(shutdownCtx); err != nil {
-			fmt.Fprintf(os.Stderr, "error shutting down http server: %s\n", err)
+			clog.Error(ctx, "error shutting down http server", err)
 		}
 	}()
 	wg.Wait()
