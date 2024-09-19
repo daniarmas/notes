@@ -78,7 +78,7 @@ func (ds *accessTokenCacheDs) GetAccessTokenById(ctx context.Context, id uuid.UU
 	key := fmt.Sprintf("access_token:%s", id)
 	var response AccessToken
 	if err := ds.redis.HGetAll(ctx, key).Scan(&response); err != nil {
-		return nil, &customerrors.Unknown{}
+		return nil, err
 	}
 	if response.Id == "" {
 		return nil, &customerrors.RecordNotFound{}
@@ -98,7 +98,7 @@ func (ds *accessTokenCacheDs) CreateAccessToken(ctx context.Context, accessToken
 	// Execute the transaction
 	_, err := pipeline.Exec(ctx)
 	if err != nil {
-		return &customerrors.Unknown{}
+		return err
 	}
 	return nil
 }
@@ -106,7 +106,7 @@ func (ds *accessTokenCacheDs) CreateAccessToken(ctx context.Context, accessToken
 func (ds *accessTokenCacheDs) DeleteAccessToken(ctx context.Context, id uuid.UUID) error {
 	key := fmt.Sprintf("access_token:%s", id)
 	if _, err := ds.redis.Del(ctx, key).Result(); err != nil {
-		return &customerrors.Unknown{}
+		return err
 	}
 	return nil
 }

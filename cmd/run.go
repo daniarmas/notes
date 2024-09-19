@@ -3,8 +3,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"io"
-	"log"
 	"net"
 	"net/http"
 	"os"
@@ -14,6 +12,7 @@ import (
 	"time"
 
 	"github.com/daniarmas/notes/internal/cache"
+	"github.com/daniarmas/notes/internal/clog"
 	"github.com/daniarmas/notes/internal/config"
 	"github.com/daniarmas/notes/internal/data"
 	"github.com/daniarmas/notes/internal/database"
@@ -24,9 +23,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func run(ctx context.Context, w io.Writer, args []string) error {
+func run(ctx context.Context) error {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
+
+	// Custom logger
+	clog.NewClog()
 
 	// Config
 	cfg := config.LoadConfig()
@@ -67,9 +69,10 @@ func run(ctx context.Context, w io.Writer, args []string) error {
 		Handler: srv,
 	}
 	go func() {
-		log.Printf("Http server listening on %s\n", httpServer.Addr)
+		msg := fmt.Sprintf("Http server listening on %s\n", httpServer.Addr)
+		clog.Info(ctx, msg, nil)
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			fmt.Fprintf(os.Stderr, "error listening and serving: %s\n", err)
+			clog.Error(ctx, "error listening and serving", err)
 		}
 	}()
 	var wg sync.WaitGroup
@@ -80,7 +83,7 @@ func run(ctx context.Context, w io.Writer, args []string) error {
 		shutdownCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 		defer cancel()
 		if err := httpServer.Shutdown(shutdownCtx); err != nil {
-			fmt.Fprintf(os.Stderr, "error shutting down http server: %s\n", err)
+			clog.Error(ctx, "error shutting down http server", err)
 		}
 	}()
 	wg.Wait()
@@ -94,7 +97,7 @@ var runCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
-		if err := run(ctx, os.Stdout, os.Args); err != nil {
+		if err := run(ctx); err != nil {
 			fmt.Fprintf(os.Stderr, "%s\n", err)
 			os.Exit(1)
 		}

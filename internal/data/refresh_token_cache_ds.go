@@ -55,7 +55,7 @@ func (ds *refreshTokenCacheDs) GetRefreshToken(ctx context.Context, id uuid.UUID
 	key := fmt.Sprintf("refresh_token:%s", id)
 	var response RefreshToken
 	if err := ds.redis.HGetAll(ctx, key).Scan(&response); err != nil {
-		return nil, &customerrors.Unknown{}
+		return nil, err
 	}
 	if response.Id == "" {
 		return nil, &customerrors.RecordNotFound{}
@@ -75,7 +75,7 @@ func (ds *refreshTokenCacheDs) CreateRefreshToken(ctx context.Context, refreshTo
 	// Execute the transaction
 	_, err := pipeline.Exec(ctx)
 	if err != nil {
-		return &customerrors.Unknown{}
+		return err
 	}
 	return nil
 }
@@ -83,7 +83,7 @@ func (ds *refreshTokenCacheDs) CreateRefreshToken(ctx context.Context, refreshTo
 func (ds *refreshTokenCacheDs) DeleteRefreshToken(ctx context.Context, id uuid.UUID) error {
 	key := fmt.Sprintf("refresh_token:%s", id)
 	if _, err := ds.redis.Del(ctx, key).Result(); err != nil {
-		return &customerrors.Unknown{}
+		return err
 	}
 	return nil
 }

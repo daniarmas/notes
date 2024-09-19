@@ -35,7 +35,7 @@ func (d *refreshTokenDatabaseDs) CreateRefreshToken(ctx context.Context, refresh
 		case "ERROR: insert on table \"refresh_tokens\" violates foreign key constraint \"fk_user\" (SQLSTATE 23503)":
 			return nil, &customerrors.ForeignKeyConstraint{Field: "user_id", ParentTable: "users"}
 		default:
-			return nil, &customerrors.Unknown{}
+			return nil, err
 		}
 	}
 	return parseRefreshTokenToDomain(&res), nil
@@ -48,7 +48,7 @@ func (d *refreshTokenDatabaseDs) GetRefreshTokenById(ctx context.Context, id uui
 		case "sql: no rows in result set":
 			return nil, &customerrors.RecordNotFound{}
 		default:
-			return nil, &customerrors.Unknown{}
+			return nil, err
 		}
 	}
 	return parseRefreshTokenToDomain(&res), nil
@@ -61,7 +61,7 @@ func (d *refreshTokenDatabaseDs) DeleteRefreshTokenByUserId(ctx context.Context,
 		case "sql: no rows in result set":
 			return nil, &customerrors.RecordNotFound{}
 		default:
-			return nil, &customerrors.Unknown{}
+			return nil, err
 		}
 	}
 	return &id, nil
