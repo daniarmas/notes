@@ -3,7 +3,7 @@ package server
 import (
 	"net/http"
 
-	"github.com/daniarmas/notes/internal/server/controller"
+	"github.com/daniarmas/notes/internal/server/handler"
 	"github.com/daniarmas/notes/internal/server/middleware"
 	"github.com/daniarmas/notes/internal/service"
 )
@@ -27,7 +27,7 @@ func addRoutes(
 	mux *http.ServeMux,
 	authenticationService service.AuthenticationService,
 ) {
-	mux.Handle("/", http.NotFoundHandler())
-	mux.HandleFunc("GET /health", controller.HandleHealthCheck)
-	mux.HandleFunc("POST /sign-in", controller.HandleSignIn(authenticationService))
+	mux.HandleFunc("/", handler.NotFoundHandler)
+	mux.HandleFunc("GET /health", handler.HealthCheckHandler)
+	mux.HandleFunc("POST /sign-in", handler.SignInHandler(authenticationService))
 }

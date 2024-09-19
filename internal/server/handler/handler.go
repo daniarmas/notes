@@ -1,19 +1,19 @@
-package response
+package handler
 
 import (
 	"encoding/json"
 	"net/http"
 )
 
-type Response struct {
+type response struct {
 	Code    int         `json:"code"`
 	Message any         `json:"message"`
 	Details any         `json:"details"`
 	Data    interface{} `json:"data"`
 }
 
-func UnauthorizedHandler(w http.ResponseWriter, r *http.Request, message string, errors map[string]string) {
-	res := Response{
+func Unauthorized(w http.ResponseWriter, r *http.Request, message string, errors map[string]string) {
+	res := response{
 		Code:    http.StatusUnauthorized,
 		Message: message,
 		Details: errors,
@@ -24,8 +24,8 @@ func UnauthorizedHandler(w http.ResponseWriter, r *http.Request, message string,
 	json.NewEncoder(w).Encode(res)
 }
 
-func BadRequestHandler(w http.ResponseWriter, r *http.Request, message string, errors map[string]string) {
-	res := Response{
+func BadRequest(w http.ResponseWriter, r *http.Request, message string, errors map[string]string) {
+	res := response{
 		Code:    http.StatusBadRequest,
 		Message: message,
 		Details: errors,
@@ -37,7 +37,7 @@ func BadRequestHandler(w http.ResponseWriter, r *http.Request, message string, e
 }
 
 func StatusOk(w http.ResponseWriter, r *http.Request, data any) {
-	res := Response{
+	res := response{
 		Code:    http.StatusOK,
 		Message: "OK",
 		Details: nil,
@@ -48,8 +48,8 @@ func StatusOk(w http.ResponseWriter, r *http.Request, data any) {
 	json.NewEncoder(w).Encode(res)
 }
 
-func InternalServerErrorHandler(w http.ResponseWriter, r *http.Request) {
-	res := Response{
+func InternalServerError(w http.ResponseWriter, r *http.Request) {
+	res := response{
 		Code:    http.StatusInternalServerError,
 		Message: "Internal Server Error",
 		Details: nil,
@@ -60,10 +60,13 @@ func InternalServerErrorHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(res)
 }
 
-func NotFoundHandler(w http.ResponseWriter, r *http.Request) {
-	res := Response{
+func NotFound(w http.ResponseWriter, r *http.Request, message string) {
+	if message == "" {
+		message = "Not Found"
+	}
+	res := response{
 		Code:    http.StatusNotFound,
-		Message: "Not Found",
+		Message: message,
 		Details: nil,
 		Data:    nil,
 	}
