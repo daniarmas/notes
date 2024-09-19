@@ -11,7 +11,7 @@ func ValidateEmail(errors *map[string]string, email string) {
 }
 
 // ValidateEmail validates the email format
-func validatePassword(password string) map[string]string {
+func ValidatePassword(password string) map[string]string {
 	errors := make(map[string]string)
 
 	// Validate password length

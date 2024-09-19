@@ -24,7 +24,10 @@ func NewClog() *Clog {
 
 // Info logs an info message
 func Info(ctx context.Context, msg string, err error, attrs ...slog.Attr) {
-	attributes := append(attrs, slog.String("error", err.Error()), slog.String("request_id", utils.ExtractRequestIdFromContext(ctx)))
+	if err != nil {
+		attrs = append(attrs, slog.String("error", err.Error()))
+	}
+	attributes := append(attrs, slog.String("request_id", utils.ExtractRequestIdFromContext(ctx)))
 	slog.LogAttrs(
 		context.Background(),
 		slog.LevelInfo,
@@ -35,7 +38,10 @@ func Info(ctx context.Context, msg string, err error, attrs ...slog.Attr) {
 
 // Error logs an error message
 func Error(ctx context.Context, msg string, err error, attrs ...slog.Attr) {
-	attributes := append(attrs, slog.String("error", err.Error()), slog.String("request_id", utils.ExtractRequestIdFromContext(ctx)))
+	if err != nil {
+		attrs = append(attrs, slog.String("error", err.Error()))
+	}
+	attributes := append(attrs, slog.String("request_id", utils.ExtractRequestIdFromContext(ctx)))
 	slog.LogAttrs(
 		context.Background(),
 		slog.LevelError,
@@ -46,7 +52,10 @@ func Error(ctx context.Context, msg string, err error, attrs ...slog.Attr) {
 
 // Debug logs a debug message
 func Debug(ctx context.Context, msg string, err error, attrs ...slog.Attr) {
-	attributes := append(attrs, slog.String("error", err.Error()), slog.String("request_id", utils.ExtractRequestIdFromContext(ctx)))
+	if err != nil {
+		attrs = append(attrs, slog.String("error", err.Error()))
+	}
+	attributes := append(attrs, slog.String("request_id", utils.ExtractRequestIdFromContext(ctx)))
 	slog.LogAttrs(
 		context.Background(),
 		slog.LevelDebug,
@@ -57,7 +66,10 @@ func Debug(ctx context.Context, msg string, err error, attrs ...slog.Attr) {
 
 // Warn logs a warning message
 func Warn(ctx context.Context, msg string, err error, attrs ...slog.Attr) {
-	attributes := append(attrs, slog.String("error", err.Error()), slog.String("request_id", utils.ExtractRequestIdFromContext(ctx)))
+	if err != nil {
+		attrs = append(attrs, slog.String("error", err.Error()))
+	}
+	attributes := append(attrs, slog.String("request_id", utils.ExtractRequestIdFromContext(ctx)))
 	slog.LogAttrs(
 		context.Background(),
 		slog.LevelWarn,
