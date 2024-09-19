@@ -1,8 +1,11 @@
 package clog
 
 import (
+	"context"
 	"log/slog"
 	"os"
+
+	"github.com/daniarmas/notes/internal/server/utils"
 )
 
 // Clog is a custom logger that wraps the slog package
@@ -20,21 +23,45 @@ func NewClog() *Clog {
 }
 
 // Info logs an info message
-func (c *Clog) Info(msg string, keysAndValues ...interface{}) {
-	c.logger.Info(msg, keysAndValues...)
+func (c *Clog) Info(ctx context.Context, msg string, err error) {
+	slog.LogAttrs(
+		context.Background(),
+		slog.LevelInfo,
+		msg,
+		slog.String("error", err.Error()),
+		slog.String("request_id", utils.ExtractRequestIdFromContext(ctx)),
+	)
 }
 
 // Error logs an error message
-func (c *Clog) Error(msg string, keysAndValues ...interface{}) {
-	c.logger.Error(msg, keysAndValues...)
+func (c *Clog) Error(ctx context.Context, msg string, err error) {
+	slog.LogAttrs(
+		context.Background(),
+		slog.LevelError,
+		msg,
+		slog.String("error", err.Error()),
+		slog.String("request_id", utils.ExtractRequestIdFromContext(ctx)),
+	)
 }
 
 // Debug logs a debug message
-func (c *Clog) Debug(msg string, keysAndValues ...interface{}) {
-	c.logger.Debug(msg, keysAndValues...)
+func (c *Clog) Debug(ctx context.Context, msg string, err error) {
+	slog.LogAttrs(
+		context.Background(),
+		slog.LevelDebug,
+		msg,
+		slog.String("error", err.Error()),
+		slog.String("request_id", utils.ExtractRequestIdFromContext(ctx)),
+	)
 }
 
 // Warn logs a warning message
-func (c *Clog) Warn(msg string, keysAndValues ...interface{}) {
-	c.logger.Warn(msg, keysAndValues...)
+func (c *Clog) Warn(ctx context.Context, msg string, err error) {
+	slog.LogAttrs(
+		context.Background(),
+		slog.LevelWarn,
+		msg,
+		slog.String("error", err.Error()),
+		slog.String("request_id", utils.ExtractRequestIdFromContext(ctx)),
+	)
 }
