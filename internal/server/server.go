@@ -34,4 +34,10 @@ func addRoutes(
 	mux.HandleFunc("/", handler.NotFoundHandler)
 	mux.HandleFunc("GET /health", handler.HealthCheckHandler)
 	mux.HandleFunc("POST /sign-in", handler.SignInHandler(authenticationService))
+	// Serve the Swagger UI
+	// Serve the OpenAPI specification
+    mux.HandleFunc("/openapi.yaml", func(w http.ResponseWriter, r *http.Request) {
+        http.ServeFile(w, r, "docs/openapi.yaml")
+    })
+	mux.Handle("/swagger-ui/", http.StripPrefix("/swagger-ui/", http.FileServer(http.Dir("docs/swaggerui/dist"))))
 }
