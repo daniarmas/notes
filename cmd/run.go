@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -63,11 +62,7 @@ func run(ctx context.Context) error {
 	authenticationService := service.NewAuthenticationService(jwtDatasource, hashDatasource, userRepository, accessTokenRepository, refreshTokenRepository)
 
 	// Http server
-	srv := server.NewServer(authenticationService)
-	httpServer := &http.Server{
-		Addr:    net.JoinHostPort("0.0.0.0", "8080"),
-		Handler: srv,
-	}
+	httpServer := server.NewServer(authenticationService)
 	go func() {
 		msg := fmt.Sprintf("Http server listening on %s\n", httpServer.Addr)
 		clog.Info(ctx, msg, nil)

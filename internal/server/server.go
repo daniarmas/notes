@@ -1,6 +1,7 @@
 package server
 
 import (
+	"net"
 	"net/http"
 
 	"github.com/daniarmas/notes/internal/server/handler"
@@ -11,7 +12,7 @@ import (
 // NewServer creates a new HTTP server
 func NewServer(
 	authenticationService service.AuthenticationService,
-) http.Handler {
+) *http.Server {
 	mux := http.NewServeMux()
 	addRoutes(
 		mux,
@@ -19,7 +20,10 @@ func NewServer(
 	)
 	var handler http.Handler = mux
 	handler = middleware.LoggingMiddleware(handler)
-	return handler
+	return &http.Server{
+		Addr:    net.JoinHostPort("0.0.0.0", "8080"),
+		Handler: handler,
+	}
 }
 
 // addRoutes adds the routes to the HTTP server
