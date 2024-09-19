@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/daniarmas/notes/internal/customerrors"
 	"github.com/daniarmas/notes/internal/server/utils"
 	"github.com/google/uuid"
 )
@@ -30,16 +31,30 @@ func (r *accessTokenRepository) GetAccessToken(ctx context.Context, id uuid.UUID
 	// Get the access token from cache
 	accessToken, err := r.AccessTokenCacheDs.GetAccessTokenById(ctx, id)
 	if err != nil {
-		slog.LogAttrs(
-			context.Background(),
-			slog.LevelError,
-			"Failed to get access token from cache",
-			slog.String("error", err.Error()),
-			slog.String("request_id", utils.ExtractRequestIdFromContext(ctx)),
-			slog.String("file", utils.GetFileName()),
-			slog.String("function", utils.GetFunctionName()),
-			slog.Int("line", utils.GetLineNumber()),
-		)
+		switch err.(type) {
+		case *customerrors.RecordNotFound:
+			slog.LogAttrs(
+				context.Background(),
+				slog.LevelInfo,
+				"Access token not found in cache",
+				slog.String("error", err.Error()),
+				slog.String("request_id", utils.ExtractRequestIdFromContext(ctx)),
+				slog.String("file", utils.GetFileName()),
+				slog.String("function", utils.GetFunctionName()),
+				slog.Int("line", utils.GetLineNumber()),
+			)
+		default:
+			slog.LogAttrs(
+				context.Background(),
+				slog.LevelError,
+				"Error getting access token from cache",
+				slog.String("error", err.Error()),
+				slog.String("request_id", utils.ExtractRequestIdFromContext(ctx)),
+				slog.String("file", utils.GetFileName()),
+				slog.String("function", utils.GetFunctionName()),
+				slog.Int("line", utils.GetLineNumber()),
+			)
+		}
 		// Get the user from the database
 		accessToken, err = r.AccessTokenDatabaseDs.GetAccessTokenId(ctx, id)
 		if err != nil {
@@ -53,6 +68,16 @@ func (r *accessTokenRepository) CreateAccessToken(ctx context.Context, accessTok
 	// Save the access token in the database
 	user, err := r.AccessTokenDatabaseDs.CreateAccessToken(ctx, accessToken)
 	if err != nil {
+		slog.LogAttrs(
+			context.Background(),
+			slog.LevelError,
+			"Error creating access token in the database",
+			slog.String("error", err.Error()),
+			slog.String("request_id", utils.ExtractRequestIdFromContext(ctx)),
+			slog.String("file", utils.GetFileName()),
+			slog.String("function", utils.GetFunctionName()),
+			slog.Int("line", utils.GetLineNumber()),
+		)
 		return nil, err
 	}
 
@@ -62,7 +87,7 @@ func (r *accessTokenRepository) CreateAccessToken(ctx context.Context, accessTok
 		slog.LogAttrs(
 			context.Background(),
 			slog.LevelError,
-			"Failed to cache access token",
+			"Error caching access token",
 			slog.String("error", err.Error()),
 			slog.String("request_id", utils.ExtractRequestIdFromContext(ctx)),
 			slog.String("file", utils.GetFileName()),
