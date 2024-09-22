@@ -1,19 +1,131 @@
 openapi: "3.1.0"
 info:
-  title: Example API
-  version: 1.0.0
+  title: Notes API
+  version: '1.0.0'
+servers:
+- url: https://api.notes.daniel-enrique.com/v1
+tags:
+  - name: Authentication
+    description: Endpoints related to user authentication
 paths:
-  /hello:
-    get:
-      summary: Returns a greeting message
+  /sign-in:
+    post:
+      summary: Sign in users
+      tags:
+        - Authentication
       responses:
         '200':
-          description: A greeting message
+          description: OK
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Hello, World!
+                $ref: '#/components/schemas/Response'
+              examples:
+                example1:
+                  summary: successful
+                  value:
+                    code: 200
+                    message: OK
+                    details: {}
+                    data: {"access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MzEwNzQwNzEsImlhdCI6MTYzMTA3MzY3MSwic3ViIjoiMzI2N2I5OTktYTNiYy00ODJlLWFhYmQtY2IyYjJiNjE4Y2I1In0.1", "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MzEwNzQwNzEsImlhdCI6MTYzMTA3MzY3MSwic3ViIjoiMzI2N2I5OTktYTNiYy00ODJlLWFhYmQtY2IyYjJiNjE4Y2I1In0.1", "user": {"id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5", "name": "John Snow", "email": "johnsnow@email.com", "create_time": "2024-09-08T19:33:41.250318Z", "update_time": "2024-09-08T19:33:41.250318Z"}}
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              examples:
+                example1:
+                  summary: Invalid email format
+                  value:
+                    code: 400
+                    message: Bad request
+                    details: {"email": "invalid format"}
+                    data: {}
+                example2:
+                  summary: Missing required fields
+                  value:
+                    code: 400
+                    message: Bad request
+                    details: {"email": "field required", "password": "field required"}
+                    data: {}
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              examples:
+                example1:
+                  summary: Invalid credentials
+                  value:
+                    code: 401
+                    message: Invalid credentials
+                    details: {}
+                    data: {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: johnsnow@email.com
+                password:
+                  type: string
+                  example: password
+
+components:
+  schemas:
+    Response:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        details:
+          type: object
+        data:
+          type: object
+    User:
+      type: object
+      description: User representation
+      required:
+      - name
+      - email
+      - password
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        name:
+          type: string
+          example: 'John Snow'
+        email:
+          type: string
+          example: "johnsnow@email.com"
+        password:
+          type: string
+          example: 'password'
+        create_time:
+          type: string
+          format: date-time
+          example: '2024-09-08T19:33:41.250318Z'
+        update_time:
+          type: string
+          format: date-time
+          example: '2024-09-08T19:33:41.250318Z'
+
+
+
+    UUID:
+      type: string
+      x-go-type: uuid.UUID
+      x-go-type-import:
+        name: uuid
+        path: github.com/google/uuid
+      example: 3267b999-a3bc-482e-aabd-cb2b2b618cb5
+

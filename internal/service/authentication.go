@@ -10,9 +10,9 @@ import (
 )
 
 type SignInResponse struct {
-	AccessToken  string
-	RefreshToken string
-	User         domain.User
+	AccessToken  string      `json:"access_token"`
+	RefreshToken string      `json:"refresh_token"`
+	User         domain.User `json:"user"`
 }
 
 type AuthenticationService interface {

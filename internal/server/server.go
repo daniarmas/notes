@@ -39,7 +39,7 @@ func addRoutes(
 		http.ServeFile(w, r, "docs/openapi.yaml")
 	})
 	// Swagger UI
-	mux.Handle("/doc/", http.StripPrefix("/doc", http.FileServer(http.Dir("docs/swaggerui/dist"))))
+	mux.Handle("GET /doc/", http.StripPrefix("/doc", http.FileServer(http.Dir("docs/swaggerui/dist"))))
 
 	// Notes
 

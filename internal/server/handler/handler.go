@@ -24,12 +24,16 @@ func Unauthorized(w http.ResponseWriter, r *http.Request, message string, errors
 	json.NewEncoder(w).Encode(res)
 }
 
-func BadRequest(w http.ResponseWriter, r *http.Request, message string, errors map[string]string) {
+func BadRequest(w http.ResponseWriter, r *http.Request, message *string, errors map[string]string) {
+	if message == nil {
+		defaultMessage := "Bad Request"
+		message = &defaultMessage
+	}
 	res := response{
 		Code:    http.StatusBadRequest,
-		Message: message,
+		Message: *message,
 		Details: errors,
-		Data:    nil,
+		Data:    struct{}{},
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusBadRequest)
