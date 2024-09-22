@@ -5,6 +5,8 @@ import (
 	"net/http"
 )
 
+var emptyStruct = struct{}{}
+
 type response struct {
 	Code    int         `json:"code"`
 	Message any         `json:"message"`
@@ -17,7 +19,7 @@ func Unauthorized(w http.ResponseWriter, r *http.Request, message string, errors
 		Code:    http.StatusUnauthorized,
 		Message: message,
 		Details: errors,
-		Data:    nil,
+		Data:    &emptyStruct,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusUnauthorized)
@@ -33,7 +35,7 @@ func BadRequest(w http.ResponseWriter, r *http.Request, message *string, errors 
 		Code:    http.StatusBadRequest,
 		Message: *message,
 		Details: errors,
-		Data:    struct{}{},
+		Data:    &emptyStruct,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusBadRequest)
@@ -44,7 +46,7 @@ func StatusOk(w http.ResponseWriter, r *http.Request, data any) {
 	res := response{
 		Code:    http.StatusOK,
 		Message: "OK",
-		Details: nil,
+		Details: &emptyStruct,
 		Data:    data,
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -56,8 +58,8 @@ func InternalServerError(w http.ResponseWriter, r *http.Request) {
 	res := response{
 		Code:    http.StatusInternalServerError,
 		Message: "Internal Server Error",
-		Details: nil,
-		Data:    nil,
+		Details: &emptyStruct,
+		Data:    &emptyStruct,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusInternalServerError)
@@ -71,8 +73,8 @@ func NotFound(w http.ResponseWriter, r *http.Request, message string) {
 	res := response{
 		Code:    http.StatusNotFound,
 		Message: message,
-		Details: nil,
-		Data:    nil,
+		Details: &emptyStruct,
+		Data:    &emptyStruct,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusNotFound)
