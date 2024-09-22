@@ -18,12 +18,12 @@ type SignInRequest struct {
 func (r SignInRequest) Validate() map[string]string {
 	errors := make(map[string]string)
 	if r.Email == "" {
-		errors["email"] = "email is required"
+		errors["email"] = "field required"
 	} else {
 		validate.ValidateEmail(&errors, r.Email)
 	}
 	if r.Password == "" {
-		errors["password"] = "password is required"
+		errors["password"] = "field required"
 	}
 	return errors
 }
@@ -36,14 +36,15 @@ func SignInHandler(srv service.AuthenticationService) http.HandlerFunc {
 			var req SignInRequest
 			err := json.NewDecoder(r.Body).Decode(&req)
 			if err != nil {
-				BadRequest(w, r, "Invalid JSON request", nil)
+				msg := "Invalid JSON request"
+				BadRequest(w, r, &msg, nil)
 				return
 			}
 			defer r.Body.Close()
 
 			// Validate the request and return an InvalidRequestDataError if there are any errors
 			if errors := req.Validate(); len(errors) > 0 {
-				BadRequest(w, r, "Invalid request data", nil)
+				BadRequest(w, r, nil, errors)
 				return
 			}
 

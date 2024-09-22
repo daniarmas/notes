@@ -32,6 +32,17 @@ func addRoutes(
 	authenticationService service.AuthenticationService,
 ) {
 	mux.HandleFunc("/", handler.NotFoundHandler)
+	// Health check
 	mux.HandleFunc("GET /health", handler.HealthCheckHandler)
+	// OpenAPI specification
+	mux.HandleFunc("/openapi.yaml", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "docs/openapi.yaml")
+	})
+	// Swagger UI
+	mux.Handle("GET /doc/", http.StripPrefix("/doc", http.FileServer(http.Dir("docs/swaggerui/dist"))))
+
+	// Notes
+
+	// Authentication
 	mux.HandleFunc("POST /sign-in", handler.SignInHandler(authenticationService))
 }
