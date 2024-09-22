@@ -56,6 +56,18 @@ func NewUserCacheDs(redis *redis.Client) domain.UserCacheDs {
 	}
 }
 
+func (ds *userCacheDs) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
+	key := fmt.Sprintf("user:email:%s", email)
+	var response User
+	if err := ds.redis.HGetAll(ctx, key).Scan(&response); err != nil {
+		return nil, err
+	}
+	if response.Id == "" {
+		return nil, &customerrors.RecordNotFound{}
+	}
+	return response.ParseToDomain(), nil
+}
+
 func (ds *userCacheDs) GetUserById(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	key := fmt.Sprintf("user:%s", id)
 	var response User
