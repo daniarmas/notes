@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/daniarmas/notes/internal/clog"
-	"github.com/daniarmas/notes/internal/server/utils"
+	"github.com/daniarmas/notes/internal/utils"
 	"github.com/rs/xid"
 )
 

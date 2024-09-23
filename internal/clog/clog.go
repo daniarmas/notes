@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/daniarmas/notes/internal/server/utils"
+	"github.com/daniarmas/notes/internal/utils"
 )
 
 // Clog is a custom logger that wraps the slog package

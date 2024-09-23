@@ -1,11 +1,12 @@
-package handler
+package httphandler
 
 import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/daniarmas/notes/internal/server/validate"
+	"github.com/daniarmas/notes/internal/server/response"
 	"github.com/daniarmas/notes/internal/service"
+	"github.com/daniarmas/notes/internal/validate"
 )
 
 // Represents the structure of the sign-in request
@@ -29,7 +30,7 @@ func (r SignInRequest) Validate() map[string]string {
 }
 
 // Handler for the sign-in endpoint
-func SignInHandler(srv service.AuthenticationService) http.HandlerFunc {
+func SignIn(srv service.AuthenticationService) http.HandlerFunc {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			// Parse the request body into a SignInRequest struct
@@ -37,14 +38,14 @@ func SignInHandler(srv service.AuthenticationService) http.HandlerFunc {
 			err := json.NewDecoder(r.Body).Decode(&req)
 			if err != nil {
 				msg := "Invalid JSON request"
-				BadRequest(w, r, &msg, nil)
+				response.BadRequest(w, r, &msg, nil)
 				return
 			}
 			defer r.Body.Close()
 
 			// Validate the request and return an InvalidRequestDataError if there are any errors
 			if errors := req.Validate(); len(errors) > 0 {
-				BadRequest(w, r, nil, errors)
+				response.BadRequest(w, r, nil, errors)
 				return
 			}
 
@@ -52,14 +53,14 @@ func SignInHandler(srv service.AuthenticationService) http.HandlerFunc {
 			if err != nil {
 				switch err.Error() {
 				case "invalid credentials":
-					Unauthorized(w, r, "Invalid credentials", nil)
+					response.Unauthorized(w, r, "Invalid credentials", nil)
 					return
 				default:
-					InternalServerError(w, r)
+					response.InternalServerError(w, r)
 					return
 				}
 			}
-			StatusOk(w, r, res)
+			response.StatusOk(w, r, res)
 		},
 	)
 }
