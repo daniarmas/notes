@@ -9,7 +9,7 @@ import (
 
 type HandleFunc struct {
 	Pattern string
-	Handler func(http.ResponseWriter, *http.Request)
+	Handler http.HandlerFunc
 }
 
 type Server struct {
