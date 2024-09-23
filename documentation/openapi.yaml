@@ -3,10 +3,9 @@ info:
   title: Notes API
   version: '1.0.0'
 servers:
-- url: https://api.notes.daniel-enrique.com/v1
+- url: https://api.notes.daniel-enrique.com
 tags:
   - name: Authentication
-    description: Endpoints related to user authentication
 paths:
   /sign-in:
     post:
@@ -107,9 +106,6 @@ components:
         email:
           type: string
           example: "johnsnow@email.com"
-        password:
-          type: string
-          example: 'password'
         create_time:
           type: string
           format: date-time

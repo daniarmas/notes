@@ -60,6 +60,7 @@ func SignIn(srv service.AuthenticationService) http.HandlerFunc {
 					return
 				}
 			}
+
 			response.StatusOk(w, r, res)
 		},
 	)
