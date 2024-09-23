@@ -1,36 +1,30 @@
 package server
 
 import (
-	"net"
 	"net/http"
 
 	"github.com/daniarmas/notes/internal/server/handler"
 	"github.com/daniarmas/notes/internal/server/middleware"
-	"github.com/daniarmas/notes/internal/service"
 )
 
-// NewServer creates a new HTTP server
-func NewServer(
-	authenticationService service.AuthenticationService,
-) *http.Server {
-	mux := http.NewServeMux()
-	addRoutes(
-		mux,
-		authenticationService,
-	)
-	var handler http.Handler = mux
-	handler = middleware.LoggingMiddleware(handler)
-	return &http.Server{
-		Addr:    net.JoinHostPort("0.0.0.0", "8080"),
-		Handler: handler,
-	}
+type HandleFunc struct {
+	Pattern string
+	Handler func(http.ResponseWriter, *http.Request)
 }
 
-// addRoutes adds the routes to the HTTP server
-func addRoutes(
-	mux *http.ServeMux,
-	authenticationService service.AuthenticationService,
-) {
+type Server struct {
+	Mux        *http.ServeMux
+	HttpServer *http.Server
+}
+
+// NewServer creates and configures a new HTTP server with the specified address.
+func NewServer(addr string) *Server {
+	// Create a new ServeMux
+	mux := http.NewServeMux()
+
+	// Add routes
+
+	// Not found
 	mux.HandleFunc("/", handler.NotFoundHandler)
 	// Health check
 	mux.HandleFunc("GET /health", handler.HealthCheckHandler)
@@ -41,8 +35,25 @@ func addRoutes(
 	// Swagger UI
 	mux.Handle("GET /doc/", http.StripPrefix("/doc", http.FileServer(http.Dir("docs/swaggerui/dist"))))
 
-	// Notes
+	var handler http.Handler = mux
+	// Add logging middleware
+	handler = middleware.LoggingMiddleware(handler)
+	// Create the HTTP server
+	httpServer := &http.Server{
+		Addr:    addr,
+		Handler: handler,
+	}
+	return &Server{
+		Mux:        mux,
+		HttpServer: httpServer,
+	}
+}
 
-	// Authentication
-	mux.HandleFunc("POST /sign-in", handler.SignInHandler(authenticationService))
+// AddRoutes adds routes to the server
+func (s *Server) AddRoutes(
+	handlers []HandleFunc,
+) {
+	for _, h := range handlers {
+		s.Mux.HandleFunc(h.Pattern, h.Handler)
+	}
 }

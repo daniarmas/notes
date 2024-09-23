@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -17,6 +18,7 @@ import (
 	"github.com/daniarmas/notes/internal/database"
 	"github.com/daniarmas/notes/internal/domain"
 	"github.com/daniarmas/notes/internal/server"
+	"github.com/daniarmas/notes/internal/server/handler"
 	"github.com/daniarmas/notes/internal/service"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/spf13/cobra"
@@ -62,11 +64,20 @@ func run(ctx context.Context) error {
 	authenticationService := service.NewAuthenticationService(jwtDatasource, hashDatasource, userRepository, accessTokenRepository, refreshTokenRepository)
 
 	// Http server
-	httpServer := server.NewServer(authenticationService)
+	srv := server.NewServer(net.JoinHostPort("0.0.0.0", "8080"))
+
+	// Add routes
+	// Authentication
+	signInHandler := server.HandleFunc{Pattern: "POST /sign-in", Handler: handler.SignInHandler(authenticationService)}
+
+	srv.AddRoutes([]server.HandleFunc{
+		signInHandler,
+	})
+
 	go func() {
-		msg := fmt.Sprintf("Http server listening on %s\n", httpServer.Addr)
+		msg := fmt.Sprintf("Http server listening on %s\n", srv.HttpServer.Addr)
 		clog.Info(ctx, msg, nil)
-		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := srv.HttpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			clog.Error(ctx, "error listening and serving", err)
 		}
 	}()
@@ -77,7 +88,7 @@ func run(ctx context.Context) error {
 		<-ctx.Done()
 		shutdownCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 		defer cancel()
-		if err := httpServer.Shutdown(shutdownCtx); err != nil {
+		if err := srv.HttpServer.Shutdown(shutdownCtx); err != nil {
 			clog.Error(ctx, "error shutting down http server", err)
 		}
 	}()
