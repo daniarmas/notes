@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/daniarmas/notes/internal/server/utils"
+	"github.com/daniarmas/notes/internal/utils"
 	"github.com/google/uuid"
 )
 

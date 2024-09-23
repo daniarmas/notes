@@ -17,8 +17,8 @@ import (
 	"github.com/daniarmas/notes/internal/data"
 	"github.com/daniarmas/notes/internal/database"
 	"github.com/daniarmas/notes/internal/domain"
+	"github.com/daniarmas/notes/internal/httphandler"
 	"github.com/daniarmas/notes/internal/server"
-	"github.com/daniarmas/notes/internal/server/handler"
 	"github.com/daniarmas/notes/internal/service"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/spf13/cobra"
@@ -63,14 +63,12 @@ func run(ctx context.Context) error {
 	// Services
 	authenticationService := service.NewAuthenticationService(jwtDatasource, hashDatasource, userRepository, accessTokenRepository, refreshTokenRepository)
 
-	// Http server
-	srv := server.NewServer(net.JoinHostPort("0.0.0.0", "8080"))
-
-	// Add routes
+	// Routes
 	// Authentication
-	signInHandler := server.HandleFunc{Pattern: "POST /sign-in", Handler: handler.SignInHandler(authenticationService)}
+	signInHandler := server.HandleFunc{Pattern: "POST /sign-in", Handler: httphandler.SignIn(authenticationService)}
 
-	srv.AddRoutes([]server.HandleFunc{
+	// Http server
+	srv := server.NewServer(net.JoinHostPort("0.0.0.0", "8080"), []server.HandleFunc{
 		signInHandler,
 	})
 
