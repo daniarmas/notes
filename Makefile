@@ -42,3 +42,6 @@ coverage:
 ocov:
 	open coverage.html
 
+tests:
+	@echo "Running tests..."
+	go test ./...

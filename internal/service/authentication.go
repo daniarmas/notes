@@ -87,10 +87,7 @@ func (s *authenticationService) SignIn(ctx context.Context, email string, passwo
 		return nil, err
 	}
 	// Create a new access token
-	accessToken, err := s.AccessTokenRepository.CreateAccessToken(ctx, &domain.AccessToken{
-		UserId:         user.Id,
-		RefreshTokenId: refreshToken.Id,
-	})
+	accessToken, err := s.AccessTokenRepository.CreateAccessToken(ctx, user.Id, refreshToken.Id)
 	if err != nil {
 		return nil, err
 	}

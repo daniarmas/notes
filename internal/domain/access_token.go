@@ -15,9 +15,9 @@ type AccessToken struct {
 }
 
 // NewAccessToken creates a new AccessToken instance
-func NewAccessToken(userId uuid.UUID, refreshTokenId uuid.UUID) AccessToken {
+func NewAccessToken(userId uuid.UUID, refreshTokenId uuid.UUID) *AccessToken {
 	now := time.Now()
-	return AccessToken{
+	return &AccessToken{
 		Id:             uuid.New(),
 		UserId:         userId,
 		RefreshTokenId: refreshTokenId,
