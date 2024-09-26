@@ -84,5 +84,5 @@ func NotFoundHandler(w http.ResponseWriter, r *http.Request) {
 
 // OpenApiHanlder handles requests for the OpenAPI specification.
 func OpenApiHanlder(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "api/openapi.yaml")
+	http.ServeFile(w, r, "api/openapi-spec/openapi.yaml")
 }
