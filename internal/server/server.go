@@ -36,7 +36,7 @@ func NewServer(addr string, handlers []HandleFunc) *Server {
 	// OpenAPI specification
 	mux.HandleFunc("/openapi.yaml", OpenApiHanlder)
 	// Swagger UI
-	mux.Handle("GET /doc/", http.StripPrefix("/doc", http.FileServer(http.Dir("documentation/swaggerui/dist"))))
+	mux.Handle("GET /doc/", http.StripPrefix("/doc", http.FileServer(http.Dir("third_party/swaggerui/dist"))))
 
 	var handler http.Handler = mux
 	// Add logging middleware
@@ -84,5 +84,5 @@ func NotFoundHandler(w http.ResponseWriter, r *http.Request) {
 
 // OpenApiHanlder handles requests for the OpenAPI specification.
 func OpenApiHanlder(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "documentation/openapi.yaml")
+	http.ServeFile(w, r, "api/openapi.yaml")
 }
