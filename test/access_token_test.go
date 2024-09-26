@@ -1,16 +1,18 @@
 package domain
 
 import (
-	"github.com/google/uuid"
 	"testing"
+
+	"github.com/daniarmas/notes/internal/domain"
+	"github.com/google/uuid"
 )
 
 // Test the NewAccessToken func
 func TestNewAccessToken(t *testing.T) {
-	t.Run("TestNewAccessToken", func(t *testing.T) {
+	t.Run("Test the NewAccessToken func", func(t *testing.T) {
 		userId := uuid.New()
 		refreshTokenId := uuid.New()
-		got := NewAccessToken(userId, refreshTokenId)
+		got := domain.NewAccessToken(userId, refreshTokenId)
 
 		if got.UserId != userId {
 			t.Errorf("TestNewAccessToken failed: got UserId %s, want %s", got.UserId, userId)
