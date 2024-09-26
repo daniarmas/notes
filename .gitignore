@@ -27,3 +27,7 @@ go.work.sum
 
 # test file
 cmd/test_file.go
+
+# Test coverage files
+coverage.html
+coverage.out

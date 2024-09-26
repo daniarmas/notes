@@ -33,3 +33,12 @@ docker-up:
 docker-down:
 	@echo "Removing docker containers and volumes..."
 	docker compose -f deployments/docker-compose-dev.yaml down -v
+
+coverage:
+	@echo "Running test coverage..."
+	go test ./... -coverprofile=coverage.out
+	go tool cover -html=coverage.out -o coverage.html
+
+ocov:
+	open coverage.html
+
