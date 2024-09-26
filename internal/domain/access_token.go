@@ -13,3 +13,15 @@ type AccessToken struct {
 	CreateTime     time.Time `json:"create_time"`
 	UpdateTime     time.Time `json:"update_time"`
 }
+
+// NewAccessToken creates a new AccessToken instance
+func NewAccessToken(userId uuid.UUID, refreshTokenId uuid.UUID) AccessToken {
+	now := time.Now()
+	return AccessToken{
+		Id:             uuid.New(),
+		UserId:         userId,
+		RefreshTokenId: refreshTokenId,
+		CreateTime:     now,
+		UpdateTime:     now,
+	}
+}
