@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -17,8 +16,7 @@ import (
 	"github.com/daniarmas/notes/internal/data"
 	"github.com/daniarmas/notes/internal/database"
 	"github.com/daniarmas/notes/internal/domain"
-	"github.com/daniarmas/notes/internal/httphandler"
-	"github.com/daniarmas/notes/internal/server"
+	"github.com/daniarmas/notes/internal/httpserver"
 	"github.com/daniarmas/notes/internal/service"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/spf13/cobra"
@@ -63,14 +61,8 @@ func run(ctx context.Context) error {
 	// Services
 	authenticationService := service.NewAuthenticationService(jwtDatasource, hashDatasource, userRepository, accessTokenRepository, refreshTokenRepository)
 
-	// Routes
-	// Authentication
-	signInHandler := server.HandleFunc{Pattern: "POST /sign-in", Handler: httphandler.SignIn(authenticationService)}
-
 	// Http server
-	srv := server.NewServer(net.JoinHostPort("0.0.0.0", "8080"), []server.HandleFunc{
-		signInHandler,
-	})
+	srv := httpserver.NewServer(authenticationService)
 
 	go func() {
 		msg := fmt.Sprintf("Http server listening on %s\n", srv.HttpServer.Addr)
