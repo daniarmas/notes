@@ -53,7 +53,7 @@ func (d *accessTokenDatabaseDs) CreateAccessToken(ctx context.Context, accessTok
 	return parseAccessTokenToDomain(&res), nil
 }
 
-func (d *accessTokenDatabaseDs) GetAccessTokenId(ctx context.Context, id uuid.UUID) (*domain.AccessToken, error) {
+func (d *accessTokenDatabaseDs) GetAccessTokenById(ctx context.Context, id uuid.UUID) (*domain.AccessToken, error) {
 	res, err := d.queries.GetAccessTokenById(ctx, id)
 	if err != nil {
 		switch err.Error() {

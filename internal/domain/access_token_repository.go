@@ -20,10 +20,10 @@ type accessTokenRepository struct {
 	AccessTokenDatabaseDs AccessTokenDatabaseDs
 }
 
-func NewAccessTokenRepository(accessTokenCacheDs *AccessTokenCacheDs, accessTokenDatabaseDs *AccessTokenDatabaseDs) AccessTokenRepository {
+func NewAccessTokenRepository(accessTokenCacheDs AccessTokenCacheDs, accessTokenDatabaseDs AccessTokenDatabaseDs) AccessTokenRepository {
 	return &accessTokenRepository{
-		AccessTokenCacheDs:    *accessTokenCacheDs,
-		AccessTokenDatabaseDs: *accessTokenDatabaseDs,
+		AccessTokenCacheDs:    accessTokenCacheDs,
+		AccessTokenDatabaseDs: accessTokenDatabaseDs,
 	}
 }
 
@@ -56,7 +56,7 @@ func (r *accessTokenRepository) GetAccessToken(ctx context.Context, id uuid.UUID
 			)
 		}
 		// Get the user from the database
-		accessToken, err = r.AccessTokenDatabaseDs.GetAccessTokenId(ctx, id)
+		accessToken, err = r.AccessTokenDatabaseDs.GetAccessTokenById(ctx, id)
 		if err != nil {
 			return nil, err
 		}
