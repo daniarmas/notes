@@ -14,9 +14,7 @@ func Routes(authenticationService service.AuthenticationService) []HandleFunc {
 		// Health check
 		{Pattern: "GET /health", Handler: handler.HealthCheckHandler},
 		// OpenAPI specification
-		{Pattern: "GET /openapi.yaml", Handler: handler.OpenApiHanlder},
-		// Swagger UI
-		{Pattern: "GET /doc/", Handler: handler.SwaggerUiHandler},
+		{Pattern: "GET /swagger.json", Handler: handler.OpenApiHanlder},
 
 		// Authentication
 		{Pattern: "POST /sign-in", Handler: handler.SignIn(authenticationService)},

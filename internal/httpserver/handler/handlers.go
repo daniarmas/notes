@@ -10,12 +10,7 @@ import (
 
 // OpenApiHanlder handles requests for the OpenAPI specification.
 func OpenApiHanlder(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "api/openapi-spec/openapi.yaml")
-}
-
-// SwaggerUiHandler handles requests for the Swagger UI.
-func SwaggerUiHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "third_party/swaggerui/dist/index.html")
+	http.ServeFile(w, r, "api/openapi-spec/swagger.json")
 }
 
 // HealthCheckResponse represents the structure of the health check response
