@@ -11,7 +11,7 @@ import (
 
 type AccessTokenRepository interface {
 	GetAccessToken(ctx context.Context, id uuid.UUID) (*AccessToken, error)
-	CreateAccessToken(ctx context.Context, accessToken *AccessToken) (*AccessToken, error)
+	CreateAccessToken(ctx context.Context, userId uuid.UUID, refreshTokenId uuid.UUID) (*AccessToken, error)
 	DeleteAccessTokenByUserId(ctx context.Context, userId uuid.UUID) error
 }
 
@@ -20,10 +20,10 @@ type accessTokenRepository struct {
 	AccessTokenDatabaseDs AccessTokenDatabaseDs
 }
 
-func NewAccessTokenRepository(accessTokenCacheDs *AccessTokenCacheDs, accessTokenDatabaseDs *AccessTokenDatabaseDs) AccessTokenRepository {
+func NewAccessTokenRepository(accessTokenCacheDs AccessTokenCacheDs, accessTokenDatabaseDs AccessTokenDatabaseDs) AccessTokenRepository {
 	return &accessTokenRepository{
-		AccessTokenCacheDs:    *accessTokenCacheDs,
-		AccessTokenDatabaseDs: *accessTokenDatabaseDs,
+		AccessTokenCacheDs:    accessTokenCacheDs,
+		AccessTokenDatabaseDs: accessTokenDatabaseDs,
 	}
 }
 
@@ -56,7 +56,7 @@ func (r *accessTokenRepository) GetAccessToken(ctx context.Context, id uuid.UUID
 			)
 		}
 		// Get the user from the database
-		accessToken, err = r.AccessTokenDatabaseDs.GetAccessTokenId(ctx, id)
+		accessToken, err = r.AccessTokenDatabaseDs.GetAccessTokenById(ctx, id)
 		if err != nil {
 			return nil, err
 		}
@@ -64,9 +64,10 @@ func (r *accessTokenRepository) GetAccessToken(ctx context.Context, id uuid.UUID
 	return accessToken, nil
 }
 
-func (r *accessTokenRepository) CreateAccessToken(ctx context.Context, accessToken *AccessToken) (*AccessToken, error) {
+func (r *accessTokenRepository) CreateAccessToken(ctx context.Context, userId uuid.UUID, refreshTokenId uuid.UUID) (*AccessToken, error) {
+	accessToken := NewAccessToken(userId, refreshTokenId)
 	// Save the access token in the database
-	user, err := r.AccessTokenDatabaseDs.CreateAccessToken(ctx, accessToken)
+	accessToken, err := r.AccessTokenDatabaseDs.CreateAccessToken(ctx, accessToken)
 	if err != nil {
 		slog.LogAttrs(
 			context.Background(),
@@ -82,7 +83,7 @@ func (r *accessTokenRepository) CreateAccessToken(ctx context.Context, accessTok
 	}
 
 	// Cache the access token
-	err = r.AccessTokenCacheDs.CreateAccessToken(ctx, user)
+	err = r.AccessTokenCacheDs.CreateAccessToken(ctx, accessToken)
 	if err != nil {
 		slog.LogAttrs(
 			context.Background(),
@@ -96,7 +97,7 @@ func (r *accessTokenRepository) CreateAccessToken(ctx context.Context, accessTok
 		)
 	}
 
-	return user, nil
+	return accessToken, nil
 }
 
 func (r *accessTokenRepository) DeleteAccessTokenByUserId(ctx context.Context, userId uuid.UUID) error {

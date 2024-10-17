@@ -55,7 +55,7 @@ func run(ctx context.Context) error {
 
 	// Repositories
 	userRepository := domain.NewUserRepository(&userCacheDs, &userDatabaseDs)
-	accessTokenRepository := domain.NewAccessTokenRepository(&accessTokenCacheDs, &accessTokenDatabaseDs)
+	accessTokenRepository := domain.NewAccessTokenRepository(accessTokenCacheDs, accessTokenDatabaseDs)
 	refreshTokenRepository := domain.NewRefreshTokenRepository(&refreshTokenCacheDs, &refreshTokenDatabaseDs)
 
 	// Services
