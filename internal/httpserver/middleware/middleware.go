@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/daniarmas/notes/internal/clog"
+	"github.com/daniarmas/notes/internal/domain"
 	"github.com/daniarmas/notes/internal/utils"
 	"github.com/rs/xid"
 )
@@ -19,6 +20,20 @@ type responseWriter struct {
 func (rw *responseWriter) WriteHeader(code int) {
 	rw.statusCode = code
 	rw.ResponseWriter.WriteHeader(code)
+}
+
+// SetUserInContext is a middleware that sets the user in the context
+func SetUserInContext(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Get the user from the request context
+		user := domain.GetUserFromContext(r.Context())
+
+		// Set the user in the context
+		ctx := domain.SetUserInContext(r.Context(), user)
+
+		// Call the next handler with the modified context
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
 // AllowCORS is a middleware that sets the CORS headers

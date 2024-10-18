@@ -30,9 +30,10 @@ func NewServer(authenticationService service.AuthenticationService) *Server {
 	}
 
 	var handler http.Handler = mux
-	// Add logging middleware
+	// Add middlewares
 	handler = middleware.LoggingMiddleware(handler)
 	handler = middleware.AllowCORS(handler)
+	handler = middleware.SetUserInContext(handler)
 
 	// Create the HTTP server
 	httpServer := &http.Server{

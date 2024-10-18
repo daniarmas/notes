@@ -17,6 +17,7 @@ type SignInResponse struct {
 
 type AuthenticationService interface {
 	SignIn(ctx context.Context, email string, password string) (*SignInResponse, error)
+	SignOut(ctx context.Context) error
 }
 
 type authenticationService struct {
@@ -110,4 +111,20 @@ func (s *authenticationService) SignIn(ctx context.Context, email string, passwo
 		RefreshToken: *refreshTokenJWT,
 		User:         *user,
 	}, nil
+}
+
+func (s *authenticationService) SignOut(ctx context.Context) error {
+	// Get the user from the context
+	user := domain.GetUserFromContext(ctx)
+	// Delete the existing access token
+	err := s.AccessTokenRepository.DeleteAccessTokenByUserId(ctx, user.Id)
+	if err != nil {
+		return err
+	}
+	// Delete the existing refresh token
+	err = s.RefreshTokenRepository.DeleteRefreshTokenByUserId(ctx, user.Id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
