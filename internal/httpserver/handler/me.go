@@ -7,13 +7,13 @@ import (
 	"github.com/daniarmas/notes/internal/service"
 )
 
-// Handler for the sign-out endpoint
-func SignOut(srv service.AuthenticationService) http.HandlerFunc {
+// Handler for the me endpoint
+func Me(srv service.AuthenticationService) http.HandlerFunc {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			defer r.Body.Close()
 
-			err := srv.SignOut(r.Context())
+			res, err := srv.Me(r.Context())
 			if err != nil {
 				switch err.Error() {
 				default:
@@ -22,7 +22,7 @@ func SignOut(srv service.AuthenticationService) http.HandlerFunc {
 				}
 			}
 
-			response.StatusOk(w, r, nil)
+			response.StatusOk(w, r, res)
 		},
 	)
 }
