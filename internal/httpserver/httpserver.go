@@ -20,12 +20,12 @@ type Server struct {
 }
 
 // NewServer creates and configures a new HTTP server with the specified address.
-func NewServer(authenticationService service.AuthenticationService, jwtDatasource domain.JwtDatasource) *Server {
+func NewServer(authenticationService service.AuthenticationService, noteService service.NoteService, jwtDatasource domain.JwtDatasource) *Server {
 	// Create a new ServeMux
 	mux := http.NewServeMux()
 
 	// Routes
-	routes := Routes(authenticationService)
+	routes := Routes(authenticationService, noteService)
 	for _, h := range routes {
 		mux.HandleFunc(h.Pattern, h.Handler)
 	}
