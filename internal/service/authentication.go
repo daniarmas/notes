@@ -15,9 +15,14 @@ type SignInResponse struct {
 	User         domain.User `json:"user"`
 }
 
+type MeResponse struct {
+	User domain.User `json:"user"`
+}
+
 type AuthenticationService interface {
 	SignIn(ctx context.Context, email string, password string) (*SignInResponse, error)
 	SignOut(ctx context.Context) error
+	Me(ctx context.Context) (*MeResponse, error)
 }
 
 type authenticationService struct {
@@ -127,4 +132,17 @@ func (s *authenticationService) SignOut(ctx context.Context) error {
 		return err
 	}
 	return nil
+}
+
+func (s *authenticationService) Me(ctx context.Context) (*MeResponse, error) {
+	// Get the user from the context
+	userId := domain.GetUserIdFromContext(ctx)
+	// Get the user by id
+	user, err := s.UserRepository.GetUserById(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+	return &MeResponse{
+		User: *user,
+	}, nil
 }

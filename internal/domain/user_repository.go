@@ -51,6 +51,10 @@ func (d *userRepo) GetUserById(ctx context.Context, id uuid.UUID) (*User, error)
 		if err != nil {
 			return nil, err
 		}
+		err = d.UserCacheDs.CreateUser(ctx, user)
+		if err != nil {
+			log.Println(err)
+		}
 	}
 	return user, nil
 }

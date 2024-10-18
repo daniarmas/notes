@@ -20,6 +20,7 @@ func Routes(authenticationService service.AuthenticationService) []HandleFunc {
 		{Pattern: "GET /swagger.json", Handler: handler.OpenApiHanlder},
 
 		// Authentication
+		{Pattern: "GET /me", Handler: middleware.LoggedOnly(handler.Me(authenticationService)).(http.HandlerFunc)},
 		{Pattern: "POST /sign-in", Handler: handler.SignIn(authenticationService)},
 		{Pattern: "POST /sign-out", Handler: middleware.LoggedOnly(handler.SignOut(authenticationService)).(http.HandlerFunc)},
 	}
