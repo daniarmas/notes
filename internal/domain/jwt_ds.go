@@ -17,7 +17,14 @@ type JwtDatasource interface {
 
 type JWTMetadata struct {
 	TokenId uuid.UUID
+	UserId  uuid.UUID
 	Token   string
+}
+
+// CustomClaims defines the structure of the JWT claims
+type CustomClaims struct {
+	UserID string `json:"user_id"`
+	jwt.StandardClaims
 }
 
 type jwtTokenDatasource struct {
@@ -31,11 +38,16 @@ func NewJWTDatasource(cfg *config.Configuration) JwtDatasource {
 }
 
 func (j *jwtTokenDatasource) CreateJWT(tokenMetadata *JWTMetadata, expirationTime time.Time) (*string, error) {
+	// Create the claims
+	claims := CustomClaims{
+		UserID: tokenMetadata.UserId.String(),
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expirationTime.Unix(),
+			Subject:   tokenMetadata.TokenId.String(),
+		},
+	}
 	hmacSecret := []byte(j.Config.JwtSecret)
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
-		ExpiresAt: expirationTime.Unix(),
-		Subject:   tokenMetadata.TokenId.String(),
-	})
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	// Sign and get the complete encoded token as a string using the secret
 	tokenString, err := token.SignedString(hmacSecret)
 	if err != nil {
@@ -63,12 +75,9 @@ func (r *jwtTokenDatasource) ParseJWT(tokenMetadata *JWTMetadata) error {
 	})
 	if err != nil {
 		return err
-	} else if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		data := fmt.Sprintf("%s", claims["sub"])
-		tokenIdValue := uuid.MustParse(data)
-		tokenMetadata.TokenId = tokenIdValue
-		return nil
 	} else {
-		return err
+		tokenMetadata.TokenId, _ = uuid.Parse(token.Claims.(jwt.MapClaims)["sub"].(string))
+		tokenMetadata.UserId, _ = uuid.Parse(token.Claims.(jwt.MapClaims)["user_id"].(string))
+		return nil
 	}
 }

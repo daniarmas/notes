@@ -62,7 +62,7 @@ func run(ctx context.Context) error {
 	authenticationService := service.NewAuthenticationService(jwtDatasource, hashDatasource, userRepository, accessTokenRepository, refreshTokenRepository)
 
 	// Http server
-	srv := httpserver.NewServer(authenticationService)
+	srv := httpserver.NewServer(authenticationService, jwtDatasource)
 
 	go func() {
 		msg := fmt.Sprintf("Http server listening on %s\n", srv.HttpServer.Addr)

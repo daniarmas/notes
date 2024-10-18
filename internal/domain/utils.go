@@ -1,20 +1,24 @@
 package domain
 
-import "context"
+import (
+	"context"
+
+	"github.com/google/uuid"
+)
 
 // SetUserInContext sets the user in the context
-func SetUserInContext(ctx context.Context, user *User) context.Context {
-	if user == nil {
+func SetUserInContext(ctx context.Context, userId uuid.UUID) context.Context {
+	if userId == uuid.Nil {
 		return ctx
 	} else {
-		return context.WithValue(ctx, "user", user)
+		return context.WithValue(ctx, "userId", userId.String())
 	}
 }
 
 // Get user from context
-func GetUserFromContext(ctx context.Context) *User {
-	if user, ok := ctx.Value("user").(User); ok {
-		return &user
+func GetUserIdFromContext(ctx context.Context) uuid.UUID {
+	if user, ok := ctx.Value("userId").(string); ok {
+		return uuid.MustParse(user)
 	}
-	return nil
+	return uuid.Nil
 }
