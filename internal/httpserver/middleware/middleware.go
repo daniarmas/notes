@@ -9,6 +9,7 @@ import (
 	"github.com/daniarmas/notes/internal/domain"
 	"github.com/daniarmas/notes/internal/httpserver/response"
 	"github.com/daniarmas/notes/internal/utils"
+	"github.com/google/uuid"
 	"github.com/rs/xid"
 )
 
@@ -113,5 +114,17 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 			clog.String("user_agent", r.Header.Get("User-Agent")),
 			clog.String("request_id", requestID),
 		)
+	})
+}
+
+func LoggedOnly(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		userId := domain.GetUserIdFromContext(r.Context())
+		if userId == uuid.Nil {
+			response.Unauthorized(w, r, "user is not logged in. please log in to access this resource.", nil)
+			return
+		}
+		// Call the next handler
+		h.ServeHTTP(w, r)
 	})
 }
