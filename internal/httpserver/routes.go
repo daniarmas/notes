@@ -18,5 +18,6 @@ func Routes(authenticationService service.AuthenticationService) []HandleFunc {
 
 		// Authentication
 		{Pattern: "POST /sign-in", Handler: handler.SignIn(authenticationService)},
+		{Pattern: "POST /sign-out", Handler: handler.SignOut(authenticationService)},
 	}
 }

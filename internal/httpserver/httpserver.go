@@ -4,6 +4,7 @@ import (
 	"net"
 	"net/http"
 
+	"github.com/daniarmas/notes/internal/domain"
 	"github.com/daniarmas/notes/internal/httpserver/middleware"
 	"github.com/daniarmas/notes/internal/service"
 )
@@ -19,7 +20,7 @@ type Server struct {
 }
 
 // NewServer creates and configures a new HTTP server with the specified address.
-func NewServer(authenticationService service.AuthenticationService) *Server {
+func NewServer(authenticationService service.AuthenticationService, jwtDatasource domain.JwtDatasource) *Server {
 	// Create a new ServeMux
 	mux := http.NewServeMux()
 
@@ -30,9 +31,10 @@ func NewServer(authenticationService service.AuthenticationService) *Server {
 	}
 
 	var handler http.Handler = mux
-	// Add logging middleware
+	// Add middlewares
 	handler = middleware.LoggingMiddleware(handler)
 	handler = middleware.AllowCORS(handler)
+	handler = middleware.SetUserInContext(handler, jwtDatasource)
 
 	// Create the HTTP server
 	httpServer := &http.Server{

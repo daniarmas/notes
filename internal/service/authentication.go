@@ -17,6 +17,7 @@ type SignInResponse struct {
 
 type AuthenticationService interface {
 	SignIn(ctx context.Context, email string, password string) (*SignInResponse, error)
+	SignOut(ctx context.Context) error
 }
 
 type authenticationService struct {
@@ -96,12 +97,12 @@ func (s *authenticationService) SignIn(ctx context.Context, email string, passwo
 	accessTokenExpiration := now.Add(60 * time.Minute)
 	refreshTokenExpiration := now.Add(30 * 24 * time.Hour)
 	// Refresh token jwt
-	refreshTokenJWT, err := s.JwtDatasource.CreateJWT(&domain.JWTMetadata{TokenId: refreshToken.Id}, refreshTokenExpiration)
+	refreshTokenJWT, err := s.JwtDatasource.CreateJWT(&domain.JWTMetadata{TokenId: refreshToken.Id, UserId: user.Id}, refreshTokenExpiration)
 	if err != nil {
 		return nil, err
 	}
 	// Refresh token jwt
-	accessTokenJWT, err := s.JwtDatasource.CreateJWT(&domain.JWTMetadata{TokenId: accessToken.Id}, accessTokenExpiration)
+	accessTokenJWT, err := s.JwtDatasource.CreateJWT(&domain.JWTMetadata{TokenId: accessToken.Id, UserId: user.Id}, accessTokenExpiration)
 	if err != nil {
 		return nil, err
 	}
@@ -110,4 +111,20 @@ func (s *authenticationService) SignIn(ctx context.Context, email string, passwo
 		RefreshToken: *refreshTokenJWT,
 		User:         *user,
 	}, nil
+}
+
+func (s *authenticationService) SignOut(ctx context.Context) error {
+	// Get the user from the context
+	userId := domain.GetUserIdFromContext(ctx)
+	// Delete the existing access token
+	err := s.AccessTokenRepository.DeleteAccessTokenByUserId(ctx, userId)
+	if err != nil {
+		return err
+	}
+	// Delete the existing refresh token
+	err = s.RefreshTokenRepository.DeleteRefreshTokenByUserId(ctx, userId)
+	if err != nil {
+		return err
+	}
+	return nil
 }
