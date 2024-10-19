@@ -52,17 +52,21 @@ func run(ctx context.Context) error {
 	accessTokenDatabaseDs := data.NewAccessTokenDatabaseDs(dbQueries)
 	refreshTokenCacheDs := data.NewRefreshTokenCacheDs(rdb)
 	refreshTokenDatabaseDs := data.NewRefreshTokenDatabaseDs(dbQueries)
+	noteCacheDs := data.NewNoteCacheDs(rdb)
+	noteDatabaseDs := data.NewNoteDatabaseDs(dbQueries)
 
 	// Repositories
 	userRepository := domain.NewUserRepository(&userCacheDs, &userDatabaseDs)
 	accessTokenRepository := domain.NewAccessTokenRepository(accessTokenCacheDs, accessTokenDatabaseDs)
 	refreshTokenRepository := domain.NewRefreshTokenRepository(&refreshTokenCacheDs, &refreshTokenDatabaseDs)
+	noteRepository := domain.NewNoteRepository(&noteCacheDs, &noteDatabaseDs)
 
 	// Services
 	authenticationService := service.NewAuthenticationService(jwtDatasource, hashDatasource, userRepository, accessTokenRepository, refreshTokenRepository)
+	noteService := service.NewNoteService(noteRepository)
 
 	// Http server
-	srv := httpserver.NewServer(authenticationService, jwtDatasource)
+	srv := httpserver.NewServer(authenticationService, noteService, jwtDatasource)
 
 	go func() {
 		msg := fmt.Sprintf("Http server listening on %s\n", srv.HttpServer.Addr)

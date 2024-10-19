@@ -8,7 +8,7 @@ import (
 	"github.com/daniarmas/notes/internal/service"
 )
 
-func Routes(authenticationService service.AuthenticationService) []HandleFunc {
+func Routes(authenticationService service.AuthenticationService, noteService service.NoteService) []HandleFunc {
 	return []HandleFunc{
 		// Default routes
 
@@ -23,5 +23,8 @@ func Routes(authenticationService service.AuthenticationService) []HandleFunc {
 		{Pattern: "GET /me", Handler: middleware.LoggedOnly(handler.Me(authenticationService)).(http.HandlerFunc)},
 		{Pattern: "POST /sign-in", Handler: handler.SignIn(authenticationService)},
 		{Pattern: "POST /sign-out", Handler: middleware.LoggedOnly(handler.SignOut(authenticationService)).(http.HandlerFunc)},
+
+		// Note
+		{Pattern: "POST /note", Handler: middleware.LoggedOnly(handler.CreateNote(noteService)).(http.HandlerFunc)},
 	}
 }
