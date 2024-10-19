@@ -22,9 +22,9 @@ func NewNoteDatabaseDs(queries *database.Queries) domain.NoteDatabaseDs {
 func (d *noteDatabaseDs) CreateNote(ctx context.Context, note *domain.Note) (*domain.Note, error) {
 	res, err := d.queries.CreateNote(ctx, database.CreateNoteParams{
 		UserID:          note.UserId,
-		Title:           sql.NullString{String: note.Title},
-		Content:         sql.NullString{String: note.Content},
-		BackgroundColor: sql.NullString{String: note.BackgroundColor},
+		Title:           sql.NullString{String: note.Title, Valid: true},
+		Content:         sql.NullString{String: note.Content, Valid: true},
+		BackgroundColor: sql.NullString{String: note.BackgroundColor, Valid: true},
 	})
 	if err != nil {
 		return nil, err

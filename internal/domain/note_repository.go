@@ -32,7 +32,7 @@ func (n *noteRepository) CreateNote(ctx context.Context, note *Note) (*Note, err
 		return nil, err
 	}
 	// Cache the note
-	_, err = n.NoteCacheDs.CreateNote(ctx, note)
+	err = n.NoteCacheDs.CreateNote(ctx, note)
 	if err != nil {
 		clog.Info(
 			ctx,

@@ -26,6 +26,7 @@ func NewNoteService(noteRepository domain.NoteRepository) NoteService {
 
 func (s *noteService) CreateNote(ctx context.Context, title string, content string) (*CreateNoteResponse, error) {
 	note := &domain.Note{
+		UserId:  domain.GetUserIdFromContext(ctx),
 		Title:   title,
 		Content: content,
 	}
