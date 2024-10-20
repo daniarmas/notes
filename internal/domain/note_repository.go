@@ -47,5 +47,10 @@ func (n *noteRepository) CreateNote(ctx context.Context, note *Note) (*Note, err
 }
 
 func (n *noteRepository) ListNotesByUserId(ctx context.Context, user_id uuid.UUID, cursor time.Time) (*[]Note, error) {
-	return nil, nil
+	// Fetch the notes from the database
+	notes, err := n.NoteDatabaseDs.ListNotesByUserId(ctx, user_id, cursor)
+	if err != nil {
+		return nil, err
+	}
+	return notes, nil
 }
