@@ -40,7 +40,7 @@ func (d *noteDatabaseDs) CreateNote(ctx context.Context, note *domain.Note) (*do
 	}, nil
 }
 
-func (d *noteDatabaseDs) ListNotesByUserId(ctx context.Context, user_id uuid.UUID, cursor time.Time) (*[]domain.Note, error) {
+func (d *noteDatabaseDs) ListNotesByUser(ctx context.Context, user_id uuid.UUID, cursor time.Time) (*[]domain.Note, error) {
 	// If the cursor is zero, set it to the current time
 	if cursor.IsZero() {
 		cursor = time.Now()
