@@ -21,7 +21,7 @@ type HealthCheckResponse struct {
 // HealthCheckHandler handles HTTP requests for checking the health status of the server.
 func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	res := HealthCheckResponse{Status: "healthy"}
-	response.StatusOk(w, r, res)
+	response.OK(w, r, res)
 }
 
 // NotFoundHandler handles requests to non-existent resources.

@@ -9,6 +9,7 @@ import (
 	"github.com/daniarmas/notes/internal/httpserver/response"
 	"github.com/daniarmas/notes/internal/service"
 	"github.com/daniarmas/notes/internal/utils"
+	"github.com/google/uuid"
 )
 
 // Represents the structure of the create note request
@@ -61,7 +62,7 @@ func CreateNote(srv service.NoteService) http.HandlerFunc {
 				}
 			}
 
-			response.StatusOk(w, r, res)
+			response.OK(w, r, res)
 		},
 	)
 }
@@ -108,7 +109,37 @@ func ListNotesByUser(srv service.NoteService) http.HandlerFunc {
 				Notes:  notes,
 				Cursor: nextCursor,
 			}
-			response.StatusOk(w, r, res)
+			response.OK(w, r, res)
+		},
+	)
+}
+
+// Handler for the delete note endpoint
+func DeleteNote(srv service.NoteService) http.HandlerFunc {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			// Get the note ID from the URL path
+			idPathParam := r.PathValue("id")
+			id, err := uuid.Parse(idPathParam)
+			if err != nil {
+				msg := "Provided ID path parameter is invalid. It must be a valid UUID."
+				response.BadRequest(w, r, &msg, nil)
+				return
+			}
+
+			err = srv.DeleteNote(r.Context(), id)
+			if err != nil {
+				switch err.Error() {
+				case "note not found":
+					response.NotFound(w, r, "")
+					return
+				default:
+					response.InternalServerError(w, r)
+					return
+				}
+			}
+
+			response.NotContent(w, r)
 		},
 	)
 }

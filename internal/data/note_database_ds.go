@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/daniarmas/notes/internal/customerrors"
 	"github.com/daniarmas/notes/internal/database"
 	"github.com/daniarmas/notes/internal/domain"
 	"github.com/google/uuid"
@@ -70,5 +71,14 @@ func (d *noteDatabaseDs) UpdateNote(ctx context.Context, note *domain.Note) (*do
 	return nil, nil
 }
 func (d *noteDatabaseDs) DeleteNote(ctx context.Context, id uuid.UUID) error {
+	_, err := d.queries.DeleteNoteById(ctx, id)
+	if err != nil {
+		switch err.Error() {
+		case "sql: no rows in result set":
+			return &customerrors.RecordNotFound{}
+		default:
+			return err
+		}
+	}
 	return nil
 }
