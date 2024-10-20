@@ -3,7 +3,9 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
+	"github.com/daniarmas/notes/internal/domain"
 	"github.com/daniarmas/notes/internal/httpserver/response"
 	"github.com/daniarmas/notes/internal/service"
 	"github.com/daniarmas/notes/internal/utils"
@@ -13,6 +15,12 @@ import (
 type CreateNoteRequest struct {
 	Title   string `json:"title"`
 	Content string `json:"content"`
+}
+
+// Represent the structure of the list notes response
+type ListNotesResponse struct {
+	Notes  *[]domain.Note `json:"notes"`
+	Cursor time.Time      `json:"cursor"`
 }
 
 // Validates the create note request
@@ -72,7 +80,12 @@ func ListNotesByUser(srv service.NoteService) http.HandlerFunc {
 				return
 			}
 
-			res, err := srv.ListNotesByUser(r.Context(), cursor)
+			// If the cursor is zero, set it to the current time
+			if cursor.IsZero() {
+				cursor = time.Now().UTC()
+			}
+
+			notes, err := srv.ListNotesByUser(r.Context(), cursor)
 			if err != nil {
 				switch err.Error() {
 				default:
@@ -81,6 +94,20 @@ func ListNotesByUser(srv service.NoteService) http.HandlerFunc {
 				}
 			}
 
+			// Get the next cursor
+			notesSlice := *notes
+			var nextCursor time.Time
+			if len(notesSlice) > 0 {
+				nextCursor = notesSlice[len(notesSlice)-1].CreateTime
+			} else {
+				// Handle the case where notesSlice is empty
+				nextCursor = time.Now().UTC()
+			}
+
+			res := ListNotesResponse{
+				Notes:  notes,
+				Cursor: nextCursor,
+			}
 			response.StatusOk(w, r, res)
 		},
 	)

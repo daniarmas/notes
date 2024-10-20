@@ -41,10 +41,6 @@ func (d *noteDatabaseDs) CreateNote(ctx context.Context, note *domain.Note) (*do
 }
 
 func (d *noteDatabaseDs) ListNotesByUser(ctx context.Context, user_id uuid.UUID, cursor time.Time) (*[]domain.Note, error) {
-	// If the cursor is zero, set it to the current time
-	if cursor.IsZero() {
-		cursor = time.Now()
-	}
 	res, err := d.queries.ListNotesByUserId(ctx, database.ListNotesByUserIdParams{UserID: user_id, CreateTime: cursor})
 	if err != nil {
 		return nil, err

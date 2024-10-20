@@ -224,7 +224,7 @@ func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (User, error) {
 
 const listNotesByUserId = `-- name: ListNotesByUserId :many
 SELECT id, user_id, title, content, background_color, create_time, update_time, delete_time FROM notes
-WHERE user_id = $1 AND create_time > $2
+WHERE user_id = $1 AND create_time < $2
 ORDER BY create_time DESC
 LIMIT 20
 `
