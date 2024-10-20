@@ -12,7 +12,7 @@ type NoteRepository interface {
 	ListNotesByUser(ctx context.Context, user_id uuid.UUID, cursor time.Time) (*[]Note, error)
 	// GetNote(ctx context.Context, id uuid.UUID) (*Note, error)
 	CreateNote(ctx context.Context, note *Note) (*Note, error)
-	// UpdateNote(ctx context.Context, note *Note) (*Note, error)
+	UpdateNote(ctx context.Context, note *Note) (*Note, error)
 	DeleteNote(ctx context.Context, id uuid.UUID) error
 }
 
@@ -53,6 +53,10 @@ func (n *noteRepository) ListNotesByUser(ctx context.Context, user_id uuid.UUID,
 		return nil, err
 	}
 	return notes, nil
+}
+
+func (n *noteRepository) UpdateNote(ctx context.Context, note *Note) (*Note, error) {
+	return nil, nil
 }
 
 func (n *noteRepository) DeleteNote(ctx context.Context, id uuid.UUID) error {
