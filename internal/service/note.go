@@ -2,9 +2,12 @@ package service
 
 import (
 	"context"
+	"errors"
 	"time"
 
+	"github.com/daniarmas/notes/internal/customerrors"
 	"github.com/daniarmas/notes/internal/domain"
+	"github.com/google/uuid"
 )
 
 type CreateNoteResponse struct {
@@ -14,6 +17,7 @@ type CreateNoteResponse struct {
 type NoteService interface {
 	CreateNote(ctx context.Context, title string, content string) (*CreateNoteResponse, error)
 	ListNotesByUser(ctx context.Context, cursor time.Time) (*[]domain.Note, error)
+	DeleteNote(ctx context.Context, id uuid.UUID) error
 }
 
 type noteService struct {
@@ -49,4 +53,15 @@ func (s *noteService) ListNotesByUser(ctx context.Context, cursor time.Time) (*[
 	}
 
 	return notes, nil
+}
+
+func (s *noteService) DeleteNote(ctx context.Context, id uuid.UUID) error {
+	err := s.NoteRepository.DeleteNote(ctx, id)
+	if err != nil {
+		switch err.(type) {
+		case *customerrors.RecordNotFound:
+			return errors.New("note not found")
+		}
+	}
+	return nil
 }
