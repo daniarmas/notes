@@ -56,7 +56,12 @@ func (n *noteRepository) ListNotesByUser(ctx context.Context, user_id uuid.UUID,
 }
 
 func (n *noteRepository) UpdateNote(ctx context.Context, note *Note) (*Note, error) {
-	return nil, nil
+	// Update the note on the database
+	note, err := n.NoteDatabaseDs.UpdateNote(ctx, note)
+	if err != nil {
+		return nil, err
+	}
+	return note, nil
 }
 
 func (n *noteRepository) DeleteNote(ctx context.Context, id uuid.UUID) error {
