@@ -285,3 +285,37 @@ func (q *Queries) ListNotesByUserId(ctx context.Context, arg ListNotesByUserIdPa
 	}
 	return items, nil
 }
+
+const updateNoteById = `-- name: UpdateNoteById :one
+UPDATE notes SET
+  title = $2, content = $3, update_time = $4
+WHERE id = $1 RETURNING id, user_id, title, content, background_color, create_time, update_time, delete_time
+`
+
+type UpdateNoteByIdParams struct {
+	ID         uuid.UUID
+	Title      sql.NullString
+	Content    sql.NullString
+	UpdateTime sql.NullTime
+}
+
+func (q *Queries) UpdateNoteById(ctx context.Context, arg UpdateNoteByIdParams) (Note, error) {
+	row := q.db.QueryRowContext(ctx, updateNoteById,
+		arg.ID,
+		arg.Title,
+		arg.Content,
+		arg.UpdateTime,
+	)
+	var i Note
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Title,
+		&i.Content,
+		&i.BackgroundColor,
+		&i.CreateTime,
+		&i.UpdateTime,
+		&i.DeleteTime,
+	)
+	return i, err
+}

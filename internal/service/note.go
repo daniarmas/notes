@@ -18,6 +18,7 @@ type NoteService interface {
 	CreateNote(ctx context.Context, title string, content string) (*CreateNoteResponse, error)
 	ListNotesByUser(ctx context.Context, cursor time.Time) (*[]domain.Note, error)
 	DeleteNote(ctx context.Context, id uuid.UUID) error
+	UpdateNote(ctx context.Context, note *domain.Note) (*domain.Note, error)
 }
 
 type noteService struct {
@@ -53,6 +54,17 @@ func (s *noteService) ListNotesByUser(ctx context.Context, cursor time.Time) (*[
 	}
 
 	return notes, nil
+}
+
+func (s *noteService) UpdateNote(ctx context.Context, note *domain.Note) (*domain.Note, error) {
+	note, err := s.NoteRepository.UpdateNote(ctx, note)
+	if err != nil {
+		switch err.(type) {
+		case *customerrors.RecordNotFound:
+			return nil, errors.New("note not found")
+		}
+	}
+	return note, nil
 }
 
 func (s *noteService) DeleteNote(ctx context.Context, id uuid.UUID) error {

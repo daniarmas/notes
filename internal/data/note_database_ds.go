@@ -68,7 +68,31 @@ func (d *noteDatabaseDs) GetNote(ctx context.Context, id uuid.UUID) (*domain.Not
 }
 
 func (d *noteDatabaseDs) UpdateNote(ctx context.Context, note *domain.Note) (*domain.Note, error) {
-	return nil, nil
+	res, err := d.queries.UpdateNoteById(ctx, database.UpdateNoteByIdParams{
+		ID:         note.Id,
+		Title:      sql.NullString{String: note.Title, Valid: true},
+		Content:    sql.NullString{String: note.Content, Valid: true},
+		UpdateTime: sql.NullTime{Time: time.Now().UTC(), Valid: true},
+	})
+	if err != nil {
+		switch err.Error() {
+		case "sql: no rows in result set":
+			return nil, &customerrors.RecordNotFound{}
+		default:
+			return nil, err
+		}
+	}
+	return &domain.Note{
+		Id:              res.ID,
+		UserId:          res.UserID,
+		Title:           res.Title.String,
+		Content:         res.Content.String,
+		BackgroundColor: res.BackgroundColor.String,
+		CreateTime:      res.CreateTime,
+		UpdateTime:      res.UpdateTime.Time,
+		DeleteTime:      res.DeleteTime.Time,
+		
+	}, nil
 }
 func (d *noteDatabaseDs) DeleteNote(ctx context.Context, id uuid.UUID) error {
 	_, err := d.queries.DeleteNoteById(ctx, id)
