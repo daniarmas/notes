@@ -138,6 +138,15 @@ func (q *Queries) DeleteAccessTokenByUserId(ctx context.Context, userID uuid.UUI
 	return id, err
 }
 
+const deleteNoteById = `-- name: DeleteNoteById :exec
+DELETE FROM notes WHERE id = $1
+`
+
+func (q *Queries) DeleteNoteById(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteNoteById, id)
+	return err
+}
+
 const deleteRefreshTokenByUserId = `-- name: DeleteRefreshTokenByUserId :one
 DELETE FROM refresh_tokens WHERE user_id = $1 RETURNING id
 `

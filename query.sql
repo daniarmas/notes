@@ -28,6 +28,9 @@ INSERT INTO notes (
 )
 RETURNING *;
 
+-- name: DeleteNoteById :exec
+DELETE FROM notes WHERE id = $1;
+
 -- name: GetAccessTokenById :one
 SELECT * FROM access_tokens
 WHERE id = $1 LIMIT 1;
