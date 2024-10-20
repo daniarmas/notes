@@ -2,11 +2,14 @@ package domain
 
 import (
 	"context"
+	"time"
+
 	"github.com/daniarmas/notes/internal/clog"
+	"github.com/google/uuid"
 )
 
 type NoteRepository interface {
-	// ListNote(ctx context.Context) (*[]Note, error)
+	ListNotesByUser(ctx context.Context, user_id uuid.UUID, cursor time.Time) (*[]Note, error)
 	// GetNote(ctx context.Context, id uuid.UUID) (*Note, error)
 	CreateNote(ctx context.Context, note *Note) (*Note, error)
 	// UpdateNote(ctx context.Context, note *Note) (*Note, error)
@@ -41,4 +44,13 @@ func (n *noteRepository) CreateNote(ctx context.Context, note *Note) (*Note, err
 		)
 	}
 	return note, nil
+}
+
+func (n *noteRepository) ListNotesByUser(ctx context.Context, user_id uuid.UUID, cursor time.Time) (*[]Note, error) {
+	// Fetch the notes from the database
+	notes, err := n.NoteDatabaseDs.ListNotesByUser(ctx, user_id, cursor)
+	if err != nil {
+		return nil, err
+	}
+	return notes, nil
 }

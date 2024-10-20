@@ -8,6 +8,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -222,11 +223,19 @@ func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (User, error) {
 }
 
 const listNotesByUserId = `-- name: ListNotesByUserId :many
-SELECT id, user_id, title, content, background_color, create_time, update_time, delete_time FROM notes WHERE user_id = $1
+SELECT id, user_id, title, content, background_color, create_time, update_time, delete_time FROM notes
+WHERE user_id = $1 AND create_time < $2
+ORDER BY create_time DESC
+LIMIT 20
 `
 
-func (q *Queries) ListNotesByUserId(ctx context.Context, userID uuid.UUID) ([]Note, error) {
-	rows, err := q.db.QueryContext(ctx, listNotesByUserId, userID)
+type ListNotesByUserIdParams struct {
+	UserID     uuid.UUID
+	CreateTime time.Time
+}
+
+func (q *Queries) ListNotesByUserId(ctx context.Context, arg ListNotesByUserIdParams) ([]Note, error) {
+	rows, err := q.db.QueryContext(ctx, listNotesByUserId, arg.UserID, arg.CreateTime)
 	if err != nil {
 		return nil, err
 	}

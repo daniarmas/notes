@@ -34,7 +34,7 @@ func SetUserInContext(next http.Handler, jwtDatasource domain.JwtDatasource) htt
 			// Split the header to get the token
 			parts := strings.Split(authHeader, " ")
 			if len(parts) != 2 || parts[0] != "Bearer" {
-				response.Unauthorized(w, r, "authorization header format must be Bearer {token}", nil)
+				response.Unauthorized(w, r, "Authorization header format is invalid. It must be in the format: 'Bearer {token}'.", nil)
 				return
 			}
 			token := parts[1]
@@ -43,13 +43,13 @@ func SetUserInContext(next http.Handler, jwtDatasource domain.JwtDatasource) htt
 			if err != nil {
 				switch err.Error() {
 				case "Token is expired":
-					response.Unauthorized(w, r, "authorization token expired", nil)
+					response.Unauthorized(w, r, "Authorization token has expired. Please log in again to continue.", nil)
 					return
 				case "signature is invalid":
-					response.Unauthorized(w, r, "authorization token signature is invalid", nil)
+					response.Unauthorized(w, r, "Authorization token signature is invalid. Please provide a valid token.", nil)
 					return
 				case "token contains an invalid number of segments":
-					response.Unauthorized(w, r, "authorization token is invalid", nil)
+					response.Unauthorized(w, r, "Authorization token provided is invalid. Please provide a valid token.", nil)
 					return
 				default:
 					response.InternalServerError(w, r)
