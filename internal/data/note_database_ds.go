@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/daniarmas/notes/internal/database"
 	"github.com/daniarmas/notes/internal/domain"
@@ -39,8 +40,12 @@ func (d *noteDatabaseDs) CreateNote(ctx context.Context, note *domain.Note) (*do
 	}, nil
 }
 
-func (d *noteDatabaseDs) ListNotesByUserId(ctx context.Context, user_id uuid.UUID) (*[]domain.Note, error) {
-	res, err := d.queries.ListNotesByUserId(ctx, user_id)
+func (d *noteDatabaseDs) ListNotesByUserId(ctx context.Context, user_id uuid.UUID, cursor time.Time) (*[]domain.Note, error) {
+	// If the cursor is zero, set it to the current time
+	if cursor.IsZero() {
+		cursor = time.Now()
+	}
+	res, err := d.queries.ListNotesByUserId(ctx, database.ListNotesByUserIdParams{UserID: user_id, CreateTime: cursor})
 	if err != nil {
 		return nil, err
 	}

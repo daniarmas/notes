@@ -15,7 +15,10 @@ INSERT INTO users (
 RETURNING *;
 
 -- name: ListNotesByUserId :many
-SELECT * FROM notes WHERE user_id = $1;
+SELECT * FROM notes
+WHERE user_id = $1 AND create_time > $2
+ORDER BY create_time DESC
+LIMIT 20;
 
 -- name: CreateNote :one
 INSERT INTO notes (
