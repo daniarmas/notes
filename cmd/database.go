@@ -115,7 +115,7 @@ to quickly create a Cobra application.`,
 				title STRING,
 				content STRING,
     			create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    			update_time TIMESTAMP,
+    			update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     			delete_time TIMESTAMP,
 				CONSTRAINT pk PRIMARY KEY (id),
 				CONSTRAINT fk_user

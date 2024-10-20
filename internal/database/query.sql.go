@@ -42,21 +42,29 @@ func (q *Queries) CreateAccessToken(ctx context.Context, arg CreateAccessTokenPa
 
 const createNote = `-- name: CreateNote :one
 INSERT INTO notes (
-  user_id, title, content
+  user_id, title, content, create_time, update_time
 ) VALUES (
-  $1, $2, $3
+  $1, $2, $3, $4, $5
 )
 RETURNING id, user_id, title, content, create_time, update_time, delete_time
 `
 
 type CreateNoteParams struct {
-	UserID  uuid.UUID
-	Title   sql.NullString
-	Content sql.NullString
+	UserID     uuid.UUID
+	Title      sql.NullString
+	Content    sql.NullString
+	CreateTime time.Time
+	UpdateTime time.Time
 }
 
 func (q *Queries) CreateNote(ctx context.Context, arg CreateNoteParams) (Note, error) {
-	row := q.db.QueryRowContext(ctx, createNote, arg.UserID, arg.Title, arg.Content)
+	row := q.db.QueryRowContext(ctx, createNote,
+		arg.UserID,
+		arg.Title,
+		arg.Content,
+		arg.CreateTime,
+		arg.UpdateTime,
+	)
 	var i Note
 	err := row.Scan(
 		&i.ID,
@@ -236,18 +244,18 @@ func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (User, error) {
 
 const listNotesByUserId = `-- name: ListNotesByUserId :many
 SELECT id, user_id, title, content, create_time, update_time, delete_time FROM notes
-WHERE user_id = $1 AND create_time < $2
-ORDER BY create_time DESC
+WHERE user_id = $1 AND update_time < $2
+ORDER BY update_time DESC
 LIMIT 20
 `
 
 type ListNotesByUserIdParams struct {
 	UserID     uuid.UUID
-	CreateTime time.Time
+	UpdateTime time.Time
 }
 
 func (q *Queries) ListNotesByUserId(ctx context.Context, arg ListNotesByUserIdParams) ([]Note, error) {
-	rows, err := q.db.QueryContext(ctx, listNotesByUserId, arg.UserID, arg.CreateTime)
+	rows, err := q.db.QueryContext(ctx, listNotesByUserId, arg.UserID, arg.UpdateTime)
 	if err != nil {
 		return nil, err
 	}
@@ -287,7 +295,7 @@ type UpdateNoteByIdParams struct {
 	ID         uuid.UUID
 	Title      sql.NullString
 	Content    sql.NullString
-	UpdateTime sql.NullTime
+	UpdateTime time.Time
 }
 
 func (q *Queries) UpdateNoteById(ctx context.Context, arg UpdateNoteByIdParams) (Note, error) {

@@ -22,25 +22,32 @@ func NewNoteDatabaseDs(queries *database.Queries) domain.NoteDatabaseDs {
 }
 
 func (d *noteDatabaseDs) CreateNote(ctx context.Context, note *domain.Note) (*domain.Note, error) {
+	// Get current time
+	timeNow := time.Now().UTC()
+
 	res, err := d.queries.CreateNote(ctx, database.CreateNoteParams{
-		UserID:          note.UserId,
-		Title:           sql.NullString{String: note.Title, Valid: true},
-		Content:         sql.NullString{String: note.Content, Valid: true},
+		UserID:     note.UserId,
+		Title:      sql.NullString{String: note.Title, Valid: true},
+		Content:    sql.NullString{String: note.Content, Valid: true},
+		CreateTime: timeNow,
+		UpdateTime: timeNow,
 	})
 	if err != nil {
 		return nil, err
 	}
 	return &domain.Note{
-		Id:              res.ID,
-		UserId:          res.UserID,
-		Title:           res.Title.String,
-		Content:         res.Content.String,
-		CreateTime:      res.CreateTime,
+		Id:         res.ID,
+		UserId:     res.UserID,
+		Title:      res.Title.String,
+		Content:    res.Content.String,
+		CreateTime: res.CreateTime,
+		UpdateTime: res.UpdateTime,
+		DeleteTime: res.DeleteTime.Time,
 	}, nil
 }
 
 func (d *noteDatabaseDs) ListNotesByUser(ctx context.Context, user_id uuid.UUID, cursor time.Time) (*[]domain.Note, error) {
-	res, err := d.queries.ListNotesByUserId(ctx, database.ListNotesByUserIdParams{UserID: user_id, CreateTime: cursor})
+	res, err := d.queries.ListNotesByUserId(ctx, database.ListNotesByUserIdParams{UserID: user_id, UpdateTime: cursor})
 	if err != nil {
 		return nil, err
 	}
@@ -48,13 +55,13 @@ func (d *noteDatabaseDs) ListNotesByUser(ctx context.Context, user_id uuid.UUID,
 	response := make([]domain.Note, 0, len(res))
 	for _, note := range res {
 		response = append(response, domain.Note{
-			Id:              note.ID,
-			UserId:          note.UserID,
-			Title:           note.Title.String,
-			Content:         note.Content.String,
-			CreateTime:      note.CreateTime,
-			UpdateTime:      note.UpdateTime.Time,
-			DeleteTime:      note.DeleteTime.Time,
+			Id:         note.ID,
+			UserId:     note.UserID,
+			Title:      note.Title.String,
+			Content:    note.Content.String,
+			CreateTime: note.CreateTime,
+			UpdateTime: note.UpdateTime,
+			DeleteTime: note.DeleteTime.Time,
 		})
 	}
 	return &response, nil
@@ -69,7 +76,7 @@ func (d *noteDatabaseDs) UpdateNote(ctx context.Context, note *domain.Note) (*do
 		ID:         note.Id,
 		Title:      sql.NullString{String: note.Title, Valid: true},
 		Content:    sql.NullString{String: note.Content, Valid: true},
-		UpdateTime: sql.NullTime{Time: time.Now().UTC(), Valid: true},
+		UpdateTime: time.Now().UTC(),
 	})
 	if err != nil {
 		switch err.Error() {
@@ -80,14 +87,13 @@ func (d *noteDatabaseDs) UpdateNote(ctx context.Context, note *domain.Note) (*do
 		}
 	}
 	return &domain.Note{
-		Id:              res.ID,
-		UserId:          res.UserID,
-		Title:           res.Title.String,
-		Content:         res.Content.String,
-		CreateTime:      res.CreateTime,
-		UpdateTime:      res.UpdateTime.Time,
-		DeleteTime:      res.DeleteTime.Time,
-		
+		Id:         res.ID,
+		UserId:     res.UserID,
+		Title:      res.Title.String,
+		Content:    res.Content.String,
+		CreateTime: res.CreateTime,
+		UpdateTime: res.UpdateTime,
+		DeleteTime: res.DeleteTime.Time,
 	}, nil
 }
 func (d *noteDatabaseDs) DeleteNote(ctx context.Context, id uuid.UUID) error {

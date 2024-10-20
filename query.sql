@@ -16,15 +16,15 @@ RETURNING *;
 
 -- name: ListNotesByUserId :many
 SELECT * FROM notes
-WHERE user_id = $1 AND create_time < $2
-ORDER BY create_time DESC
+WHERE user_id = $1 AND update_time < $2
+ORDER BY update_time DESC
 LIMIT 20;
 
 -- name: CreateNote :one
 INSERT INTO notes (
-  user_id, title, content
+  user_id, title, content, create_time, update_time
 ) VALUES (
-  $1, $2, $3
+  $1, $2, $3, $4, $5
 )
 RETURNING *;
 
