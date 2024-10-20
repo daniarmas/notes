@@ -18,6 +18,12 @@ type CreateNoteRequest struct {
 	Content string `json:"content"`
 }
 
+// Represents the structure of the update note request
+type UpdateNoteRequest struct {
+	Title   string `json:"title"`
+	Content string `json:"content"`
+}
+
 // Represent the structure of the list notes response
 type ListNotesResponse struct {
 	Notes  *[]domain.Note `json:"notes"`
@@ -29,6 +35,18 @@ func (r CreateNoteRequest) Validate() map[string]string {
 	errors := make(map[string]string)
 	if r.Title == "" {
 		errors["title"] = "field required"
+	}
+	return errors
+}
+
+// Validates the update note request
+func (r UpdateNoteRequest) Validate() map[string]string {
+	errors := make(map[string]string)
+	if r.Title == "" {
+		errors["title"] = "field required"
+	}
+	if r.Content == "" {
+		errors["content"] = "field required"
 	}
 	return errors
 }
@@ -47,7 +65,7 @@ func CreateNote(srv service.NoteService) http.HandlerFunc {
 			}
 			defer r.Body.Close()
 
-			// Validate the request and return an InvalidRequestDataError if there are any errors
+			// Validate the request and return an BadRequest if there are any errors
 			if errors := req.Validate(); len(errors) > 0 {
 				response.BadRequest(w, r, nil, errors)
 				return
@@ -109,6 +127,58 @@ func ListNotesByUser(srv service.NoteService) http.HandlerFunc {
 				Notes:  notes,
 				Cursor: nextCursor,
 			}
+			response.OK(w, r, res)
+		},
+	)
+}
+
+// Handler for the update note endpoint
+func UpdateNote(srv service.NoteService) http.HandlerFunc {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			// Get the note ID from the URL path
+			idPathParam := r.PathValue("id")
+			id, err := uuid.Parse(idPathParam)
+			if err != nil {
+				msg := "Provided ID path parameter is invalid. It must be a valid UUID."
+				response.BadRequest(w, r, &msg, nil)
+				return
+			}
+
+			// Parse the request body into a UpdateNoteRequest struct
+			var req UpdateNoteRequest
+			err = json.NewDecoder(r.Body).Decode(&req)
+			if err != nil {
+				msg := "Invalid JSON request"
+				response.BadRequest(w, r, &msg, nil)
+				return
+			}
+			defer r.Body.Close()
+
+			// Validate the request and return an BadRequest if there are any errors
+			if errors := req.Validate(); len(errors) > 0 {
+				response.BadRequest(w, r, nil, errors)
+				return
+			}
+
+			note := &domain.Note{
+				Id:      id,
+				Title:   req.Title,
+				Content: req.Content,
+			}
+
+			res, err := srv.UpdateNote(r.Context(), note)
+			if err != nil {
+				switch err.Error() {
+				case "note not found":
+					response.NotFound(w, r, "")
+					return
+				default:
+					response.InternalServerError(w, r)
+					return
+				}
+			}
+
 			response.OK(w, r, res)
 		},
 	)
