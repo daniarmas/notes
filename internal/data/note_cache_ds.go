@@ -15,7 +15,6 @@ type Note struct {
 	UserId          string    `redis:"user_id"`
 	Title           string    `redis:"title"`
 	Content         string    `redis:"content"`
-	BackgroundColor string    `redis:"background_color"`
 	CreateTime      time.Time `redis:"create_time"`
 	UpdateTime      time.Time `redis:"update_time"`
 	DeleteTime      time.Time `redis:"delete_time"`
@@ -34,7 +33,6 @@ func (n *Note) parseToDomain() (*domain.Note, error) {
 		UserId:          uuid.MustParse(n.UserId),
 		Title:           n.Title,
 		Content:         n.Content,
-		BackgroundColor: n.BackgroundColor,
 		CreateTime:      n.CreateTime,
 		UpdateTime:      n.UpdateTime,
 		DeleteTime:      n.DeleteTime,
@@ -54,7 +52,6 @@ func parseFromDomain(note *domain.Note) *Note {
 		UserId:          note.UserId.String(),
 		Title:           note.Title,
 		Content:         note.Content,
-		BackgroundColor: note.BackgroundColor,
 		CreateTime:      note.CreateTime,
 		UpdateTime:      note.UpdateTime,
 		DeleteTime:      note.DeleteTime,

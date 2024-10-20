@@ -20,14 +20,13 @@ type AccessToken struct {
 }
 
 type Note struct {
-	ID              uuid.UUID
-	UserID          uuid.UUID
-	Title           sql.NullString
-	Content         sql.NullString
-	BackgroundColor sql.NullString
-	CreateTime      time.Time
-	UpdateTime      sql.NullTime
-	DeleteTime      sql.NullTime
+	ID         uuid.UUID
+	UserID     uuid.UUID
+	Title      sql.NullString
+	Content    sql.NullString
+	CreateTime time.Time
+	UpdateTime sql.NullTime
+	DeleteTime sql.NullTime
 }
 
 type RefreshToken struct {

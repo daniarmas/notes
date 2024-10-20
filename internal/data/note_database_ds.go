@@ -26,7 +26,6 @@ func (d *noteDatabaseDs) CreateNote(ctx context.Context, note *domain.Note) (*do
 		UserID:          note.UserId,
 		Title:           sql.NullString{String: note.Title, Valid: true},
 		Content:         sql.NullString{String: note.Content, Valid: true},
-		BackgroundColor: sql.NullString{String: note.BackgroundColor, Valid: true},
 	})
 	if err != nil {
 		return nil, err
@@ -36,7 +35,6 @@ func (d *noteDatabaseDs) CreateNote(ctx context.Context, note *domain.Note) (*do
 		UserId:          res.UserID,
 		Title:           res.Title.String,
 		Content:         res.Content.String,
-		BackgroundColor: res.BackgroundColor.String,
 		CreateTime:      res.CreateTime,
 	}, nil
 }
@@ -54,7 +52,6 @@ func (d *noteDatabaseDs) ListNotesByUser(ctx context.Context, user_id uuid.UUID,
 			UserId:          note.UserID,
 			Title:           note.Title.String,
 			Content:         note.Content.String,
-			BackgroundColor: note.BackgroundColor.String,
 			CreateTime:      note.CreateTime,
 			UpdateTime:      note.UpdateTime.Time,
 			DeleteTime:      note.DeleteTime.Time,
@@ -87,7 +84,6 @@ func (d *noteDatabaseDs) UpdateNote(ctx context.Context, note *domain.Note) (*do
 		UserId:          res.UserID,
 		Title:           res.Title.String,
 		Content:         res.Content.String,
-		BackgroundColor: res.BackgroundColor.String,
 		CreateTime:      res.CreateTime,
 		UpdateTime:      res.UpdateTime.Time,
 		DeleteTime:      res.DeleteTime.Time,
