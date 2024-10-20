@@ -117,7 +117,7 @@ func ListNotesByUser(srv service.NoteService) http.HandlerFunc {
 			notesSlice := *notes
 			var nextCursor time.Time
 			if len(notesSlice) > 0 {
-				nextCursor = notesSlice[len(notesSlice)-1].CreateTime
+				nextCursor = notesSlice[len(notesSlice)-1].UpdateTime
 			} else {
 				// Handle the case where notesSlice is empty
 				nextCursor = time.Now().UTC()
