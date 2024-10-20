@@ -25,7 +25,7 @@ type Note struct {
 	Title      sql.NullString
 	Content    sql.NullString
 	CreateTime time.Time
-	UpdateTime sql.NullTime
+	UpdateTime time.Time
 	DeleteTime sql.NullTime
 }
 

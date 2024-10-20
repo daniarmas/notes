@@ -22,9 +22,9 @@ LIMIT 20;
 
 -- name: CreateNote :one
 INSERT INTO notes (
-  user_id, title, content
+  user_id, title, content, create_time, update_time
 ) VALUES (
-  $1, $2, $3
+  $1, $2, $3, $4, $5
 )
 RETURNING *;
 
