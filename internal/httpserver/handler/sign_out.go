@@ -22,7 +22,7 @@ func SignOut(srv service.AuthenticationService) http.HandlerFunc {
 				}
 			}
 
-			response.StatusOk(w, r, nil)
+			response.OK(w, r, nil)
 		},
 	)
 }

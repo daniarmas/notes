@@ -62,7 +62,7 @@ func CreateNote(srv service.NoteService) http.HandlerFunc {
 				}
 			}
 
-			response.StatusOk(w, r, res)
+			response.OK(w, r, res)
 		},
 	)
 }
@@ -109,7 +109,7 @@ func ListNotesByUser(srv service.NoteService) http.HandlerFunc {
 				Notes:  notes,
 				Cursor: nextCursor,
 			}
-			response.StatusOk(w, r, res)
+			response.OK(w, r, res)
 		},
 	)
 }
@@ -139,7 +139,7 @@ func DeleteNote(srv service.NoteService) http.HandlerFunc {
 				}
 			}
 
-			response.StatusOk(w, r, nil)
+			response.NotContent(w, r)
 		},
 	)
 }

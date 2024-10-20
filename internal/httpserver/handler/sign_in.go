@@ -61,7 +61,7 @@ func SignIn(srv service.AuthenticationService) http.HandlerFunc {
 				}
 			}
 
-			response.StatusOk(w, r, res)
+			response.OK(w, r, res)
 		},
 	)
 }

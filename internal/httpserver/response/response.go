@@ -42,7 +42,7 @@ func BadRequest(w http.ResponseWriter, r *http.Request, message *string, errors 
 	json.NewEncoder(w).Encode(res)
 }
 
-func StatusOk(w http.ResponseWriter, r *http.Request, data any) {
+func OK(w http.ResponseWriter, r *http.Request, data any) {
 	res := response{
 		Code:    http.StatusOK,
 		Message: "OK",
@@ -78,5 +78,17 @@ func NotFound(w http.ResponseWriter, r *http.Request, message string) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusNotFound)
+	json.NewEncoder(w).Encode(res)
+}
+
+func NotContent(w http.ResponseWriter, r *http.Request) {
+	res := response{
+		Code:    http.StatusNoContent,
+		Message: "No Content",
+		Details: &emptyStruct,
+		Data:    &emptyStruct,
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusNoContent)
 	json.NewEncoder(w).Encode(res)
 }

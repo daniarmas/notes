@@ -71,7 +71,8 @@ func (d *noteDatabaseDs) UpdateNote(ctx context.Context, note *domain.Note) (*do
 	return nil, nil
 }
 func (d *noteDatabaseDs) DeleteNote(ctx context.Context, id uuid.UUID) error {
-	if err := d.queries.DeleteNoteById(ctx, id); err != nil {
+	_, err := d.queries.DeleteNoteById(ctx, id)
+	if err != nil {
 		switch err.Error() {
 		case "sql: no rows in result set":
 			return &customerrors.RecordNotFound{}
