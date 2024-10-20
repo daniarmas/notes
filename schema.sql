@@ -13,7 +13,6 @@ CREATE TABLE IF NOT EXISTS notes (
 	user_id UUID NOT NULL,
 	title STRING,
 	content STRING,
-	background_color STRING(7),
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     update_time TIMESTAMP,
     delete_time TIMESTAMP,

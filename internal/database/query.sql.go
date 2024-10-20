@@ -42,34 +42,27 @@ func (q *Queries) CreateAccessToken(ctx context.Context, arg CreateAccessTokenPa
 
 const createNote = `-- name: CreateNote :one
 INSERT INTO notes (
-  user_id, title, content, background_color
+  user_id, title, content
 ) VALUES (
-  $1, $2, $3, $4
+  $1, $2, $3
 )
-RETURNING id, user_id, title, content, background_color, create_time, update_time, delete_time
+RETURNING id, user_id, title, content, create_time, update_time, delete_time
 `
 
 type CreateNoteParams struct {
-	UserID          uuid.UUID
-	Title           sql.NullString
-	Content         sql.NullString
-	BackgroundColor sql.NullString
+	UserID  uuid.UUID
+	Title   sql.NullString
+	Content sql.NullString
 }
 
 func (q *Queries) CreateNote(ctx context.Context, arg CreateNoteParams) (Note, error) {
-	row := q.db.QueryRowContext(ctx, createNote,
-		arg.UserID,
-		arg.Title,
-		arg.Content,
-		arg.BackgroundColor,
-	)
+	row := q.db.QueryRowContext(ctx, createNote, arg.UserID, arg.Title, arg.Content)
 	var i Note
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
 		&i.Title,
 		&i.Content,
-		&i.BackgroundColor,
 		&i.CreateTime,
 		&i.UpdateTime,
 		&i.DeleteTime,
@@ -139,7 +132,7 @@ func (q *Queries) DeleteAccessTokenByUserId(ctx context.Context, userID uuid.UUI
 }
 
 const deleteNoteById = `-- name: DeleteNoteById :one
-DELETE FROM notes WHERE id = $1 RETURNING id, user_id, title, content, background_color, create_time, update_time, delete_time
+DELETE FROM notes WHERE id = $1 RETURNING id, user_id, title, content, create_time, update_time, delete_time
 `
 
 func (q *Queries) DeleteNoteById(ctx context.Context, id uuid.UUID) (Note, error) {
@@ -150,7 +143,6 @@ func (q *Queries) DeleteNoteById(ctx context.Context, id uuid.UUID) (Note, error
 		&i.UserID,
 		&i.Title,
 		&i.Content,
-		&i.BackgroundColor,
 		&i.CreateTime,
 		&i.UpdateTime,
 		&i.DeleteTime,
@@ -243,7 +235,7 @@ func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (User, error) {
 }
 
 const listNotesByUserId = `-- name: ListNotesByUserId :many
-SELECT id, user_id, title, content, background_color, create_time, update_time, delete_time FROM notes
+SELECT id, user_id, title, content, create_time, update_time, delete_time FROM notes
 WHERE user_id = $1 AND create_time < $2
 ORDER BY create_time DESC
 LIMIT 20
@@ -268,7 +260,6 @@ func (q *Queries) ListNotesByUserId(ctx context.Context, arg ListNotesByUserIdPa
 			&i.UserID,
 			&i.Title,
 			&i.Content,
-			&i.BackgroundColor,
 			&i.CreateTime,
 			&i.UpdateTime,
 			&i.DeleteTime,
@@ -289,7 +280,7 @@ func (q *Queries) ListNotesByUserId(ctx context.Context, arg ListNotesByUserIdPa
 const updateNoteById = `-- name: UpdateNoteById :one
 UPDATE notes SET
   title = $2, content = $3, update_time = $4
-WHERE id = $1 RETURNING id, user_id, title, content, background_color, create_time, update_time, delete_time
+WHERE id = $1 RETURNING id, user_id, title, content, create_time, update_time, delete_time
 `
 
 type UpdateNoteByIdParams struct {
@@ -312,7 +303,6 @@ func (q *Queries) UpdateNoteById(ctx context.Context, arg UpdateNoteByIdParams) 
 		&i.UserID,
 		&i.Title,
 		&i.Content,
-		&i.BackgroundColor,
 		&i.CreateTime,
 		&i.UpdateTime,
 		&i.DeleteTime,
