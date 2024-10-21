@@ -185,7 +185,7 @@ func UpdateNote(srv service.NoteService) http.HandlerFunc {
 }
 
 // Handler for the delete note endpoint
-func DeleteNote(srv service.NoteService) http.HandlerFunc {
+func HardDeleteNote(srv service.NoteService) http.HandlerFunc {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			// Get the note ID from the URL path
@@ -197,7 +197,7 @@ func DeleteNote(srv service.NoteService) http.HandlerFunc {
 				return
 			}
 
-			err = srv.DeleteNote(r.Context(), id)
+			err = srv.DeleteNote(r.Context(), id, true)
 			if err != nil {
 				switch err.Error() {
 				case "note not found":

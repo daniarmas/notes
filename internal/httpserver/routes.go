@@ -27,7 +27,7 @@ func Routes(authenticationService service.AuthenticationService, noteService ser
 		// Note
 		{Pattern: "GET /note", Handler: middleware.LoggedOnly(handler.ListNotesByUser(noteService)).(http.HandlerFunc)},
 		{Pattern: "POST /note", Handler: middleware.LoggedOnly(handler.CreateNote(noteService)).(http.HandlerFunc)},
-		{Pattern: "DELETE /note/{id}", Handler: middleware.LoggedOnly(handler.DeleteNote(noteService)).(http.HandlerFunc)},
+		{Pattern: "DELETE /note/{id}/hard", Handler: middleware.LoggedOnly(handler.HardDeleteNote(noteService)).(http.HandlerFunc)},
 		{Pattern: "PATCH /note/{id}", Handler: middleware.LoggedOnly(handler.UpdateNote(noteService)).(http.HandlerFunc)},
 	}
 }

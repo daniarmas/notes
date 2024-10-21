@@ -96,8 +96,8 @@ func (d *noteDatabaseDs) UpdateNote(ctx context.Context, note *domain.Note) (*do
 		DeleteTime: res.DeleteTime.Time,
 	}, nil
 }
-func (d *noteDatabaseDs) DeleteNote(ctx context.Context, id uuid.UUID) error {
-	_, err := d.queries.DeleteNoteById(ctx, id)
+func (d *noteDatabaseDs) HardDeleteNote(ctx context.Context, id uuid.UUID) error {
+	_, err := d.queries.HardDeleteNoteById(ctx, id)
 	if err != nil {
 		switch err.Error() {
 		case "sql: no rows in result set":
