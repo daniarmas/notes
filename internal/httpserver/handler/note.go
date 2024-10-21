@@ -213,3 +213,33 @@ func HardDeleteNote(srv service.NoteService) http.HandlerFunc {
 		},
 	)
 }
+
+// Handler for the soft delete note endpoint
+func SoftDeleteNote(srv service.NoteService) http.HandlerFunc {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			// Get the note ID from the URL path
+			idPathParam := r.PathValue("id")
+			id, err := uuid.Parse(idPathParam)
+			if err != nil {
+				msg := "Provided ID path parameter is invalid. It must be a valid UUID."
+				response.BadRequest(w, r, &msg, nil)
+				return
+			}
+
+			err = srv.DeleteNote(r.Context(), id, false)
+			if err != nil {
+				switch err.Error() {
+				case "note not found":
+					response.NotFound(w, r, "")
+					return
+				default:
+					response.InternalServerError(w, r)
+					return
+				}
+			}
+
+			response.NotContent(w, r)
+		},
+	)
+}
