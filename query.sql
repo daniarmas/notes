@@ -33,7 +33,7 @@ UPDATE notes SET
   title = $2, content = $3, update_time = $4
 WHERE id = $1 RETURNING *;
 
--- name: DeleteNoteById :one
+-- name: HardDeleteNoteById :one
 DELETE FROM notes WHERE id = $1 RETURNING *;
 
 -- name: GetAccessTokenById :one

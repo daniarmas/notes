@@ -13,7 +13,7 @@ type NoteRepository interface {
 	// GetNote(ctx context.Context, id uuid.UUID) (*Note, error)
 	CreateNote(ctx context.Context, note *Note) (*Note, error)
 	UpdateNote(ctx context.Context, note *Note) (*Note, error)
-	DeleteNote(ctx context.Context, id uuid.UUID) error
+	DeleteNote(ctx context.Context, id uuid.UUID, isHard bool) error
 }
 
 type noteRepository struct {
@@ -64,11 +64,14 @@ func (n *noteRepository) UpdateNote(ctx context.Context, note *Note) (*Note, err
 	return note, nil
 }
 
-func (n *noteRepository) DeleteNote(ctx context.Context, id uuid.UUID) error {
-	// Delete the note from the database
-	err := n.NoteDatabaseDs.DeleteNote(ctx, id)
-	if err != nil {
-		return err
+func (n *noteRepository) DeleteNote(ctx context.Context, id uuid.UUID, isHard bool) error {
+	if isHard {
+		// Hard delete the note from the database
+		err := n.NoteDatabaseDs.HardDeleteNote(ctx, id)
+		if err != nil {
+			return err
+		}
 	}
+	// Soft delete the note from the database
 	return nil
 }

@@ -139,25 +139,6 @@ func (q *Queries) DeleteAccessTokenByUserId(ctx context.Context, userID uuid.UUI
 	return id, err
 }
 
-const deleteNoteById = `-- name: DeleteNoteById :one
-DELETE FROM notes WHERE id = $1 RETURNING id, user_id, title, content, create_time, update_time, delete_time
-`
-
-func (q *Queries) DeleteNoteById(ctx context.Context, id uuid.UUID) (Note, error) {
-	row := q.db.QueryRowContext(ctx, deleteNoteById, id)
-	var i Note
-	err := row.Scan(
-		&i.ID,
-		&i.UserID,
-		&i.Title,
-		&i.Content,
-		&i.CreateTime,
-		&i.UpdateTime,
-		&i.DeleteTime,
-	)
-	return i, err
-}
-
 const deleteRefreshTokenByUserId = `-- name: DeleteRefreshTokenByUserId :one
 DELETE FROM refresh_tokens WHERE user_id = $1 RETURNING id
 `
@@ -238,6 +219,25 @@ func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.Password,
 		&i.CreateTime,
 		&i.UpdateTime,
+	)
+	return i, err
+}
+
+const hardDeleteNoteById = `-- name: HardDeleteNoteById :one
+DELETE FROM notes WHERE id = $1 RETURNING id, user_id, title, content, create_time, update_time, delete_time
+`
+
+func (q *Queries) HardDeleteNoteById(ctx context.Context, id uuid.UUID) (Note, error) {
+	row := q.db.QueryRowContext(ctx, hardDeleteNoteById, id)
+	var i Note
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Title,
+		&i.Content,
+		&i.CreateTime,
+		&i.UpdateTime,
+		&i.DeleteTime,
 	)
 	return i, err
 }
