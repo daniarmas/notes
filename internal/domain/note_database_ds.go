@@ -13,4 +13,5 @@ type NoteDatabaseDs interface {
 	CreateNote(ctx context.Context, note *Note) (*Note, error)
 	UpdateNote(ctx context.Context, note *Note) (*Note, error)
 	HardDeleteNote(ctx context.Context, id uuid.UUID) error
+	SoftDeleteNote(ctx context.Context, id uuid.UUID) error
 }

@@ -108,3 +108,19 @@ func (d *noteDatabaseDs) HardDeleteNote(ctx context.Context, id uuid.UUID) error
 	}
 	return nil
 }
+
+func (d *noteDatabaseDs) SoftDeleteNote(ctx context.Context, id uuid.UUID) error {
+	_, err := d.queries.SoftDeleteNoteById(ctx, database.SoftDeleteNoteByIdParams{
+		ID:         id,
+		DeleteTime: sql.NullTime{Time: time.Now().UTC(), Valid: true},
+	})
+	if err != nil {
+		switch err.Error() {
+		case "sql: no rows in result set":
+			return &customerrors.RecordNotFound{}
+		default:
+			return err
+		}
+	}
+	return nil
+}
