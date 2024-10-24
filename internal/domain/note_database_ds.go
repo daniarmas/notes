@@ -13,7 +13,7 @@ type NoteDatabaseDs interface {
 	GetNote(ctx context.Context, id uuid.UUID) (*Note, error)
 	CreateNote(ctx context.Context, note *Note) (*Note, error)
 	UpdateNote(ctx context.Context, note *Note) (*Note, error)
-	RestoreNote(ctx context.Context, note *Note) (*Note, error)
+	RestoreNote(ctx context.Context, id uuid.UUID) (*Note, error)
 	HardDeleteNote(ctx context.Context, id uuid.UUID) error
 	SoftDeleteNote(ctx context.Context, id uuid.UUID) error
 }

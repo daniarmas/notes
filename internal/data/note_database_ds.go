@@ -118,8 +118,8 @@ func (d *noteDatabaseDs) UpdateNote(ctx context.Context, note *domain.Note) (*do
 	}, nil
 }
 
-func (d *noteDatabaseDs) RestoreNote(ctx context.Context, note *domain.Note) (*domain.Note, error) {
-	res, err := d.queries.RestoreNoteById(ctx, note.Id)
+func (d *noteDatabaseDs) RestoreNote(ctx context.Context, id uuid.UUID) (*domain.Note, error) {
+	res, err := d.queries.RestoreNoteById(ctx, id)
 	if err != nil {
 		switch err.Error() {
 		case "sql: no rows in result set":

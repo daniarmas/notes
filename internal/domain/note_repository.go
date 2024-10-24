@@ -13,7 +13,7 @@ type NoteRepository interface {
 	ListTrashNotesByUser(ctx context.Context, user_id uuid.UUID, cursor time.Time) (*[]Note, error)
 	// GetNote(ctx context.Context, id uuid.UUID) (*Note, error)
 	CreateNote(ctx context.Context, note *Note) (*Note, error)
-	RestoreNote(ctx context.Context, note *Note) (*Note, error)
+	RestoreNote(ctx context.Context, id uuid.UUID) (*Note, error)
 	UpdateNote(ctx context.Context, note *Note) (*Note, error)
 	DeleteNote(ctx context.Context, id uuid.UUID, isHard bool) error
 }
@@ -75,9 +75,9 @@ func (n *noteRepository) UpdateNote(ctx context.Context, note *Note) (*Note, err
 	return note, nil
 }
 
-func (n *noteRepository) RestoreNote(ctx context.Context, note *Note) (*Note, error) {
+func (n *noteRepository) RestoreNote(ctx context.Context, id uuid.UUID) (*Note, error) {
 	// Update the note on the database
-	note, err := n.NoteDatabaseDs.RestoreNote(ctx, note)
+	note, err := n.NoteDatabaseDs.RestoreNote(ctx, id)
 	if err != nil {
 		return nil, err
 	}

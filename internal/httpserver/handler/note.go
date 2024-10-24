@@ -231,6 +231,36 @@ func UpdateNote(srv service.NoteService) http.HandlerFunc {
 	)
 }
 
+// Handler for the update note endpoint
+func RestoreNote(srv service.NoteService) http.HandlerFunc {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			// Get the note ID from the URL path
+			idPathParam := r.PathValue("id")
+			id, err := uuid.Parse(idPathParam)
+			if err != nil {
+				msg := "Provided ID path parameter is invalid. It must be a valid UUID."
+				response.BadRequest(w, r, &msg, nil)
+				return
+			}
+
+			_, err = srv.RestoreNote(r.Context(), id)
+			if err != nil {
+				switch err.Error() {
+				case "note not found":
+					response.NotFound(w, r, "")
+					return
+				default:
+					response.InternalServerError(w, r)
+					return
+				}
+			}
+
+			response.NotContent(w, r)
+		},
+	)
+}
+
 // Handler for the delete note endpoint
 func HardDeleteNote(srv service.NoteService) http.HandlerFunc {
 	return http.HandlerFunc(
