@@ -69,6 +69,17 @@ func (s *noteService) ListTrashNotesByUser(ctx context.Context, cursor time.Time
 	return notes, nil
 }
 
+func (s *noteService) RestoreNote(ctx context.Context, note *domain.Note) (*domain.Note, error) {
+	note, err := s.NoteRepository.RestoreNote(ctx, note)
+	if err != nil {
+		switch err.(type) {
+		case *customerrors.RecordNotFound:
+			return nil, errors.New("note not found")
+		}
+	}
+	return note, nil
+}
+
 func (s *noteService) UpdateNote(ctx context.Context, note *domain.Note) (*domain.Note, error) {
 	note, err := s.NoteRepository.UpdateNote(ctx, note)
 	if err != nil {
