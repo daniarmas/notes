@@ -25,6 +25,7 @@ func Routes(authenticationService service.AuthenticationService, noteService ser
 		{Pattern: "POST /sign-out", Handler: middleware.LoggedOnly(handler.SignOut(authenticationService)).(http.HandlerFunc)},
 
 		// Note
+		{Pattern: "GET /note/trash", Handler: middleware.LoggedOnly(handler.ListTrashNotesByUser(noteService)).(http.HandlerFunc)},
 		{Pattern: "GET /note", Handler: middleware.LoggedOnly(handler.ListNotesByUser(noteService)).(http.HandlerFunc)},
 		{Pattern: "POST /note", Handler: middleware.LoggedOnly(handler.CreateNote(noteService)).(http.HandlerFunc)},
 		{Pattern: "DELETE /note/{id}/hard", Handler: middleware.LoggedOnly(handler.HardDeleteNote(noteService)).(http.HandlerFunc)},

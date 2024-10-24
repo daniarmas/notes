@@ -132,6 +132,53 @@ func ListNotesByUser(srv service.NoteService) http.HandlerFunc {
 	)
 }
 
+// Handler for the list trash notes endpoint
+func ListTrashNotesByUser(srv service.NoteService) http.HandlerFunc {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			// Get the cursor from the query parameters
+			cursorQueryParam := r.URL.Query().Get("cursor")
+			// parse the cursor query parameter
+			cursor, err := utils.ParseTime(cursorQueryParam)
+			if err != nil && cursorQueryParam != "" {
+				msg := "Invalid time format for the cursor query parameter. Must use RFC3339 format"
+				response.BadRequest(w, r, &msg, nil)
+				return
+			}
+
+			// If the cursor is zero, set it to the current time
+			if cursor.IsZero() {
+				cursor = time.Now().UTC()
+			}
+
+			notes, err := srv.ListTrashNotesByUser(r.Context(), cursor)
+			if err != nil {
+				switch err.Error() {
+				default:
+					response.InternalServerError(w, r)
+					return
+				}
+			}
+
+			// Get the next cursor
+			notesSlice := *notes
+			var nextCursor time.Time
+			if len(notesSlice) > 0 {
+				nextCursor = notesSlice[len(notesSlice)-1].DeleteTime
+			} else {
+				// Handle the case where notesSlice is empty
+				nextCursor = time.Now().UTC()
+			}
+
+			res := ListNotesResponse{
+				Notes:  notes,
+				Cursor: nextCursor,
+			}
+			response.OK(w, r, res)
+		},
+	)
+}
+
 // Handler for the update note endpoint
 func UpdateNote(srv service.NoteService) http.HandlerFunc {
 	return http.HandlerFunc(
