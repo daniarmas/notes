@@ -117,6 +117,28 @@ func (d *noteDatabaseDs) UpdateNote(ctx context.Context, note *domain.Note) (*do
 		DeleteTime: res.DeleteTime.Time,
 	}, nil
 }
+
+func (d *noteDatabaseDs) RestoreNote(ctx context.Context, note *domain.Note) (*domain.Note, error) {
+	res, err := d.queries.RestoreNoteById(ctx, note.Id)
+	if err != nil {
+		switch err.Error() {
+		case "sql: no rows in result set":
+			return nil, &customerrors.RecordNotFound{}
+		default:
+			return nil, err
+		}
+	}
+	return &domain.Note{
+		Id:         res.ID,
+		UserId:     res.UserID,
+		Title:      res.Title.String,
+		Content:    res.Content.String,
+		CreateTime: res.CreateTime,
+		UpdateTime: res.UpdateTime,
+		DeleteTime: res.DeleteTime.Time,
+	}, nil
+}
+
 func (d *noteDatabaseDs) HardDeleteNote(ctx context.Context, id uuid.UUID) error {
 	_, err := d.queries.HardDeleteNoteById(ctx, id)
 	if err != nil {
