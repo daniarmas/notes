@@ -68,7 +68,24 @@ func (d *noteDatabaseDs) ListNotesByUser(ctx context.Context, user_id uuid.UUID,
 }
 
 func (d *noteDatabaseDs) ListTrashNotesByUser(ctx context.Context, user_id uuid.UUID, cursor time.Time) (*[]domain.Note, error) {
-	return nil, nil
+	res, err := d.queries.ListTrashNotesByUserId(ctx, database.ListTrashNotesByUserIdParams{UserID: user_id, DeleteTime: sql.NullTime{Time: cursor, Valid: true}})
+	if err != nil {
+		return nil, err
+	}
+	// Preallocate slice with the length of the result set
+	response := make([]domain.Note, 0, len(res))
+	for _, note := range res {
+		response = append(response, domain.Note{
+			Id:         note.ID,
+			UserId:     note.UserID,
+			Title:      note.Title.String,
+			Content:    note.Content.String,
+			CreateTime: note.CreateTime,
+			UpdateTime: note.UpdateTime,
+			DeleteTime: note.DeleteTime.Time,
+		})
+	}
+	return &response, nil
 }
 
 func (d *noteDatabaseDs) GetNote(ctx context.Context, id uuid.UUID) (*domain.Note, error) {
