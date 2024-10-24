@@ -135,7 +135,7 @@
             },
             "/me": {
                 "get": {
-                    "summary": "Get current user information",
+                    "summary": "Get current user",
                     "tags": [
                         "Authentication"
                     ],
@@ -169,6 +169,50 @@
                                     }
                                 }
                             }
+                        },
+                        "401": {
+                            "description": "Unauthorized",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "Authorization token has expired",
+                                            "value": {
+                                                "code": 401,
+                                                "message": "Authorization token has expired. Please log in again to continue.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        },
+                                        "example2": {
+                                            "summary": "User not logged",
+                                            "value": {
+                                                "code": 401,
+                                                "message": "User is not logged in. Please log in to access this resource.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "/sign-out": {
+                "post": {
+                    "summary": "Sign out current user",
+                    "tags": [
+                        "Authentication"
+                    ],
+                    "parameters": [],
+                    "responses": {
+                        "204": {
+                            "description": "No Content"
                         },
                         "401": {
                             "description": "Unauthorized",

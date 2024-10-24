@@ -256,7 +256,7 @@ func RestoreNote(srv service.NoteService) http.HandlerFunc {
 				}
 			}
 
-			response.NotContent(w, r)
+			response.NoContent(w, r)
 		},
 	)
 }
@@ -286,7 +286,7 @@ func HardDeleteNote(srv service.NoteService) http.HandlerFunc {
 				}
 			}
 
-			response.NotContent(w, r)
+			response.NoContent(w, r)
 		},
 	)
 }
@@ -316,7 +316,7 @@ func SoftDeleteNote(srv service.NoteService) http.HandlerFunc {
 				}
 			}
 
-			response.NotContent(w, r)
+			response.NoContent(w, r)
 		},
 	)
 }

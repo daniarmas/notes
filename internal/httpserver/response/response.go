@@ -81,7 +81,7 @@ func NotFound(w http.ResponseWriter, r *http.Request, message string) {
 	json.NewEncoder(w).Encode(res)
 }
 
-func NotContent(w http.ResponseWriter, r *http.Request) {
+func NoContent(w http.ResponseWriter, r *http.Request) {
 	res := response{
 		Code:    http.StatusNoContent,
 		Message: "No Content",
