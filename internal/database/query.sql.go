@@ -328,6 +328,28 @@ func (q *Queries) ListTrashNotesByUserId(ctx context.Context, arg ListTrashNotes
 	return items, nil
 }
 
+const restoreNoteById = `-- name: RestoreNoteById :one
+UPDATE notes SET
+  delete_time = NULL
+WHERE id = $1 AND delete_time IS NOT NULL
+RETURNING id, user_id, title, content, create_time, update_time, delete_time
+`
+
+func (q *Queries) RestoreNoteById(ctx context.Context, id uuid.UUID) (Note, error) {
+	row := q.db.QueryRowContext(ctx, restoreNoteById, id)
+	var i Note
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Title,
+		&i.Content,
+		&i.CreateTime,
+		&i.UpdateTime,
+		&i.DeleteTime,
+	)
+	return i, err
+}
+
 const softDeleteNoteById = `-- name: SoftDeleteNoteById :one
 UPDATE notes SET
   delete_time = $2

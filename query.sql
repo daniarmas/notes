@@ -39,6 +39,12 @@ UPDATE notes SET
   title = $2, content = $3, update_time = $4
 WHERE id = $1 RETURNING *;
 
+-- name: RestoreNoteById :one
+UPDATE notes SET
+  delete_time = NULL
+WHERE id = $1 AND delete_time IS NOT NULL
+RETURNING *;
+
 -- name: HardDeleteNoteById :one
 DELETE FROM notes WHERE id = $1 RETURNING *;
 
