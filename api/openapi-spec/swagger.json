@@ -11,7 +11,12 @@
         ],
         "tags": [
             {
-                "name": "Authentication"
+                "name": "Authentication",
+                "description": "Endpoints for user authentication"
+            },
+            {
+                "name": "Notes",
+                "description": "Endpoints for notes management"
             }
         ],
         "paths": {
@@ -246,6 +251,130 @@
                         }
                     }
                 }
+            },
+            "/note": {
+                "post": {
+                    "summary": "Create a note",
+                    "tags": [
+                        "Notes"
+                    ],
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "title": {
+                                            "type": "string",
+                                            "example": "Title"
+                                        },
+                                        "content": {
+                                            "type": "string",
+                                            "example": "Content"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "OK",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "successful",
+                                            "value": {
+                                                "code": 200,
+                                                "message": "OK",
+                                                "details": {},
+                                                "data": {
+                                                    "note": {
+                                                        "id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
+                                                        "user_id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
+                                                        "title": "Title",
+                                                        "content": "Content",
+                                                        "create_time": "2024-09-08T19:33:41.250318Z",
+                                                        "update_time": "2024-09-08T19:33:41.250318Z",
+                                                        "delete_time": "2024-09-08T19:33:41.250318Z"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "400": {
+                            "description": "Bad request",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "Invalid JSON request",
+                                            "value": {
+                                                "code": 400,
+                                                "message": "Bad request",
+                                                "details": null,
+                                                "data": {}
+                                            }
+                                        },
+                                        "example2": {
+                                            "summary": "Missing required fields",
+                                            "value": {
+                                                "code": 400,
+                                                "message": "Bad request",
+                                                "details": {
+                                                    "title": "field required",
+                                                    "content": "field required"
+                                                },
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "401": {
+                            "description": "Unauthorized",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "Authorization token has expired",
+                                            "value": {
+                                                "code": 401,
+                                                "message": "Authorization token has expired. Please log in again to continue.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        },
+                                        "example2": {
+                                            "summary": "User not logged",
+                                            "value": {
+                                                "code": 401,
+                                                "message": "User is not logged in. Please log in to access this resource.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "components": {
@@ -264,6 +393,43 @@
                         },
                         "data": {
                             "type": "object"
+                        }
+                    }
+                },
+                "Note": {
+                    "type": "object",
+                    "description": "Note representation",
+                    "properties": {
+                        "id": {
+                            "$ref": "#/components/schemas/UUID",
+                            "example": "3267b999-a3bc-482e-aabd-cb2b2b618cb5"
+                        },
+                        "user_id": {
+                            "$ref": "#/components/schemas/UUID",
+                            "example": "3267b999-a3bc-482e-aabd-cb2b2b618cb5"
+                        },
+                        "title": {
+                            "type": "string",
+                            "example": "Title"
+                        },
+                        "content": {
+                            "type": "string",
+                            "example": "Content"
+                        },
+                        "create_time": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2024-09-08T19:33:41.250318Z"
+                        },
+                        "update_time": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2024-09-08T19:33:41.250318Z"
+                        },
+                        "delete_time": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2024-09-08T19:33:41.250318Z"
                         }
                     }
                 },
