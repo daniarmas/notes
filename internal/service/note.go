@@ -16,6 +16,7 @@ type CreateNoteResponse struct {
 
 type NoteService interface {
 	CreateNote(ctx context.Context, title string, content string) (*CreateNoteResponse, error)
+	ListTrashNotesByUser(ctx context.Context, cursor time.Time) (*[]domain.Note, error)
 	ListNotesByUser(ctx context.Context, cursor time.Time) (*[]domain.Note, error)
 	DeleteNote(ctx context.Context, id uuid.UUID, hard bool) error
 	UpdateNote(ctx context.Context, note *domain.Note) (*domain.Note, error)
@@ -49,6 +50,18 @@ func (s *noteService) ListNotesByUser(ctx context.Context, cursor time.Time) (*[
 	userId := domain.GetUserIdFromContext(ctx)
 
 	notes, err := s.NoteRepository.ListNotesByUser(ctx, userId, cursor)
+	if err != nil {
+		return nil, err
+	}
+
+	return notes, nil
+}
+
+func (s *noteService) ListTrashNotesByUser(ctx context.Context, cursor time.Time) (*[]domain.Note, error) {
+	// Get the user ID from the context
+	userId := domain.GetUserIdFromContext(ctx)
+
+	notes, err := s.NoteRepository.ListTrashNotesByUser(ctx, userId, cursor)
 	if err != nil {
 		return nil, err
 	}

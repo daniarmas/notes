@@ -244,7 +244,7 @@ func (q *Queries) HardDeleteNoteById(ctx context.Context, id uuid.UUID) (Note, e
 
 const listNotesByUserId = `-- name: ListNotesByUserId :many
 SELECT id, user_id, title, content, create_time, update_time, delete_time FROM notes
-WHERE user_id = $1 AND update_time < $2
+WHERE user_id = $1 AND update_time < $2 AND delete_time IS NULL
 ORDER BY update_time DESC
 LIMIT 20
 `
@@ -256,6 +256,49 @@ type ListNotesByUserIdParams struct {
 
 func (q *Queries) ListNotesByUserId(ctx context.Context, arg ListNotesByUserIdParams) ([]Note, error) {
 	rows, err := q.db.QueryContext(ctx, listNotesByUserId, arg.UserID, arg.UpdateTime)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Note
+	for rows.Next() {
+		var i Note
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Title,
+			&i.Content,
+			&i.CreateTime,
+			&i.UpdateTime,
+			&i.DeleteTime,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listTrashNotesByUserId = `-- name: ListTrashNotesByUserId :many
+SELECT id, user_id, title, content, create_time, update_time, delete_time FROM notes
+WHERE user_id = $1 AND delete_time < $2 AND delete_time IS NOT NULL
+ORDER BY delete_time DESC
+LIMIT 20
+`
+
+type ListTrashNotesByUserIdParams struct {
+	UserID     uuid.UUID
+	DeleteTime sql.NullTime
+}
+
+func (q *Queries) ListTrashNotesByUserId(ctx context.Context, arg ListTrashNotesByUserIdParams) ([]Note, error) {
+	rows, err := q.db.QueryContext(ctx, listTrashNotesByUserId, arg.UserID, arg.DeleteTime)
 	if err != nil {
 		return nil, err
 	}

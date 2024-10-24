@@ -10,6 +10,7 @@ import (
 
 type NoteRepository interface {
 	ListNotesByUser(ctx context.Context, user_id uuid.UUID, cursor time.Time) (*[]Note, error)
+	ListTrashNotesByUser(ctx context.Context, user_id uuid.UUID, cursor time.Time) (*[]Note, error)
 	// GetNote(ctx context.Context, id uuid.UUID) (*Note, error)
 	CreateNote(ctx context.Context, note *Note) (*Note, error)
 	UpdateNote(ctx context.Context, note *Note) (*Note, error)
@@ -49,6 +50,15 @@ func (n *noteRepository) CreateNote(ctx context.Context, note *Note) (*Note, err
 func (n *noteRepository) ListNotesByUser(ctx context.Context, user_id uuid.UUID, cursor time.Time) (*[]Note, error) {
 	// Fetch the notes from the database
 	notes, err := n.NoteDatabaseDs.ListNotesByUser(ctx, user_id, cursor)
+	if err != nil {
+		return nil, err
+	}
+	return notes, nil
+}
+
+func (n *noteRepository) ListTrashNotesByUser(ctx context.Context, user_id uuid.UUID, cursor time.Time) (*[]Note, error) {
+	// Fetch the notes from the database
+	notes, err := n.NoteDatabaseDs.ListTrashNotesByUser(ctx, user_id, cursor)
 	if err != nil {
 		return nil, err
 	}
