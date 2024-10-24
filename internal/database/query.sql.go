@@ -285,6 +285,33 @@ func (q *Queries) ListNotesByUserId(ctx context.Context, arg ListNotesByUserIdPa
 	return items, nil
 }
 
+const softDeleteNoteById = `-- name: SoftDeleteNoteById :one
+UPDATE notes SET
+  delete_time = $2
+WHERE id = $1 AND delete_time IS NULL
+RETURNING id, user_id, title, content, create_time, update_time, delete_time
+`
+
+type SoftDeleteNoteByIdParams struct {
+	ID         uuid.UUID
+	DeleteTime sql.NullTime
+}
+
+func (q *Queries) SoftDeleteNoteById(ctx context.Context, arg SoftDeleteNoteByIdParams) (Note, error) {
+	row := q.db.QueryRowContext(ctx, softDeleteNoteById, arg.ID, arg.DeleteTime)
+	var i Note
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Title,
+		&i.Content,
+		&i.CreateTime,
+		&i.UpdateTime,
+		&i.DeleteTime,
+	)
+	return i, err
+}
+
 const updateNoteById = `-- name: UpdateNoteById :one
 UPDATE notes SET
   title = $2, content = $3, update_time = $4

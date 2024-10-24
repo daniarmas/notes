@@ -71,7 +71,12 @@ func (n *noteRepository) DeleteNote(ctx context.Context, id uuid.UUID, isHard bo
 		if err != nil {
 			return err
 		}
+	} else {
+		// Soft delete the note from the database
+		err := n.NoteDatabaseDs.SoftDeleteNote(ctx, id)
+		if err != nil {
+			return err
+		}
 	}
-	// Soft delete the note from the database
 	return nil
 }
