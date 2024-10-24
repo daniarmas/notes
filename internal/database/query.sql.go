@@ -244,7 +244,7 @@ func (q *Queries) HardDeleteNoteById(ctx context.Context, id uuid.UUID) (Note, e
 
 const listNotesByUserId = `-- name: ListNotesByUserId :many
 SELECT id, user_id, title, content, create_time, update_time, delete_time FROM notes
-WHERE user_id = $1 AND update_time < $2
+WHERE user_id = $1 AND update_time < $2 AND delete_time IS NULL
 ORDER BY update_time DESC
 LIMIT 20
 `

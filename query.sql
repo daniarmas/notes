@@ -16,7 +16,7 @@ RETURNING *;
 
 -- name: ListNotesByUserId :many
 SELECT * FROM notes
-WHERE user_id = $1 AND update_time < $2
+WHERE user_id = $1 AND update_time < $2 AND delete_time IS NULL
 ORDER BY update_time DESC
 LIMIT 20;
 
