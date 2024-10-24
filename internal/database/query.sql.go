@@ -288,7 +288,8 @@ func (q *Queries) ListNotesByUserId(ctx context.Context, arg ListNotesByUserIdPa
 const softDeleteNoteById = `-- name: SoftDeleteNoteById :one
 UPDATE notes SET
   delete_time = $2
-WHERE id = $1 RETURNING id, user_id, title, content, create_time, update_time, delete_time
+WHERE id = $1 AND delete_time IS NULL
+RETURNING id, user_id, title, content, create_time, update_time, delete_time
 `
 
 type SoftDeleteNoteByIdParams struct {
