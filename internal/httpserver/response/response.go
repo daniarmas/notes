@@ -15,6 +15,9 @@ type response struct {
 }
 
 func Unauthorized(w http.ResponseWriter, r *http.Request, message string, errors map[string]string) {
+	if errors == nil {
+		errors = make(map[string]string)
+	}
 	res := response{
 		Code:    http.StatusUnauthorized,
 		Message: message,
@@ -27,6 +30,9 @@ func Unauthorized(w http.ResponseWriter, r *http.Request, message string, errors
 }
 
 func BadRequest(w http.ResponseWriter, r *http.Request, message *string, errors map[string]string) {
+	if errors == nil {
+		errors = make(map[string]string)
+	}
 	if message == nil {
 		defaultMessage := "Bad Request"
 		message = &defaultMessage
@@ -81,7 +87,7 @@ func NotFound(w http.ResponseWriter, r *http.Request, message string) {
 	json.NewEncoder(w).Encode(res)
 }
 
-func NotContent(w http.ResponseWriter, r *http.Request) {
+func NoContent(w http.ResponseWriter, r *http.Request) {
 	res := response{
 		Code:    http.StatusNoContent,
 		Message: "No Content",
