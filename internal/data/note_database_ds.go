@@ -67,6 +67,10 @@ func (d *noteDatabaseDs) ListNotesByUser(ctx context.Context, user_id uuid.UUID,
 	return &response, nil
 }
 
+func (d *noteDatabaseDs) ListTrashNotesByUser(ctx context.Context, user_id uuid.UUID, cursor time.Time) (*[]domain.Note, error) {
+	return nil, nil
+}
+
 func (d *noteDatabaseDs) GetNote(ctx context.Context, id uuid.UUID) (*domain.Note, error) {
 	return nil, nil
 }
