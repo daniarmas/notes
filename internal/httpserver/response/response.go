@@ -15,6 +15,9 @@ type response struct {
 }
 
 func Unauthorized(w http.ResponseWriter, r *http.Request, message string, errors map[string]string) {
+	if errors == nil {
+		errors = make(map[string]string)
+	}
 	res := response{
 		Code:    http.StatusUnauthorized,
 		Message: message,
@@ -27,6 +30,9 @@ func Unauthorized(w http.ResponseWriter, r *http.Request, message string, errors
 }
 
 func BadRequest(w http.ResponseWriter, r *http.Request, message *string, errors map[string]string) {
+	if errors == nil {
+		errors = make(map[string]string)
+	}
 	if message == nil {
 		defaultMessage := "Bad Request"
 		message = &defaultMessage
