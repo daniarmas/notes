@@ -314,7 +314,7 @@
                                             "value": {
                                                 "code": 400,
                                                 "message": "Invalid JSON request",
-                                                "details": null,
+                                                "details": {},
                                                 "data": {}
                                             }
                                         }
@@ -417,7 +417,7 @@
                                             "value": {
                                                 "code": 400,
                                                 "message": "Invalid JSON request",
-                                                "details": null,
+                                                "details": {},
                                                 "data": {}
                                             }
                                         }
@@ -527,7 +527,7 @@
                                             "value": {
                                                 "code": 400,
                                                 "message": "Invalid JSON request",
-                                                "details": null,
+                                                "details": {},
                                                 "data": {}
                                             }
                                         },
@@ -613,7 +613,7 @@
                                             "value": {
                                                 "code": 400,
                                                 "message": "Provided ID path parameter is invalid. It must be a valid UUID.",
-                                                "details": null,
+                                                "details": {},
                                                 "data": {}
                                             }
                                         }
@@ -708,7 +708,7 @@
                                             "value": {
                                                 "code": 400,
                                                 "message": "Provided ID path parameter is invalid. It must be a valid UUID.",
-                                                "details": null,
+                                                "details": {},
                                                 "data": {}
                                             }
                                         }
