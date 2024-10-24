@@ -121,7 +121,7 @@ func LoggedOnly(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userId := domain.GetUserIdFromContext(r.Context())
 		if userId == uuid.Nil {
-			response.Unauthorized(w, r, "user is not logged in. please log in to access this resource.", nil)
+			response.Unauthorized(w, r, "User is not logged in. Please log in to access this resource.", nil)
 			return
 		}
 		// Call the next handler
