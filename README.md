@@ -19,29 +19,6 @@
 
 
 
-<!-- TABLE OF CONTENTS -->
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
-    </li>
-    <li><a href="#features">Features</a></li>
-    <li>
-      <a href="#documentation">Documentation</a>
-    </li>
-    <li><a href="#installation">Installation</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
-  </ol>
-</details>
-
-
-
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
@@ -63,19 +40,19 @@ This is a RESTful API for a notes application, developed using Go. Although the 
 * Database - [CockroachDB](https://www.cockroachlabs.com/docs/stable/)
 * Cache - [Redis](https://redis.io/)
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+## How to test
+
+1. Install Postman from [here](https://www.postman.com/downloads/).
+2. Download the api postman collection [here](https://github.com/daniarmas/notes/blob/main/assets/notes-api.postman_collection.json)
 
 ## Documentation
 
 * [Swagger Documentation](https://api.notes.daniel-enrique.com/doc) 
 
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 <!-- INSTALLATION -->
-### Installation
+## Installation
 
 1. Install Go 1.22.4 [https://go.dev/doc/install](https://go.dev/doc/install)
 2. Clone the repo
