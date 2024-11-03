@@ -1,0 +1,355 @@
+{
+	"info": {
+		"_postman_id": "77d797a9-583b-4b0c-8b41-ca43fe4956d9",
+		"name": "Notes API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11737807",
+		"_collection_link": "https://lively-satellite-377386.postman.co/workspace/Portafolio-projects~8aa94000-96f3-49de-99ea-7de178437f62/collection/11737807-77d797a9-583b-4b0c-8b41-ca43fe4956d9?action=share&source=collection_link&creator=11737807"
+	},
+	"item": [
+		{
+			"name": "Note",
+			"item": [
+				{
+					"name": "CreateNote",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{vault:authorization-secret}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"2\",\n    \"content\": \"2\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/note",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"note"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ListNotes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{vault:authorization-secret}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/note",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"note"
+							],
+							"query": [
+								{
+									"key": "cursor",
+									"value": "2024-10-20T16:38:21.160641Z",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ListTrashNotes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{vault:authorization-secret}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/note/trash",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"note",
+								"trash"
+							],
+							"query": [
+								{
+									"key": "cursor",
+									"value": "2024-10-20T16:38:21.160641Z",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SoftDeleteNote",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{vault:authorization-secret}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/note/76a24d14-79c9-4d1d-bd06-b76529181cc",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"note",
+								"76a24d14-79c9-4d1d-bd06-b76529181cc"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "HardDeleteNote",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{vault:authorization-secret}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/note/72916e1b-5697-4664-8906-3fe8d68dea3b/hard",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"note",
+								"72916e1b-5697-4664-8906-3fe8d68dea3b",
+								"hard"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateNote",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{vault:authorization-secret}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"2.2\",\n    \"content\": \"2.2\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/note/6d104bd4-6dc0-4059-ac7d-74051b98d81b",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"note",
+								"6d104bd4-6dc0-4059-ac7d-74051b98d81b"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RestoreNote",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{vault:authorization-secret}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/note/603a2d9e-8bdf-4cfe-999b-8da0c5ff3794/restore",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"note",
+								"603a2d9e-8bdf-4cfe-999b-8da0c5ff3794",
+								"restore"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Sign-In",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user1@email.com\",\n    \"password\": \"user1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/sign-in",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"sign-in"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Me",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{vault:authorization-secret}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/me",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SignOut",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{vault:authorization-secret}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/sign-out",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"sign-out"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Health-Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/health",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"health"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
