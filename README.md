@@ -92,7 +92,15 @@ This is a RESTful API for a notes application, developed using Go. Although the 
    cd deploy
    docker compose -f docker-compose-dev.yaml up -d
    ```
-6. Run the app
+6. Create the database tables
+   ```sh
+   go run main.go create database
+   ```
+7. Seed the database. This create the users in the database for test purpose
+   ```sh
+   go run main.go create seed
+   ```
+8. Run the app
    ```sh
    go run main.go run
    ```
