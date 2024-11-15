@@ -39,5 +39,4 @@ jobs:
         context: .
         file: ./docker/Dockerfile
         push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+        tags: ghcr.io/${{ github.repository }}:${{ steps.version.outputs.VERSION }}
