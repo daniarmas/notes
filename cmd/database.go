@@ -56,7 +56,7 @@ to quickly create a Cobra application.`,
 			password VARCHAR NOT NULL,
     		create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     		update_time TIMESTAMP,
-			CONSTRAINT pk PRIMARY KEY (id)
+			CONSTRAINT users_pk PRIMARY KEY (id)
 		);`)
 		if err != nil {
 			log.Fatal(err)
@@ -73,7 +73,7 @@ to quickly create a Cobra application.`,
 				user_id UUID NOT NULL,
     			create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     			update_time TIMESTAMP,
-				CONSTRAINT pk PRIMARY KEY (id),
+				CONSTRAINT refresh_tokens_pk PRIMARY KEY (id),
 				CONSTRAINT fk_user
         			FOREIGN KEY (user_id) 
         			REFERENCES users(id)
