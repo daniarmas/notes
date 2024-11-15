@@ -1,58 +1,43 @@
-#
-name: Build docker image
+name: Build and Push Docker Image
 
-# This workflow runs when any of the following occur:
-# - A relase is made to a branch called `main`
 on:
   release:
-    types: [published]
+    types: [ published ]
     branches:
     - main
     - develop
-    # This creates an environment variable called `IMAGE_NAME ` with the value `ghtoken_product_demo`.
-env:
-  IMAGE_NAME: notes-api
-#
+
 jobs:
-  # This pushes the image to GitHub Packages.
-  push:
+  docker:
     runs-on: ubuntu-latest
-    permissions:
-      packages: write
-      contents: read
-      #
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
 
-    - name: Build image
-      run: docker build . --file build/Dockerfile --tag $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}"
-
-    - name: Log in to registry
-      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-      #
-    - name: Push image
+    - name: Set version
+      id: version
       run: |
-        IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+        if [ "${{ github.event.release.prerelease }}" = "true" ]; then
+          echo "VERSION=${{ github.event.release.tag_name }}-rc" >> $GITHUB_OUTPUT
+        else
+          echo "VERSION=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+        fi
 
-        # This changes all uppercase characters to lowercase.
-        IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-        # This strips the git ref prefix from the version.
-        VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-        # This strips the "v" prefix from the tag name.
-        [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-        # This uses the Docker `latest` tag convention.
-        [ "$VERSION" == "main" ] && VERSION=latest
-        echo IMAGE_ID=$IMAGE_ID
-        echo VERSION=$VERSION
-        echo GITHUB_RUN_ID=$GITHUB_RUN_ID
-        # docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
-        # docker push $IMAGE_ID:$VERSION
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
-        if [[ "${github.ref}" == "refs/heads/develop" ]]; then 
-            docker tag $IMAGE_NAME $IMAGE_ID:dev-$VERSION-$GITHUB_RUN_ID
-          else
-            docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
-          fi
-          echo "Image tag: $image_tag"
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
-        docker push $IMAGE_ID:$VERSION
+    - name: Build and push
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: |
+          ghcr.io/${{ github.repository }}:latest
+          ghcr.io/${{ github.repository }}:${{ steps.version.outputs.VERSION }}
