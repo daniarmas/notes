@@ -51,9 +51,9 @@ to quickly create a Cobra application.`,
 		stmt, err = db.Prepare(`
 		CREATE TABLE IF NOT EXISTS users (
     		id UUID DEFAULT gen_random_uuid(),
-    		name STRING NOT NULL,
-    		email STRING NOT NULL UNIQUE,
-			password STRING NOT NULL,
+    		name VARCHAR NOT NULL,
+    		email VARCHAR NOT NULL UNIQUE,
+			password VARCHAR NOT NULL,
     		create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     		update_time TIMESTAMP,
 			CONSTRAINT pk PRIMARY KEY (id)
