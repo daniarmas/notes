@@ -8,6 +8,7 @@ on:
     types: [published]
     branches:
     - main
+    - develop
     # This creates an environment variable called `IMAGE_NAME ` with the value `ghtoken_product_demo`.
 env:
   IMAGE_NAME: notes-api
@@ -43,5 +44,15 @@ jobs:
         [ "$VERSION" == "main" ] && VERSION=latest
         echo IMAGE_ID=$IMAGE_ID
         echo VERSION=$VERSION
-        docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+        echo GITHUB_RUN_ID=$GITHUB_RUN_ID
+        # docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+        # docker push $IMAGE_ID:$VERSION
+
+        if [[ "${github.ref}" == "refs/heads/develop" ]]; then 
+            docker tag $IMAGE_NAME $IMAGE_ID:dev-$VERSION-$GITHUB_RUN_ID
+          else
+            docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          fi
+          echo "Image tag: $image_tag"
+
         docker push $IMAGE_ID:$VERSION
