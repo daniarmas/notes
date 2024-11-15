@@ -30,7 +30,15 @@ to quickly create a Cobra application.`,
 		defer database.Close(db, false)
 
 		// Create notes_database if not exists
-		stmt, err := db.Prepare("CREATE DATABASE IF NOT EXISTS postgres;")
+		stmt, err := db.Prepare(`
+			DO $$
+			BEGIN
+			   IF NOT EXISTS (SELECT FROM pg_database WHERE datname = 'postgres') THEN
+			      PERFORM pg_sleep(0.1); -- Workaround for the DO check
+			      CREATE DATABASE postgres;
+			   END IF;
+			END
+			$$;`)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -43,12 +51,12 @@ to quickly create a Cobra application.`,
 		stmt, err = db.Prepare(`
 		CREATE TABLE IF NOT EXISTS users (
     		id UUID DEFAULT gen_random_uuid(),
-    		name STRING NOT NULL,
-    		email STRING NOT NULL UNIQUE,
-			password STRING NOT NULL,
+    		name VARCHAR NOT NULL,
+    		email VARCHAR NOT NULL UNIQUE,
+			password VARCHAR NOT NULL,
     		create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     		update_time TIMESTAMP,
-			CONSTRAINT pk PRIMARY KEY (id)
+			CONSTRAINT users_pk PRIMARY KEY (id)
 		);`)
 		if err != nil {
 			log.Fatal(err)
@@ -65,7 +73,7 @@ to quickly create a Cobra application.`,
 				user_id UUID NOT NULL,
     			create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     			update_time TIMESTAMP,
-				CONSTRAINT pk PRIMARY KEY (id),
+				CONSTRAINT refresh_tokens_pk PRIMARY KEY (id),
 				CONSTRAINT fk_user
         			FOREIGN KEY (user_id) 
         			REFERENCES users(id)
@@ -88,7 +96,7 @@ to quickly create a Cobra application.`,
 				refresh_token_id UUID NOT NULL,
     			create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     			update_time TIMESTAMP,
-				CONSTRAINT pk PRIMARY KEY (id),
+				CONSTRAINT access_tokens_pk PRIMARY KEY (id),
 				CONSTRAINT fk_user
         			FOREIGN KEY (user_id) 
         			REFERENCES users(id)
@@ -112,12 +120,12 @@ to quickly create a Cobra application.`,
 			CREATE TABLE IF NOT EXISTS notes (
 				id UUID DEFAULT gen_random_uuid(),
 				user_id UUID NOT NULL,
-				title STRING,
-				content STRING,
+				title VARCHAR,
+				content VARCHAR,
     			create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     			update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     			delete_time TIMESTAMP,
-				CONSTRAINT pk PRIMARY KEY (id),
+				CONSTRAINT notes_pk PRIMARY KEY (id),
 				CONSTRAINT fk_user
         			FOREIGN KEY (user_id) 
         			REFERENCES users(id)
