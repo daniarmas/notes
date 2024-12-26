@@ -23,7 +23,7 @@ var seedCmd = &cobra.Command{
 		ctx := context.Background()
 
 		// Config
-		cfg := config.LoadConfig()
+		cfg := config.LoadServerConfig()
 
 		// Database connection
 		db := database.Open(cfg, false)

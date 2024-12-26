@@ -30,7 +30,7 @@ func run(ctx context.Context) error {
 	clog.NewClog()
 
 	// Config
-	cfg := config.LoadConfig()
+	cfg := config.LoadServerConfig()
 
 	// Database connection
 	db := database.Open(cfg, true)
