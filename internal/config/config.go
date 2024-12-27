@@ -9,22 +9,42 @@ import (
 )
 
 type Configuration struct {
-	DatabaseUrl   string
-	JwtSecret     string
-	RedisHost     string
-	RedisPort     string
-	RedisPassword string
-	RedisDb       int
+	DatabaseUrl                   string
+	JwtSecret                     string
+	RedisHost                     string
+	RedisPort                     string
+	RedisPassword                 string
+	RedisDb                       int
+	ObjectStorageServiceAccessKey string
+	ObjectStorageServiceSecretKey string
+	ObjectStorageServiceEndpoint  string
+	ObjectStorageServiceRegion    string
 }
 
 func LoadServerConfig() *Configuration {
 	ctx := context.Background()
 	config := Configuration{
-		DatabaseUrl:   os.Getenv("DATABASE_URL"),
-		RedisHost:     os.Getenv("REDIS_HOST"),
-		RedisPort:     os.Getenv("REDIS_PORT"),
-		RedisPassword: os.Getenv("REDIS_PASSWORD"),
-		JwtSecret:     os.Getenv("JWT_SECRET"),
+		DatabaseUrl:                   os.Getenv("DATABASE_URL"),
+		RedisHost:                     os.Getenv("REDIS_HOST"),
+		RedisPort:                     os.Getenv("REDIS_PORT"),
+		RedisPassword:                 os.Getenv("REDIS_PASSWORD"),
+		JwtSecret:                     os.Getenv("JWT_SECRET"),
+		ObjectStorageServiceAccessKey: os.Getenv("OBJECT_STORAGE_SERVICE_ACCESS_KEY"),
+		ObjectStorageServiceSecretKey: os.Getenv("OBJECT_STORAGE_SERVICE_SECRET_KEY"),
+		ObjectStorageServiceEndpoint:  os.Getenv("OBJECT_STORAGE_SERVICE_ENDPOINT"),
+		ObjectStorageServiceRegion:    os.Getenv("OBJECT_STORAGE_SERVICE_REGION"),
+	}
+	if config.ObjectStorageServiceAccessKey == "" {
+		clog.Warn(ctx, "OBJECT_STORAGE_SERVICE_ACCESS_KEY enviroment variable is required", nil)
+	}
+	if config.ObjectStorageServiceSecretKey == "" {
+		clog.Warn(ctx, "OBJECT_STORAGE_SERVICE_SECRET_KEY enviroment variable is required", nil)
+	}
+	if config.ObjectStorageServiceEndpoint == "" {
+		clog.Warn(ctx, "OBJECT_STORAGE_SERVICE_ENDPOINT enviroment variable is required", nil)
+	}
+	if config.ObjectStorageServiceRegion == "" {
+		clog.Warn(ctx, "OBJECT_STORAGE_SERVICE_REGION enviroment variable is required", nil)
 	}
 	if config.JwtSecret == "" {
 		clog.Warn(ctx, "JWT_SECRET enviroment variable is required", nil)
