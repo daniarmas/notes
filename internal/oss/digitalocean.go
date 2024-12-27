@@ -16,7 +16,7 @@ type oss struct {
 }
 
 // Implement this method
-func NewOssDigitalOcean(cfg config.Configuration) *oss {
+func NewOssDigitalOcean(cfg config.Configuration) ObjectStorageService {
 	// AWS S3 client configuration
 	s3Config := &aws.Config{
 		Credentials:      credentials.NewStaticCredentials(cfg.ObjectStorageServiceAccessKey, cfg.ObjectStorageServiceSecretKey, ""), // Specifies your credentials.
