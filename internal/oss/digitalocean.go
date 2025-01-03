@@ -13,10 +13,11 @@ import (
 
 type oss struct {
 	s3Client *s3.S3
+	cfg      *config.Configuration
 }
 
 // Implement this method
-func NewOssDigitalOcean(cfg config.Configuration) ObjectStorageService {
+func NewOssDigitalOcean(cfg *config.Configuration) ObjectStorageService {
 	// AWS S3 client configuration
 	s3Config := &aws.Config{
 		Credentials:      credentials.NewStaticCredentials(cfg.ObjectStorageServiceAccessKey, cfg.ObjectStorageServiceSecretKey, ""), // Specifies your credentials.
@@ -31,10 +32,20 @@ func NewOssDigitalOcean(cfg config.Configuration) ObjectStorageService {
 	}
 	return &oss{
 		s3Client: s3.New(newSession),
+		cfg:      cfg,
 	}
 }
 
 // Implement this method
 func (o *oss) HealthCheck() error {
-	return nil
+	// Perform a HeadBucket operation
+	_, err := o.s3Client.HeadBucket(&s3.HeadBucketInput{
+		Bucket: aws.String(o.cfg.ObjectStorageServiceBucket),
+	})
+	if err != nil {
+		return err
+	} else {
+		clog.Info(context.Background(), "Connection sucessfull to Object Storage server", err)
+		return nil
+	}
 }

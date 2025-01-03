@@ -19,6 +19,7 @@ type Configuration struct {
 	ObjectStorageServiceSecretKey string
 	ObjectStorageServiceEndpoint  string
 	ObjectStorageServiceRegion    string
+	ObjectStorageServiceBucket    string
 }
 
 func LoadServerConfig() *Configuration {
@@ -33,6 +34,7 @@ func LoadServerConfig() *Configuration {
 		ObjectStorageServiceSecretKey: os.Getenv("OBJECT_STORAGE_SERVICE_SECRET_KEY"),
 		ObjectStorageServiceEndpoint:  os.Getenv("OBJECT_STORAGE_SERVICE_ENDPOINT"),
 		ObjectStorageServiceRegion:    os.Getenv("OBJECT_STORAGE_SERVICE_REGION"),
+		ObjectStorageServiceBucket:    os.Getenv("OBJECT_STORAGE_SERVICE_BUCKET"),
 	}
 	if config.ObjectStorageServiceAccessKey == "" {
 		clog.Warn(ctx, "OBJECT_STORAGE_SERVICE_ACCESS_KEY enviroment variable is required", nil)
@@ -45,6 +47,9 @@ func LoadServerConfig() *Configuration {
 	}
 	if config.ObjectStorageServiceRegion == "" {
 		clog.Warn(ctx, "OBJECT_STORAGE_SERVICE_REGION enviroment variable is required", nil)
+	}
+	if config.ObjectStorageServiceBucket == "" {
+		clog.Warn(ctx, "OBJECT_STORAGE_SERVICE_BUCKET enviroment variable is required", nil)
 	}
 	if config.JwtSecret == "" {
 		clog.Warn(ctx, "JWT_SECRET enviroment variable is required", nil)
