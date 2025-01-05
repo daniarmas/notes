@@ -53,3 +53,14 @@ func (o *oss) HealthCheck() error {
 	}
 	return nil
 }
+
+func (o *oss) ObjectExists(objectName string) (bool, error) {
+	_, err := o.client.StatObject(context.Background(), o.cfg.ObjectStorageServiceBucket, objectName, minio.StatObjectOptions{})
+	if err != nil {
+		if minio.ToErrorResponse(err).Code == "NoSuchKey" {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
