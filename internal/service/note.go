@@ -7,6 +7,7 @@ import (
 
 	"github.com/daniarmas/notes/internal/customerrors"
 	"github.com/daniarmas/notes/internal/domain"
+	"github.com/daniarmas/notes/internal/oss"
 	"github.com/google/uuid"
 )
 
@@ -25,11 +26,13 @@ type NoteService interface {
 
 type noteService struct {
 	NoteRepository domain.NoteRepository
+	Oss            oss.ObjectStorageService
 }
 
-func NewNoteService(noteRepository domain.NoteRepository) NoteService {
+func NewNoteService(noteRepository domain.NoteRepository, oss oss.ObjectStorageService) NoteService {
 	return &noteService{
 		NoteRepository: noteRepository,
+		Oss:            oss,
 	}
 }
 

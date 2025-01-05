@@ -71,7 +71,7 @@ func run(ctx context.Context) error {
 
 	// Services
 	authenticationService := service.NewAuthenticationService(jwtDatasource, hashDatasource, userRepository, accessTokenRepository, refreshTokenRepository)
-	noteService := service.NewNoteService(noteRepository)
+	noteService := service.NewNoteService(noteRepository, oss)
 
 	// Http server
 	srv := httpserver.NewServer(authenticationService, noteService, jwtDatasource)
