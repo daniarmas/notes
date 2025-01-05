@@ -17,6 +17,7 @@ import (
 	"github.com/daniarmas/notes/internal/database"
 	"github.com/daniarmas/notes/internal/domain"
 	"github.com/daniarmas/notes/internal/httpserver"
+	"github.com/daniarmas/notes/internal/oss"
 	"github.com/daniarmas/notes/internal/service"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/spf13/cobra"
@@ -42,6 +43,13 @@ func run(ctx context.Context) error {
 	// Cache connection
 	rdb := cache.OpenRedis(cfg)
 	defer cache.CloseRedis(rdb)
+
+	// Object storage service
+	oss := oss.NewDigitalOceanWithMinio(cfg)
+	// Healthcheck
+	if err := oss.HealthCheck(); err != nil {
+		clog.Error(ctx, "error checking object storage service health", err)
+	}
 
 	// Datasources
 	hashDatasource := data.NewBcryptHashDatasource()

@@ -2,50 +2,54 @@ package oss
 
 import (
 	"context"
+	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/daniarmas/notes/internal/clog"
 	"github.com/daniarmas/notes/internal/config"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
 type oss struct {
-	s3Client *s3.S3
-	cfg      *config.Configuration
+	client *minio.Client
+	cfg    *config.Configuration
 }
 
-// Implement this method
-func NewOssDigitalOcean(cfg *config.Configuration) ObjectStorageService {
-	// AWS S3 client configuration
-	s3Config := &aws.Config{
-		Credentials:      credentials.NewStaticCredentials(cfg.ObjectStorageServiceAccessKey, cfg.ObjectStorageServiceSecretKey, ""), // Specifies your credentials.
-		Endpoint:         aws.String(cfg.ObjectStorageServiceEndpoint),                                                               // Find your endpoint in the control panel, under Settings. Prepend "https://".
-		S3ForcePathStyle: aws.Bool(false),                                                                                            // // Configures to use subdomain/virtual calling format. Depending on your version, alternatively use o.UsePathStyle = false
-		Region:           aws.String(cfg.ObjectStorageServiceRegion),                                                                 // Must be "us-east-1" when creating new Spaces. Otherwise, use the region in your endpoint, such as "nyc3".
-	}
-	// The new session validates your request and directs it to your Space's specified endpoint using the AWS SDK.
-	newSession, err := session.NewSession(s3Config)
-	if err != nil {
-		clog.Error(context.Background(), "error creating aws s3 new session", err)
-	}
-	return &oss{
-		s3Client: s3.New(newSession),
-		cfg:      cfg,
-	}
-}
-
-// Implement this method
-func (o *oss) HealthCheck() error {
-	// Perform a HeadBucket operation
-	_, err := o.s3Client.HeadBucket(&s3.HeadBucketInput{
-		Bucket: aws.String(o.cfg.ObjectStorageServiceBucket),
+func NewDigitalOceanWithMinio(cfg *config.Configuration) ObjectStorageService {
+	// Initialize minio client object.
+	minioClient, err := minio.New(cfg.ObjectStorageServiceEndpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(cfg.ObjectStorageServiceAccessKey, cfg.ObjectStorageServiceSecretKey, ""),
+		Secure: true,
 	})
 	if err != nil {
+		clog.Error(context.Background(), "error creating minio client", err)
+	}
+	return &oss{
+		client: minioClient,
+		cfg:    cfg,
+	}
+}
+
+func (o *oss) GetPresignedUrl(objectName string) (string, error) {
+	expiry := time.Second * 24 * 60 * 60 // 1 day.
+	presignedURL, err := o.client.PresignedPutObject(context.Background(), o.cfg.ObjectStorageServiceBucket, objectName, expiry)
+	if err != nil {
+		clog.Error(context.Background(), "error generating presigned URL", err)
+		return "", err
+	}
+	return presignedURL.String(), err
+}
+
+func (o *oss) HealthCheck() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	bucketExists, err := o.client.BucketExists(ctx, o.cfg.ObjectStorageServiceBucket)
+	if err != nil {
+		clog.Info(context.Background(), "Connection error to Object Storage server", err)
 		return err
-	} else {
+	} else if bucketExists {
 		clog.Info(context.Background(), "Connection sucessfull to Object Storage server", err)
 		return nil
 	}
+	return nil
 }
