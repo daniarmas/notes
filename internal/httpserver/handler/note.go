@@ -19,8 +19,9 @@ type GetPresignedUrlsRequest struct {
 
 // Represents the structure of the create note request
 type CreateNoteRequest struct {
-	Title   string `json:"title"`
-	Content string `json:"content"`
+	Title       string   `json:"title"`
+	Content     string   `json:"content"`
+	ObjectNames []string `json:"object_names"`
 }
 
 // Represents the structure of the update note request
@@ -121,9 +122,13 @@ func CreateNote(srv service.NoteService) http.HandlerFunc {
 				return
 			}
 
-			res, err := srv.CreateNote(r.Context(), req.Title, req.Content)
+			res, err := srv.CreateNote(r.Context(), req.Title, req.Content, req.ObjectNames)
 			if err != nil {
 				switch err.Error() {
+				case "objects not found":
+					msg := "One or more objects not found in the object storage service"
+					response.BadRequest(w, r, &msg, nil)
+					return
 				default:
 					response.InternalServerError(w, r)
 					return

@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"errors"
 	"github.com/daniarmas/notes/internal/clog"
 	"github.com/daniarmas/notes/internal/config"
 	"github.com/minio/minio-go/v7"
@@ -54,13 +55,14 @@ func (o *oss) HealthCheck() error {
 	return nil
 }
 
-func (o *oss) ObjectExists(objectName string) (bool, error) {
+func (o *oss) ObjectExists(objectName string) error {
 	_, err := o.client.StatObject(context.Background(), o.cfg.ObjectStorageServiceBucket, objectName, minio.StatObjectOptions{})
 	if err != nil {
 		if minio.ToErrorResponse(err).Code == "NoSuchKey" {
-			return false, nil
+			return errors.New("object not found")
+		} else {
+			return err
 		}
-		return false, err
 	}
-	return true, nil
+	return nil
 }

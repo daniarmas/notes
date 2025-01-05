@@ -17,7 +17,7 @@ type CreateNoteResponse struct {
 }
 
 type NoteService interface {
-	CreateNote(ctx context.Context, title string, content string) (*CreateNoteResponse, error)
+	CreateNote(ctx context.Context, title string, content string, objectNames []string) (*CreateNoteResponse, error)
 	ListTrashNotesByUser(ctx context.Context, cursor time.Time) (*[]domain.Note, error)
 	ListNotesByUser(ctx context.Context, cursor time.Time) (*[]domain.Note, error)
 	RestoreNote(ctx context.Context, id uuid.UUID) (*domain.Note, error)
@@ -38,12 +38,35 @@ func NewNoteService(noteRepository domain.NoteRepository, oss oss.ObjectStorageS
 	}
 }
 
-func (s *noteService) CreateNote(ctx context.Context, title string, content string) (*CreateNoteResponse, error) {
+func (s *noteService) CreateNote(ctx context.Context, title string, content string, objectNames []string) (*CreateNoteResponse, error) {
 	note := &domain.Note{
 		UserId:  domain.GetUserIdFromContext(ctx),
 		Title:   title,
 		Content: content,
 	}
+	// Check concurrently if the objects exists in the oss
+	var wg sync.WaitGroup
+	errChan := make(chan error, len(objectNames))
+	for _, objectName := range objectNames {
+		wg.Add(1)
+		go func(objectName string) {
+			defer wg.Done()
+			err := s.Oss.ObjectExists("original/" + objectName)
+			if err != nil {
+				errChan <- err
+				return
+			}
+		}(objectName)
+	}
+
+	wg.Wait()
+	close(errChan)
+
+	if len(errChan) > 0 {
+		return nil, errors.New("objects not found")
+	}
+
+	// Create the note
 	note, err := s.NoteRepository.CreateNote(ctx, note)
 	if err != nil {
 		return nil, err
@@ -118,7 +141,7 @@ func (s *noteService) GetPresignedUrls(ctx context.Context, objectNames []string
 		wg.Add(1)
 		go func(objectName string) {
 			defer wg.Done()
-			url, err := s.Oss.GetPresignedUrl(objectName)
+			url, err := s.Oss.GetPresignedUrl("original/" + objectName)
 			if err != nil {
 				errChan <- err
 				return
