@@ -22,6 +22,7 @@ type NoteService interface {
 	RestoreNote(ctx context.Context, id uuid.UUID) (*domain.Note, error)
 	DeleteNote(ctx context.Context, id uuid.UUID, hard bool) error
 	UpdateNote(ctx context.Context, note *domain.Note) (*domain.Note, error)
+	GetPresignedUrls(ctx context.Context, objectNames []string) ([]string, error)
 }
 
 type noteService struct {
@@ -104,4 +105,9 @@ func (s *noteService) DeleteNote(ctx context.Context, id uuid.UUID, isHard bool)
 		}
 	}
 	return nil
+}
+
+// IMPLEMENT THIS METHOD
+func (s *noteService) GetPresignedUrls(ctx context.Context, objectNames []string) ([]string, error) {
+	return nil, nil
 }
