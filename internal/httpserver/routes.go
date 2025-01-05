@@ -32,5 +32,6 @@ func Routes(authenticationService service.AuthenticationService, noteService ser
 		{Pattern: "DELETE /note/{id}", Handler: middleware.LoggedOnly(handler.SoftDeleteNote(noteService)).(http.HandlerFunc)},
 		{Pattern: "PATCH /note/{id}", Handler: middleware.LoggedOnly(handler.UpdateNote(noteService)).(http.HandlerFunc)},
 		{Pattern: "PATCH /note/{id}/restore", Handler: middleware.LoggedOnly(handler.RestoreNote(noteService)).(http.HandlerFunc)},
+		{Pattern: "POST /note/presigned-urls", Handler: middleware.LoggedOnly(handler.GetPresignedUrls(noteService)).(http.HandlerFunc)},
 	}
 }
