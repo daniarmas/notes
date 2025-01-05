@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"sync"
 	"time"
 
 	"github.com/daniarmas/notes/internal/customerrors"
@@ -22,7 +23,7 @@ type NoteService interface {
 	RestoreNote(ctx context.Context, id uuid.UUID) (*domain.Note, error)
 	DeleteNote(ctx context.Context, id uuid.UUID, hard bool) error
 	UpdateNote(ctx context.Context, note *domain.Note) (*domain.Note, error)
-	GetPresignedUrls(ctx context.Context, objectNames []string) ([]string, error)
+	GetPresignedUrls(ctx context.Context, objectNames []string) (map[string]string, error)
 }
 
 type noteService struct {
@@ -107,7 +108,33 @@ func (s *noteService) DeleteNote(ctx context.Context, id uuid.UUID, isHard bool)
 	return nil
 }
 
-// IMPLEMENT THIS METHOD
-func (s *noteService) GetPresignedUrls(ctx context.Context, objectNames []string) ([]string, error) {
-	return nil, nil
+func (s *noteService) GetPresignedUrls(ctx context.Context, objectNames []string) (map[string]string, error) {
+	urls := make(map[string]string)
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+	errChan := make(chan error, len(objectNames))
+
+	for _, objectName := range objectNames {
+		wg.Add(1)
+		go func(objectName string) {
+			defer wg.Done()
+			url, err := s.Oss.GetPresignedUrl(objectName)
+			if err != nil {
+				errChan <- err
+				return
+			}
+			mu.Lock()
+			urls[objectName] = url
+			mu.Unlock()
+		}(objectName)
+	}
+
+	wg.Wait()
+	close(errChan)
+
+	if len(errChan) > 0 {
+		return nil, <-errChan
+	}
+
+	return urls, nil
 }
