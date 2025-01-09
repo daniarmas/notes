@@ -19,6 +19,16 @@ type AccessToken struct {
 	UpdateTime     sql.NullTime
 }
 
+type File struct {
+	ID            uuid.UUID
+	ProcessedFile sql.NullString
+	OriginalFile  string
+	NoteID        uuid.UUID
+	CreateTime    time.Time
+	UpdateTime    time.Time
+	DeleteTime    sql.NullTime
+}
+
 type Note struct {
 	ID         uuid.UUID
 	UserID     uuid.UUID
