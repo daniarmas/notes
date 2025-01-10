@@ -83,3 +83,11 @@ RETURNING *;
 
 -- name: DeleteRefreshTokenByUserId :one
 DELETE FROM refresh_tokens WHERE user_id = $1 RETURNING id;
+
+-- name: CreateFile :one
+INSERT INTO files (
+  note_id, original_file, create_time, update_time
+) VALUES (
+  $1, $2, $3, $4
+)
+RETURNING *;

@@ -40,6 +40,42 @@ func (q *Queries) CreateAccessToken(ctx context.Context, arg CreateAccessTokenPa
 	return i, err
 }
 
+const createFile = `-- name: CreateFile :one
+INSERT INTO files (
+  note_id, original_file, create_time, update_time
+) VALUES (
+  $1, $2, $3, $4
+)
+RETURNING id, processed_file, original_file, note_id, create_time, update_time, delete_time
+`
+
+type CreateFileParams struct {
+	NoteID       uuid.UUID
+	OriginalFile string
+	CreateTime   time.Time
+	UpdateTime   time.Time
+}
+
+func (q *Queries) CreateFile(ctx context.Context, arg CreateFileParams) (File, error) {
+	row := q.db.QueryRowContext(ctx, createFile,
+		arg.NoteID,
+		arg.OriginalFile,
+		arg.CreateTime,
+		arg.UpdateTime,
+	)
+	var i File
+	err := row.Scan(
+		&i.ID,
+		&i.ProcessedFile,
+		&i.OriginalFile,
+		&i.NoteID,
+		&i.CreateTime,
+		&i.UpdateTime,
+		&i.DeleteTime,
+	)
+	return i, err
+}
+
 const createNote = `-- name: CreateNote :one
 INSERT INTO notes (
   user_id, title, content, create_time, update_time
