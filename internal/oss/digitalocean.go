@@ -2,9 +2,13 @@ package oss
 
 import (
 	"context"
+	"fmt"
+	"io"
+	"os"
 	"time"
 
 	"errors"
+
 	"github.com/daniarmas/notes/internal/clog"
 	"github.com/daniarmas/notes/internal/config"
 	"github.com/minio/minio-go/v7"
@@ -65,4 +69,32 @@ func (o *oss) ObjectExists(objectName string) error {
 		}
 	}
 	return nil
+}
+
+// GetObject download an object from the object storage service and return a file path
+func (i *oss) GetObject(ctx context.Context, bucketName, objectName string) (string, error) {
+	// Download the object from the object storage service
+	object, err := i.client.GetObject(context.Background(), bucketName, objectName, minio.GetObjectOptions{})
+	if err != nil {
+		clog.Error(ctx, "error getting object", err)
+		return "", err
+	}
+	defer object.Close()
+
+	path := fmt.Sprintf("/tmp/%s", objectName)
+	// Create a local file to store the object
+	localFile, err := os.Create(path)
+	if err != nil {
+		clog.Error(ctx, "error creating local file", err)
+		return "", err
+	}
+	defer localFile.Close()
+
+	// Copy the object to the local file
+	if _, err = io.Copy(localFile, object); err != nil {
+		clog.Error(ctx, "error copying object to local file", err)
+		return "", err
+	}
+
+	return path, nil
 }

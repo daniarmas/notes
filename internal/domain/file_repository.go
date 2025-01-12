@@ -13,7 +13,7 @@ type FileRepository interface {
 	Delete() error
 	List() error
 	Move() error
-	Process() error
+	Process(ctx context.Context, ossFileId string) error
 }
 
 type fileCloudRepository struct {
@@ -54,4 +54,8 @@ func (r *fileCloudRepository) List() error { return nil }
 
 func (r *fileCloudRepository) Move() error { return nil }
 
-func (r *fileCloudRepository) Process() error { return nil }
+func (r *fileCloudRepository) Process(ctx context.Context, ossFileId string) error {
+	// Download the file from the cloud
+	
+	return nil
+}
