@@ -62,16 +62,18 @@ func run(ctx context.Context) error {
 	refreshTokenDatabaseDs := data.NewRefreshTokenDatabaseDs(dbQueries)
 	noteCacheDs := data.NewNoteCacheDs(rdb)
 	noteDatabaseDs := data.NewNoteDatabaseDs(dbQueries)
+	fileDatabaseDs := data.NewFileDatabaseDs(dbQueries)
 
 	// Repositories
 	userRepository := domain.NewUserRepository(&userCacheDs, &userDatabaseDs)
 	accessTokenRepository := domain.NewAccessTokenRepository(accessTokenCacheDs, accessTokenDatabaseDs)
 	refreshTokenRepository := domain.NewRefreshTokenRepository(&refreshTokenCacheDs, &refreshTokenDatabaseDs)
 	noteRepository := domain.NewNoteRepository(&noteCacheDs, &noteDatabaseDs)
+	fileRepository := domain.NewFileRepository(fileDatabaseDs, oss)
 
 	// Services
 	authenticationService := service.NewAuthenticationService(jwtDatasource, hashDatasource, userRepository, accessTokenRepository, refreshTokenRepository)
-	noteService := service.NewNoteService(noteRepository, oss)
+	noteService := service.NewNoteService(noteRepository, oss, fileRepository)
 
 	// Http server
 	srv := httpserver.NewServer(authenticationService, noteService, jwtDatasource)

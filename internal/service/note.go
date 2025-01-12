@@ -27,14 +27,16 @@ type NoteService interface {
 }
 
 type noteService struct {
+	FileRepository domain.FileRepository
 	NoteRepository domain.NoteRepository
 	Oss            oss.ObjectStorageService
 }
 
-func NewNoteService(noteRepository domain.NoteRepository, oss oss.ObjectStorageService) NoteService {
+func NewNoteService(noteRepository domain.NoteRepository, oss oss.ObjectStorageService, fileRepository domain.FileRepository) NoteService {
 	return &noteService{
 		NoteRepository: noteRepository,
 		Oss:            oss,
+		FileRepository: fileRepository,
 	}
 }
 
@@ -71,6 +73,28 @@ func (s *noteService) CreateNote(ctx context.Context, title string, content stri
 	if err != nil {
 		return nil, err
 	}
+	// Create the files concurrently
+	var wg2 sync.WaitGroup
+	errChan2 := make(chan error, len(objectNames))
+	for _, objectName := range objectNames {
+		wg2.Add(1)
+		go func(objectName string) {
+			defer wg2.Done()
+			_, err := s.FileRepository.Create(ctx, objectName, "", note.Id)
+			if err != nil {
+				errChan2 <- err
+				return
+			}
+		}(objectName)
+	}
+
+	wg2.Wait()
+	close(errChan2)
+
+	if len(errChan2) > 0 {
+		return nil, errors.New("error creating files")
+	}
+
 	return &CreateNoteResponse{Note: note}, nil
 }
 
