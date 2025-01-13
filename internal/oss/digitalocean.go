@@ -105,6 +105,8 @@ func (i *oss) GetObject(ctx context.Context, objectName string) (string, error) 
 
 	// Copy the object to the local file
 	if _, err = io.Copy(localFile, object); err != nil {
+		// Remove the file created in case of error
+		os.Remove(path)
 		clog.Error(ctx, "error copying object to local file", err)
 		return "", err
 	}
