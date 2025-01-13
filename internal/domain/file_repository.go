@@ -2,7 +2,9 @@ package domain
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/daniarmas/notes/internal/clog"
 	"github.com/daniarmas/notes/internal/oss"
 	"github.com/google/uuid"
 )
@@ -56,6 +58,10 @@ func (r *fileCloudRepository) Move() error { return nil }
 
 func (r *fileCloudRepository) Process(ctx context.Context, ossFileId string) error {
 	// Download the file from the cloud
-	
+	path, err := r.ObjectStorageService.GetObject(ctx, ossFileId)
+	if err != nil {
+		return err
+	}
+	clog.Info(ctx, fmt.Sprintf("path: %v", path), nil)
 	return nil
 }

@@ -5,13 +5,12 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/daniarmas/notes/internal/clog"
 	"github.com/daniarmas/notes/internal/config"
-	// "github.com/daniarmas/notes/internal/data"
+	"github.com/daniarmas/notes/internal/data"
 	"github.com/daniarmas/notes/internal/database"
-	// "github.com/daniarmas/notes/internal/domain"
+	"github.com/daniarmas/notes/internal/domain"
 	"github.com/daniarmas/notes/internal/oss"
 	"github.com/spf13/cobra"
 )
@@ -43,7 +42,7 @@ to quickly create a Cobra application.`,
 		defer database.Close(db, true)
 
 		// Database queries
-		// dbQueries := database.New(db)
+		dbQueries := database.New(db)
 
 		// Object storage service
 		oss := oss.NewDigitalOceanWithMinio(cfg)
@@ -52,17 +51,16 @@ to quickly create a Cobra application.`,
 			clog.Error(ctx, "error checking object storage service health", err)
 		}
 
-		path, err := oss.GetObject(ctx, "original/main.go.png")
-		if err != nil {
-			clog.Error(ctx, "error getting object", err)
-		}
-		clog.Info(ctx, fmt.Sprintf("path: %v", path), nil)
-
 		// Datasources
-		// fileDatabaseDs := data.NewFileDatabaseDs(dbQueries)
+		fileDatabaseDs := data.NewFileDatabaseDs(dbQueries)
 
 		// // Repositories
-		// fileRepository := domain.NewFileRepository(fileDatabaseDs, oss)
+		fileRepository := domain.NewFileRepository(fileDatabaseDs, oss)
+
+		// Process files
+		if err := fileRepository.Process(ctx, "original/main.go.pn"); err != nil {
+			clog.Error(ctx, "error processing file", err)
+		}
 
 	},
 }

@@ -82,9 +82,20 @@ func (i *oss) GetObject(ctx context.Context, objectName string) (string, error) 
 	}
 	defer object.Close()
 
+	// Attempt to read from the object to trigger any errors
+	if _, err = object.Stat(); err != nil {
+		switch minio.ToErrorResponse(err).Code {
+		case "NoSuchKey":
+			return "", errors.New("object not found")
+		default:
+			return "", err
+		}
+	}
+
+	// Create a local file to store the object
 	baseName := filepath.Base(objectName)
 	path := fmt.Sprintf("/tmp/%s", baseName)
-	// Create a local file to store the object
+
 	localFile, err := os.Create(path)
 	if err != nil {
 		clog.Error(ctx, "error creating local file", err)
@@ -97,6 +108,5 @@ func (i *oss) GetObject(ctx context.Context, objectName string) (string, error) 
 		clog.Error(ctx, "error copying object to local file", err)
 		return "", err
 	}
-
 	return path, nil
 }
