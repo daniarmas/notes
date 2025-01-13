@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"time"
 
 	"errors"
@@ -72,16 +73,17 @@ func (o *oss) ObjectExists(objectName string) error {
 }
 
 // GetObject download an object from the object storage service and return a file path
-func (i *oss) GetObject(ctx context.Context, bucketName, objectName string) (string, error) {
+func (i *oss) GetObject(ctx context.Context, objectName string) (string, error) {
 	// Download the object from the object storage service
-	object, err := i.client.GetObject(context.Background(), bucketName, objectName, minio.GetObjectOptions{})
+	object, err := i.client.GetObject(context.Background(), i.cfg.ObjectStorageServiceBucket, objectName, minio.GetObjectOptions{})
 	if err != nil {
 		clog.Error(ctx, "error getting object", err)
 		return "", err
 	}
 	defer object.Close()
 
-	path := fmt.Sprintf("/tmp/%s", objectName)
+	baseName := filepath.Base(objectName)
+	path := fmt.Sprintf("/tmp/%s", baseName)
 	// Create a local file to store the object
 	localFile, err := os.Create(path)
 	if err != nil {

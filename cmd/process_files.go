@@ -4,15 +4,15 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	// "context"
-	// "fmt"
+	"context"
+	"fmt"
 
-	// "github.com/daniarmas/notes/internal/clog"
-	// "github.com/daniarmas/notes/internal/config"
+	"github.com/daniarmas/notes/internal/clog"
+	"github.com/daniarmas/notes/internal/config"
 	// "github.com/daniarmas/notes/internal/data"
-	// "github.com/daniarmas/notes/internal/database"
+	"github.com/daniarmas/notes/internal/database"
 	// "github.com/daniarmas/notes/internal/domain"
-	// "github.com/daniarmas/notes/internal/oss"
+	"github.com/daniarmas/notes/internal/oss"
 	"github.com/spf13/cobra"
 )
 
@@ -30,29 +30,35 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// ctx := context.Background()
+		ctx := context.Background()
 
-		// // Custom logger
-		// clog.NewClog()
+		// Custom logger
+		clog.NewClog()
 
-		// // Config
-		// cfg := config.LoadServerConfig()
+		// Config
+		cfg := config.LoadServerConfig()
 
-		// // Database connection
-		// db := database.Open(cfg, true)
-		// defer database.Close(db, true)
+		// Database connection
+		db := database.Open(cfg, true)
+		defer database.Close(db, true)
 
-		// // Database queries
+		// Database queries
 		// dbQueries := database.New(db)
 
-		// // Object storage service
-		// oss := oss.NewDigitalOceanWithMinio(cfg)
-		// // Healthcheck
-		// if err := oss.HealthCheck(); err != nil {
-		// 	clog.Error(ctx, "error checking object storage service health", err)
-		// }
+		// Object storage service
+		oss := oss.NewDigitalOceanWithMinio(cfg)
+		// Healthcheck
+		if err := oss.HealthCheck(); err != nil {
+			clog.Error(ctx, "error checking object storage service health", err)
+		}
 
-		// // Datasources
+		path, err := oss.GetObject(ctx, "original/main.go.png")
+		if err != nil {
+			clog.Error(ctx, "error getting object", err)
+		}
+		clog.Info(ctx, fmt.Sprintf("path: %v", path), nil)
+
+		// Datasources
 		// fileDatabaseDs := data.NewFileDatabaseDs(dbQueries)
 
 		// // Repositories
