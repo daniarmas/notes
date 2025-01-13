@@ -69,11 +69,11 @@ func run(ctx context.Context) error {
 	accessTokenRepository := domain.NewAccessTokenRepository(accessTokenCacheDs, accessTokenDatabaseDs)
 	refreshTokenRepository := domain.NewRefreshTokenRepository(&refreshTokenCacheDs, &refreshTokenDatabaseDs)
 	noteRepository := domain.NewNoteRepository(&noteCacheDs, &noteDatabaseDs)
-	fileRepository := domain.NewFileRepository(fileDatabaseDs, oss)
+	fileRepository := domain.NewFileRepository(fileDatabaseDs, oss, cfg)
 
 	// Services
 	authenticationService := service.NewAuthenticationService(jwtDatasource, hashDatasource, userRepository, accessTokenRepository, refreshTokenRepository)
-	noteService := service.NewNoteService(noteRepository, oss, fileRepository)
+	noteService := service.NewNoteService(noteRepository, oss, fileRepository, *cfg)
 
 	// Http server
 	srv := httpserver.NewServer(authenticationService, noteService, jwtDatasource)

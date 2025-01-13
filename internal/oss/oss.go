@@ -3,8 +3,9 @@ package oss
 import "context"
 
 type ObjectStorageService interface {
-	GetPresignedUrl(objectName string) (string, error)
-	GetObject(ctx context.Context, objectName string) (string, error)
-	ObjectExists(objectName string) error
+	GetPresignedUrl(ctx context.Context, bucketName, objectName string) (string, error)
+	GetObject(ctx context.Context, bucketName, objectName string) (string, error)
+	PutObject(ctx context.Context, bucketName, objectName, filePath string) error
+	ObjectExists(ctx context.Context, bucketName, objectName string) error
 	HealthCheck() error
 }

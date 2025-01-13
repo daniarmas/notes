@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/daniarmas/notes/internal/clog"
+	"github.com/daniarmas/notes/internal/config"
 	"github.com/daniarmas/notes/internal/oss"
 	"github.com/google/uuid"
 )
@@ -58,12 +59,14 @@ type FileRepository interface {
 type fileCloudRepository struct {
 	FileDatabaseDs       FileDatabaseDs
 	ObjectStorageService oss.ObjectStorageService
+	Config               *config.Configuration
 }
 
-func NewFileRepository(fileDatabaseDs FileDatabaseDs, objectStorageService oss.ObjectStorageService) FileRepository {
+func NewFileRepository(fileDatabaseDs FileDatabaseDs, objectStorageService oss.ObjectStorageService, cfg *config.Configuration) FileRepository {
 	return &fileCloudRepository{
 		FileDatabaseDs:       fileDatabaseDs,
 		ObjectStorageService: objectStorageService,
+		Config:               cfg,
 	}
 }
 
@@ -94,8 +97,11 @@ func (r *fileCloudRepository) List() error { return nil }
 func (r *fileCloudRepository) Move() error { return nil }
 
 func (r *fileCloudRepository) Process(ctx context.Context, ossFileId string) (string, error) {
+	// Declare the processed file id
+	var processedFileId string
+
 	// Download the file from the cloud
-	path, err := r.ObjectStorageService.GetObject(ctx, ossFileId)
+	path, err := r.ObjectStorageService.GetObject(ctx, r.Config.ObjectStorageServiceBucket, ossFileId)
 	if err != nil {
 		return "", err
 	}
@@ -109,13 +115,24 @@ func (r *fileCloudRepository) Process(ctx context.Context, ossFileId string) (st
 		if path, err = CompressJpegImage(path); err != nil {
 			return "", err
 		}
+		processedFileId = fmt.Sprintf("processed-photos/%s", filepath.Base(path))
 	case "audio":
 		if path, err = CompressAudio(path); err != nil {
 			return "", err
 		}
+		processedFileId = fmt.Sprintf("processed-audio/%s", filepath.Base(path))
 	default:
 		clog.Error(ctx, "The file is not supported", nil)
 		return "", fmt.Errorf("the file is not supported")
+	}
+
+	// Remove the processed file from tmp after the upload
+	defer os.Remove(path)
+
+	// Upload the processed file to the cloud
+	if err := r.ObjectStorageService.PutObject(ctx, r.Config.ObjectStorageServiceBucket, processedFileId, path); err != nil {
+		clog.Error(ctx, "error uploading processed file to the cloud", err)
+		return "", err
 	}
 
 	return path, nil

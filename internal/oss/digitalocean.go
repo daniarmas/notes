@@ -36,16 +36,6 @@ func NewDigitalOceanWithMinio(cfg *config.Configuration) ObjectStorageService {
 	}
 }
 
-func (o *oss) GetPresignedUrl(objectName string) (string, error) {
-	expiry := time.Second * 24 * 60 * 60 // 1 day.
-	presignedURL, err := o.client.PresignedPutObject(context.Background(), o.cfg.ObjectStorageServiceBucket, objectName, expiry)
-	if err != nil {
-		clog.Error(context.Background(), "error generating presigned URL", err)
-		return "", err
-	}
-	return presignedURL.String(), err
-}
-
 func (o *oss) HealthCheck() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -60,8 +50,18 @@ func (o *oss) HealthCheck() error {
 	return nil
 }
 
-func (o *oss) ObjectExists(objectName string) error {
-	_, err := o.client.StatObject(context.Background(), o.cfg.ObjectStorageServiceBucket, objectName, minio.StatObjectOptions{})
+func (o *oss) GetPresignedUrl(ctx context.Context, bucketName, objectName string) (string, error) {
+	expiry := time.Second * 24 * 60 * 60 // 1 day.
+	presignedURL, err := o.client.PresignedPutObject(context.Background(), bucketName, objectName, expiry)
+	if err != nil {
+		clog.Error(context.Background(), "error generating presigned URL", err)
+		return "", err
+	}
+	return presignedURL.String(), err
+}
+
+func (o *oss) ObjectExists(ctx context.Context, bucketName, objectName string) error {
+	_, err := o.client.StatObject(context.Background(), bucketName, objectName, minio.StatObjectOptions{})
 	if err != nil {
 		if minio.ToErrorResponse(err).Code == "NoSuchKey" {
 			return errors.New("object not found")
@@ -73,9 +73,9 @@ func (o *oss) ObjectExists(objectName string) error {
 }
 
 // GetObject download an object from the object storage service and return a file path
-func (i *oss) GetObject(ctx context.Context, objectName string) (string, error) {
+func (i *oss) GetObject(ctx context.Context, bucketName, objectName string) (string, error) {
 	// Download the object from the object storage service
-	object, err := i.client.GetObject(context.Background(), i.cfg.ObjectStorageServiceBucket, objectName, minio.GetObjectOptions{})
+	object, err := i.client.GetObject(context.Background(), bucketName, objectName, minio.GetObjectOptions{})
 	if err != nil {
 		clog.Error(ctx, "error getting object", err)
 		return "", err
@@ -111,4 +111,31 @@ func (i *oss) GetObject(ctx context.Context, objectName string) (string, error) 
 		return "", err
 	}
 	return path, nil
+}
+
+// PutObject upload an object to the object storage service
+func (i *oss) PutObject(ctx context.Context, bucketName, objectName, filePath string) error {
+	// Open the file to upload
+	file, err := os.Open(filePath)
+	if err != nil {
+		clog.Error(ctx, "error opening file", err)
+		return err
+	}
+	defer file.Close()
+
+	// Get the file stats
+	fileStat, err := file.Stat()
+	if err != nil {
+		clog.Error(ctx, "error getting file stats", err)
+		return err
+	}
+
+	// Upload the object to the object storage service
+	_, err = i.client.PutObject(context.Background(), bucketName, objectName, file, fileStat.Size(), minio.PutObjectOptions{ContentType: "application/octet-stream"})
+	if err != nil {
+		clog.Error(ctx, "error uploading object", err)
+		return err
+	}
+
+	return nil
 }

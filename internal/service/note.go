@@ -3,9 +3,11 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
 	"time"
 
+	"github.com/daniarmas/notes/internal/config"
 	"github.com/daniarmas/notes/internal/customerrors"
 	"github.com/daniarmas/notes/internal/domain"
 	"github.com/daniarmas/notes/internal/oss"
@@ -27,16 +29,18 @@ type NoteService interface {
 }
 
 type noteService struct {
+	Config         config.Configuration
 	FileRepository domain.FileRepository
 	NoteRepository domain.NoteRepository
 	Oss            oss.ObjectStorageService
 }
 
-func NewNoteService(noteRepository domain.NoteRepository, oss oss.ObjectStorageService, fileRepository domain.FileRepository) NoteService {
+func NewNoteService(noteRepository domain.NoteRepository, oss oss.ObjectStorageService, fileRepository domain.FileRepository, cfg config.Configuration) NoteService {
 	return &noteService{
 		NoteRepository: noteRepository,
 		Oss:            oss,
 		FileRepository: fileRepository,
+		Config:         cfg,
 	}
 }
 
@@ -53,7 +57,7 @@ func (s *noteService) CreateNote(ctx context.Context, title string, content stri
 		wg.Add(1)
 		go func(objectName string) {
 			defer wg.Done()
-			err := s.Oss.ObjectExists("original/" + objectName)
+			err := s.Oss.ObjectExists(ctx, s.Config.ObjectStorageServiceBucket, fmt.Sprintf("original/%s", objectName))
 			if err != nil {
 				errChan <- err
 				return
@@ -165,7 +169,7 @@ func (s *noteService) GetPresignedUrls(ctx context.Context, objectNames []string
 		wg.Add(1)
 		go func(objectName string) {
 			defer wg.Done()
-			url, err := s.Oss.GetPresignedUrl("original/" + objectName)
+			url, err := s.Oss.GetPresignedUrl(ctx, s.Config.ObjectStorageServiceBucket, s.Config.ObjectStorageServiceBucket)
 			if err != nil {
 				errChan <- err
 				return

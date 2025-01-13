@@ -55,7 +55,7 @@ to quickly create a Cobra application.`,
 		fileDatabaseDs := data.NewFileDatabaseDs(dbQueries)
 
 		// // Repositories
-		fileRepository := domain.NewFileRepository(fileDatabaseDs, oss)
+		fileRepository := domain.NewFileRepository(fileDatabaseDs, oss, cfg)
 
 		// Process files
 		if _, err := fileRepository.Process(ctx, "original/main.go.jpg"); err != nil {
