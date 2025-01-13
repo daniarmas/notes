@@ -413,6 +413,33 @@ func (q *Queries) SoftDeleteNoteById(ctx context.Context, arg SoftDeleteNoteById
 	return i, err
 }
 
+const updateFileByOriginalId = `-- name: UpdateFileByOriginalId :one
+UPDATE files SET
+  processed_file = $2, update_time = $3
+WHERE original_file = $1 RETURNING id, processed_file, original_file, note_id, create_time, update_time, delete_time
+`
+
+type UpdateFileByOriginalIdParams struct {
+	OriginalFile  string
+	ProcessedFile sql.NullString
+	UpdateTime    time.Time
+}
+
+func (q *Queries) UpdateFileByOriginalId(ctx context.Context, arg UpdateFileByOriginalIdParams) (File, error) {
+	row := q.db.QueryRowContext(ctx, updateFileByOriginalId, arg.OriginalFile, arg.ProcessedFile, arg.UpdateTime)
+	var i File
+	err := row.Scan(
+		&i.ID,
+		&i.ProcessedFile,
+		&i.OriginalFile,
+		&i.NoteID,
+		&i.CreateTime,
+		&i.UpdateTime,
+		&i.DeleteTime,
+	)
+	return i, err
+}
+
 const updateNoteById = `-- name: UpdateNoteById :one
 UPDATE notes SET
   title = $2, content = $3, update_time = $4

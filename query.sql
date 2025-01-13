@@ -91,3 +91,8 @@ INSERT INTO files (
   $1, $2, $3, $4
 )
 RETURNING *;
+
+-- name: UpdateFileByOriginalId :one
+UPDATE files SET
+  processed_file = $2, update_time = $3
+WHERE original_file = $1 RETURNING *;
