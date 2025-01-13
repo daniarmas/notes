@@ -169,7 +169,7 @@ func (s *noteService) GetPresignedUrls(ctx context.Context, objectNames []string
 		wg.Add(1)
 		go func(objectName string) {
 			defer wg.Done()
-			url, err := s.Oss.GetPresignedUrl(ctx, s.Config.ObjectStorageServiceBucket, s.Config.ObjectStorageServiceBucket)
+			url, err := s.Oss.GetPresignedUrl(ctx, s.Config.ObjectStorageServiceBucket, objectName)
 			if err != nil {
 				errChan <- err
 				return
