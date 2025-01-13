@@ -3,11 +3,48 @@ package domain
 import (
 	"context"
 	"fmt"
+	"image/jpeg"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
 
 	"github.com/daniarmas/notes/internal/clog"
 	"github.com/daniarmas/notes/internal/oss"
 	"github.com/google/uuid"
 )
+
+var pictureExtensions = map[string]bool{
+	".jpg":  true,
+	".jpeg": true,
+	// ".png":  true,
+	// ".gif":  true,
+	// ".bmp":  true,
+	// ".tiff": true,
+	// ".svg":  true,
+}
+
+var audioExtensions = map[string]bool{
+	// ".mp3":  true,
+	// ".wav":  true,
+	// ".flac": true,
+	// ".aac":  true,
+	// ".ogg":  true,
+	".m4a": true,
+	// ".wma":  true,
+}
+
+// Returns string value if the file is a picture or audio
+func fileType(path string) string {
+	ext := strings.ToLower(filepath.Ext(path))
+	if pictureExtensions[ext] {
+		return "picture"
+	} else if audioExtensions[ext] {
+		return "audio"
+	} else {
+		return "unsupported"
+	}
+}
 
 type FileRepository interface {
 	Create(ctx context.Context, ossFileId, path string, noteID uuid.UUID) (*File, error)
@@ -15,7 +52,7 @@ type FileRepository interface {
 	Delete() error
 	List() error
 	Move() error
-	Process(ctx context.Context, ossFileId string) error
+	Process(ctx context.Context, ossFileId string) (string, error)
 }
 
 type fileCloudRepository struct {
@@ -56,12 +93,88 @@ func (r *fileCloudRepository) List() error { return nil }
 
 func (r *fileCloudRepository) Move() error { return nil }
 
-func (r *fileCloudRepository) Process(ctx context.Context, ossFileId string) error {
+func (r *fileCloudRepository) Process(ctx context.Context, ossFileId string) (string, error) {
 	// Download the file from the cloud
 	path, err := r.ObjectStorageService.GetObject(ctx, ossFileId)
 	if err != nil {
-		return err
+		return "", err
 	}
-	clog.Info(ctx, fmt.Sprintf("path: %v", path), nil)
-	return nil
+
+	// Remove the file from tmp after the process
+	defer os.Remove(path)
+
+	// Process the file based on the type
+	switch fileType(path) {
+	case "picture":
+		if path, err = CompressJpegImage(path); err != nil {
+			return "", err
+		}
+	case "audio":
+		if path, err = CompressAudio(path); err != nil {
+			return "", err
+		}
+	default:
+		clog.Error(ctx, "The file is not supported", nil)
+		return "", fmt.Errorf("the file is not supported")
+	}
+
+	return path, nil
+}
+
+// CompressAudio compresses the audio file using ffmpeg
+func CompressAudio(path string) (string, error) {
+	// Define the output path for the compressed audio
+	id := uuid.New()
+	ext := filepath.Ext(path)
+	outputPath := fmt.Sprintf("/tmp/%s%s", id, ext)
+
+	// Compress the audio using ffmpeg
+	cmd := exec.Command("ffmpeg", "-i", path, "-b:a", "128k", outputPath)
+
+	// Run the command
+	if err := cmd.Run(); err != nil {
+		clog.Error(context.Background(), "error compressing audio", err)
+		return "", fmt.Errorf("error compressing audio: %v", err)
+	}
+
+	return outputPath, nil
+}
+
+// CompressJPEGImage compresses the image file using "image/jpeg"
+func CompressJpegImage(path string) (string, error) {
+	// Define the output path for the compressed audio
+	id := uuid.New()
+	ext := filepath.Ext(path)
+	outputPath := fmt.Sprintf("/tmp/%s%s", id, ext)
+
+	// Open the input file
+	file, err := os.Open(path)
+	if err != nil {
+		return "", fmt.Errorf("failed to open input file: %v", err)
+	}
+	defer file.Close()
+
+	// Decode the image
+	img, err := jpeg.Decode(file)
+	if err != nil {
+		return "", fmt.Errorf("failed to decode JPEG image: %v", err)
+	}
+
+	// Create the output file
+	outFile, err := os.Create(outputPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to create output file: %v", err)
+	}
+	defer outFile.Close()
+
+	// Encode the image with the specified quality
+	options := &jpeg.Options{Quality: 50}
+	if err := jpeg.Encode(outFile, img, options); err != nil {
+		// Remove the output file if the encoding fails
+		os.Remove(outputPath)
+
+		return "", fmt.Errorf("failed to encode JPEG image: %v", err)
+	}
+
+	return outputPath, nil
 }
