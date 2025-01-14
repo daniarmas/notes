@@ -17,20 +17,34 @@ import (
 	"github.com/daniarmas/notes/internal/database"
 	"github.com/daniarmas/notes/internal/domain"
 	"github.com/daniarmas/notes/internal/httpserver"
+	"github.com/daniarmas/notes/internal/k8sc"
+	"github.com/daniarmas/notes/internal/oss"
 	"github.com/daniarmas/notes/internal/service"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/spf13/cobra"
 )
 
 func run(ctx context.Context) error {
-	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
 	// Custom logger
 	clog.NewClog()
 
+	// Kubernetes client
+	k8sClient, ck8sError := k8sc.NewClient()
+	if ck8sError != nil {
+		clog.Error(ctx, "error creating k8s client", ck8sError)
+	}
+
 	// Config
-	cfg := config.LoadConfig()
+	cfg := config.LoadServerConfig()
+
+	// Set if running in k8s
+	if k8sClient != nil {
+		clog.Info(ctx, "app is running in k8s", nil)
+		cfg.InK8s = true
+	}
 
 	// Database connection
 	db := database.Open(cfg, true)
@@ -43,6 +57,13 @@ func run(ctx context.Context) error {
 	rdb := cache.OpenRedis(cfg)
 	defer cache.CloseRedis(rdb)
 
+	// Object storage service
+	oss := oss.NewDigitalOceanWithMinio(cfg)
+	// Healthcheck
+	if err := oss.HealthCheck(); err != nil {
+		clog.Error(ctx, "error checking object storage service health", err)
+	}
+
 	// Datasources
 	hashDatasource := data.NewBcryptHashDatasource()
 	jwtDatasource := domain.NewJWTDatasource(cfg)
@@ -54,16 +75,18 @@ func run(ctx context.Context) error {
 	refreshTokenDatabaseDs := data.NewRefreshTokenDatabaseDs(dbQueries)
 	noteCacheDs := data.NewNoteCacheDs(rdb)
 	noteDatabaseDs := data.NewNoteDatabaseDs(dbQueries)
+	fileDatabaseDs := data.NewFileDatabaseDs(dbQueries)
 
 	// Repositories
 	userRepository := domain.NewUserRepository(&userCacheDs, &userDatabaseDs)
 	accessTokenRepository := domain.NewAccessTokenRepository(accessTokenCacheDs, accessTokenDatabaseDs)
 	refreshTokenRepository := domain.NewRefreshTokenRepository(&refreshTokenCacheDs, &refreshTokenDatabaseDs)
 	noteRepository := domain.NewNoteRepository(&noteCacheDs, &noteDatabaseDs)
+	fileRepository := domain.NewFileRepository(fileDatabaseDs, oss, cfg)
 
 	// Services
 	authenticationService := service.NewAuthenticationService(jwtDatasource, hashDatasource, userRepository, accessTokenRepository, refreshTokenRepository)
-	noteService := service.NewNoteService(noteRepository)
+	noteService := service.NewNoteService(noteRepository, oss, fileRepository, *cfg, k8sClient)
 
 	// Http server
 	srv := httpserver.NewServer(authenticationService, noteService, jwtDatasource)

@@ -12,10 +12,16 @@ import (
 	"github.com/google/uuid"
 )
 
+// Represents the structure of the get presigned urls request
+type GetPresignedUrlsRequest struct {
+	ObjectNames []string `json:"object_names"`
+}
+
 // Represents the structure of the create note request
 type CreateNoteRequest struct {
-	Title   string `json:"title"`
-	Content string `json:"content"`
+	Title       string   `json:"title"`
+	Content     string   `json:"content"`
+	ObjectNames []string `json:"object_names"`
 }
 
 // Represents the structure of the update note request
@@ -28,6 +34,17 @@ type UpdateNoteRequest struct {
 type ListNotesResponse struct {
 	Notes  *[]domain.Note `json:"notes"`
 	Cursor time.Time      `json:"cursor"`
+}
+
+// Validates the get presigned urls request
+func (r GetPresignedUrlsRequest) Validate() map[string]string {
+	errors := make(map[string]string)
+	if len(r.ObjectNames) == 0 {
+		errors["object_names"] = "field required"
+	} else if len(r.ObjectNames) > 10 {
+		errors["object_names"] = "maximum of 10 objects allowed"
+	}
+	return errors
 }
 
 // Validates the create note request
@@ -51,6 +68,40 @@ func (r UpdateNoteRequest) Validate() map[string]string {
 	return errors
 }
 
+// Handler for the get presigned urls endpoint
+func GetPresignedUrls(srv service.NoteService) http.HandlerFunc {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			// Parse the request body into a GetPresignedUrlsRequest struct
+			var req GetPresignedUrlsRequest
+			err := json.NewDecoder(r.Body).Decode(&req)
+			if err != nil {
+				msg := "Invalid JSON request"
+				response.BadRequest(w, r, &msg, nil)
+				return
+			}
+			defer r.Body.Close()
+
+			// Validate the request and return an BadRequest if there are any errors
+			if errors := req.Validate(); len(errors) > 0 {
+				response.BadRequest(w, r, nil, errors)
+				return
+			}
+
+			res, err := srv.GetPresignedUrls(r.Context(), req.ObjectNames)
+			if err != nil {
+				switch err.Error() {
+				default:
+					response.InternalServerError(w, r)
+					return
+				}
+			}
+
+			response.OK(w, r, res)
+		},
+	)
+}
+
 // Handler for the sign-in endpoint
 func CreateNote(srv service.NoteService) http.HandlerFunc {
 	return http.HandlerFunc(
@@ -71,9 +122,13 @@ func CreateNote(srv service.NoteService) http.HandlerFunc {
 				return
 			}
 
-			res, err := srv.CreateNote(r.Context(), req.Title, req.Content)
+			res, err := srv.CreateNote(r.Context(), req.Title, req.Content, req.ObjectNames)
 			if err != nil {
 				switch err.Error() {
+				case "objects not found":
+					msg := "One or more objects not found in the object storage service"
+					response.BadRequest(w, r, &msg, nil)
+					return
 				default:
 					response.InternalServerError(w, r)
 					return

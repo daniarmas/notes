@@ -23,7 +23,7 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Config
-		cfg := config.LoadConfig()
+		cfg := config.LoadServerConfig()
 
 		// Database connection
 		db := database.Open(cfg, false)
@@ -130,6 +130,31 @@ to quickly create a Cobra application.`,
         			FOREIGN KEY (user_id) 
         			REFERENCES users(id)
         			ON DELETE CASCADE
+			)
+		`)
+		if err != nil {
+			log.Fatal(err)
+		}
+		_, err = stmt.Exec()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Create files table if not exists
+		stmt, err = db.Prepare(`
+			CREATE TABLE IF NOT EXISTS files (
+				id UUID DEFAULT gen_random_uuid(),
+				processed_file VARCHAR,
+				original_file VARCHAR NOT NULL,
+				note_id UUID NOT NULL,
+				create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+				update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+				delete_time TIMESTAMP,
+				CONSTRAINT pk PRIMARY KEY (id),
+				CONSTRAINT fk_note
+					FOREIGN KEY (note_id) 
+					REFERENCES notes(id)
+					ON DELETE CASCADE
 			)
 		`)
 		if err != nil {
