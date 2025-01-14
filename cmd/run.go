@@ -21,6 +21,8 @@ import (
 	"github.com/daniarmas/notes/internal/service"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/spf13/cobra"
+	// "k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 )
 
 func run(ctx context.Context) error {
@@ -30,8 +32,31 @@ func run(ctx context.Context) error {
 	// Custom logger
 	clog.NewClog()
 
+	// Kubernetes client
+	// creates the in-cluster config
+	// var clientSet *kubernetes.Clientset
+	k8sCfg, k8sCfgErr := rest.InClusterConfig()
+	if k8sCfgErr != nil {
+		clog.Error(ctx, "error creating in-cluster config", k8sCfgErr)
+	}
+	clog.Info(ctx, "Kubernetes in-cluster config loaded", nil)
+	
+	// creates the clientset
+	// if k8sCfgErr != nil {
+	// 	clientSet, err := kubernetes.NewForConfig(k8sCfg)
+	// 	if err != nil {
+	// 		clog.Error(ctx, "error creating kubernetes clientset", err)
+	// 	}
+	// }
+
 	// Config
 	cfg := config.LoadServerConfig()
+
+	// Set if running in k8s
+	if k8sCfg != nil {
+		clog.Info(ctx, "app is running in k8s", nil)
+		cfg.InK8s = true
+	}
 
 	// Database connection
 	db := database.Open(cfg, true)
