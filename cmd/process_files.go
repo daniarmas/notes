@@ -46,6 +46,7 @@ to quickly create a Cobra application.`,
 
 		// Object storage service
 		oss := oss.NewDigitalOceanWithMinio(cfg)
+
 		// Healthcheck
 		if err := oss.HealthCheck(); err != nil {
 			clog.Error(ctx, "error checking object storage service health", err)
@@ -54,12 +55,21 @@ to quickly create a Cobra application.`,
 		// Datasources
 		fileDatabaseDs := data.NewFileDatabaseDs(dbQueries)
 
-		// // Repositories
+		// Repositories
 		fileRepository := domain.NewFileRepository(fileDatabaseDs, oss, cfg)
 
-		// Process files
-		if err := fileRepository.Process(ctx, "original/668e36f4-bde0-482d-bcff-4d5ed9289693.jpg"); err != nil {
-			clog.Error(ctx, "error processing file", err)
+		// Access files
+		files, err := cmd.Flags().GetStringSlice("files")
+		if err != nil {
+			clog.Error(ctx, "error getting flag value", err)
+			return
+		}
+
+		// Process files concurrently
+		for _, file := range files {
+			if err := fileRepository.Process(ctx, file); err != nil {
+				clog.Error(ctx, "error processing file", err)
+			}
 		}
 
 	},
@@ -68,4 +78,6 @@ to quickly create a Cobra application.`,
 func init() {
 	rootCmd.AddCommand(processFileCmd)
 	processFileCmd.Flags().StringSliceVarP(&files, "files", "f", []string{}, "Files to process")
+	// Mark the files flag as required
+	processFileCmd.MarkFlagRequired("files")
 }
