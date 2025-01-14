@@ -3,7 +3,7 @@
 #
 # Build
 #
-FROM golang:1.22.4@sha256:c8736b8dbf2b12c98bb0eeed91eef58ecef52b8c2bd49b8044531e8d8d8d58e8 AS build
+FROM golang:1.23.4@sha256:a6927f462c29ef917d9de1621c8e9ca5286948da4ea770f51f835a56c70cabc3 AS build
 ENV CGO_ENABLED=0
 ENV GOOS=linux
 WORKDIR /app
