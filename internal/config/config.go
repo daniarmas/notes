@@ -21,6 +21,7 @@ type Configuration struct {
 	ObjectStorageServiceRegion    string
 	ObjectStorageServiceBucket    string
 	InK8s                         bool
+	DockerImageName               string
 }
 
 func LoadServerConfig() *Configuration {
@@ -37,6 +38,10 @@ func LoadServerConfig() *Configuration {
 		ObjectStorageServiceRegion:    os.Getenv("OBJECT_STORAGE_SERVICE_REGION"),
 		ObjectStorageServiceBucket:    os.Getenv("OBJECT_STORAGE_SERVICE_BUCKET"),
 		InK8s:                         os.Getenv("IN_K8S") == "true",
+		DockerImageName:               os.Getenv("DOCKER_IMAGE_NAME"),
+	}
+	if config.DockerImageName == "" {
+		config.DockerImageName = "ghcr.io/daniarmas/notes"
 	}
 	if config.ObjectStorageServiceAccessKey == "" {
 		clog.Warn(ctx, "OBJECT_STORAGE_SERVICE_ACCESS_KEY enviroment variable is required", nil)

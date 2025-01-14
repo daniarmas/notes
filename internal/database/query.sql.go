@@ -416,7 +416,7 @@ func (q *Queries) SoftDeleteNoteById(ctx context.Context, arg SoftDeleteNoteById
 const updateFileByOriginalId = `-- name: UpdateFileByOriginalId :one
 UPDATE files SET
   processed_file = $2, update_time = $3
-WHERE original_file = $1 AND processed_file == '' RETURNING id, processed_file, original_file, note_id, create_time, update_time, delete_time
+WHERE original_file = $1 AND (processed_file IS NULL OR processed_file = '') RETURNING id, processed_file, original_file, note_id, create_time, update_time, delete_time
 `
 
 type UpdateFileByOriginalIdParams struct {

@@ -5,9 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
+	"github.com/daniarmas/notes/internal/clog"
 	"github.com/daniarmas/notes/internal/config"
 	"github.com/daniarmas/notes/internal/customerrors"
 	"github.com/daniarmas/notes/internal/domain"
@@ -116,6 +118,28 @@ func (s *noteService) CreateNote(ctx context.Context, title string, content stri
 
 	// Create a k8s job to process the files
 	if s.Config.InK8s {
+		jobName := fmt.Sprintf("process-note-files-job-%s", note.Id)
+		namespace := "default"
+		imageName := s.Config.DockerImageName
+		args := []string{
+			"process-files",
+			"--files",
+		}
+		// Append the slice of object names as a comma-separated string
+		args = append(args, strings.Join(objectNames, ","))
+
+		err := s.K8sClient.CreateJob(ctx, jobName, namespace, imageName, args)
+		if err != nil {
+			clog.Error(ctx, "error creating k8s job", err)
+			return nil, err
+		}
+	} else {
+		// This is a mock for the k8s job on dev environment
+		for _, file := range objectNames {
+			if err := s.FileRepository.Process(ctx, file); err != nil {
+				clog.Error(ctx, "error processing file", err)
+			}
+		}
 	}
 
 	return &CreateNoteResponse{Note: note}, nil

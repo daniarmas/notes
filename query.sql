@@ -95,4 +95,4 @@ RETURNING *;
 -- name: UpdateFileByOriginalId :one
 UPDATE files SET
   processed_file = $2, update_time = $3
-WHERE original_file = $1 AND processed_file == '' RETURNING *;
+WHERE original_file = $1 AND (processed_file IS NULL OR processed_file = '') RETURNING *;
