@@ -1,6 +1,8 @@
 module github.com/daniarmas/notes
 
-go 1.22.4
+go 1.23.0
+
+toolchain go1.23.4
 
 require (
 	github.com/google/uuid v1.6.0
@@ -49,6 +51,7 @@ require (
 	golang.org/x/text v0.19.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	k8s.io/client-go v0.32.0 // indirect
 )
 
 require (
