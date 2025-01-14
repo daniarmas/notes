@@ -1,4 +1,4 @@
-package ck8s
+package k8sc
 
 import (
 	"context"
@@ -12,36 +12,38 @@ import (
 	"k8s.io/client-go/rest"
 )
 
-type Ck8s struct {
+type K8sC interface {
+	CreateJob(ctx context.Context, jobName, namespace, imageName string, args []string) error
+}
+
+type k8sc struct {
 	Clientset *kubernetes.Clientset
 }
 
-var ck8s Ck8s
+func NewClient() (K8sC, error) {
+	var clientset *kubernetes.Clientset
+	var clientsetError error
 
-func NewClient() error {
 	// creates the in-cluster config
-	config, err := rest.InClusterConfig()
-	if err != nil {
-		clog.Error(context.Background(), "error creating in-cluster config", err)
-		return err
+	config, configErr := rest.InClusterConfig()
+	if configErr != nil {
+		clog.Error(context.Background(), "error creating in-cluster config", configErr)
+		return nil, configErr
 	}
 	// creates the clientset
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		clog.Error(context.Background(), "error creating kubernetes clientset", err)
-		return err
+	clientset, clientsetError = kubernetes.NewForConfig(config)
+	if clientsetError != nil {
+		clog.Error(context.Background(), "error creating kubernetes clientset", clientsetError)
+		return nil, clientsetError
 	}
 
-	// set the client
-	ck8s = Ck8s{
+	return &k8sc{
 		Clientset: clientset,
-	}
-
-	return nil
+	}, nil
 }
 
 // CreateJob creates a job in the k8s cluster
-func CreateJob(ctx context.Context, jobName, namespace, imageName string, args []string) error {
+func (c *k8sc) CreateJob(ctx context.Context, jobName, namespace, imageName string, args []string) error {
 	// Create a job spec
 	job := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
@@ -64,7 +66,7 @@ func CreateJob(ctx context.Context, jobName, namespace, imageName string, args [
 	}
 
 	// Create the job
-	job, err := ck8s.Clientset.BatchV1().Jobs(namespace).Create(ctx, job, metav1.CreateOptions{})
+	job, err := c.Clientset.BatchV1().Jobs(namespace).Create(ctx, job, metav1.CreateOptions{})
 	if err != nil {
 		clog.Error(context.Background(), "error creating job", err)
 		return err

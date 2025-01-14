@@ -17,12 +17,11 @@ import (
 	"github.com/daniarmas/notes/internal/database"
 	"github.com/daniarmas/notes/internal/domain"
 	"github.com/daniarmas/notes/internal/httpserver"
+	"github.com/daniarmas/notes/internal/k8sc"
 	"github.com/daniarmas/notes/internal/oss"
 	"github.com/daniarmas/notes/internal/service"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/spf13/cobra"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
 )
 
 func run(ctx context.Context) error {
@@ -33,28 +32,16 @@ func run(ctx context.Context) error {
 	clog.NewClog()
 
 	// Kubernetes client
-	// creates the in-cluster config
-	var k8sClient *kubernetes.Clientset
-	k8sCfg, k8sCfgErr := rest.InClusterConfig()
-	if k8sCfgErr != nil {
-		clog.Error(ctx, "error creating in-cluster config", k8sCfgErr)
-	}
-	clog.Info(ctx, "Kubernetes in-cluster config loaded", nil)
-
-	// K8s clientset
-	if k8sCfgErr != nil {
-		var err error
-		k8sClient, err = kubernetes.NewForConfig(k8sCfg)
-		if err != nil {
-			clog.Error(ctx, "error creating kubernetes clientset", err)
-		}
+	k8sClient, ck8sError := k8sc.NewClient()
+	if ck8sError != nil {
+		clog.Error(ctx, "error creating k8s client", ck8sError)
 	}
 
 	// Config
 	cfg := config.LoadServerConfig()
 
 	// Set if running in k8s
-	if k8sCfg != nil {
+	if k8sClient != nil {
 		clog.Info(ctx, "app is running in k8s", nil)
 		cfg.InK8s = true
 	}

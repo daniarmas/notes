@@ -11,9 +11,9 @@ import (
 	"github.com/daniarmas/notes/internal/config"
 	"github.com/daniarmas/notes/internal/customerrors"
 	"github.com/daniarmas/notes/internal/domain"
+	"github.com/daniarmas/notes/internal/k8sc"
 	"github.com/daniarmas/notes/internal/oss"
 	"github.com/google/uuid"
-	"k8s.io/client-go/kubernetes"
 )
 
 type CreateNoteResponse struct {
@@ -46,10 +46,10 @@ type noteService struct {
 	FileRepository domain.FileRepository
 	NoteRepository domain.NoteRepository
 	Oss            oss.ObjectStorageService
-	K8sClient      *kubernetes.Clientset
+	K8sClient      k8sc.K8sC
 }
 
-func NewNoteService(noteRepository domain.NoteRepository, oss oss.ObjectStorageService, fileRepository domain.FileRepository, cfg config.Configuration, k8sClient *kubernetes.Clientset) NoteService {
+func NewNoteService(noteRepository domain.NoteRepository, oss oss.ObjectStorageService, fileRepository domain.FileRepository, cfg config.Configuration, k8sClient k8sc.K8sC) NoteService {
 	return &noteService{
 		NoteRepository: noteRepository,
 		Oss:            oss,
