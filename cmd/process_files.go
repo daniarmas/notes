@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"context"
+	"os"
 
 	"github.com/daniarmas/notes/internal/clog"
 	"github.com/daniarmas/notes/internal/config"
@@ -71,6 +72,11 @@ to quickly create a Cobra application.`,
 				clog.Error(ctx, "error processing file", err)
 			}
 		}
+
+		// Command completed successfully
+		clog.Info(ctx, "All files processed successfully", nil)
+
+		os.Exit(0)
 
 	},
 }
