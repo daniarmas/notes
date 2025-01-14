@@ -20,6 +20,7 @@ type Configuration struct {
 	ObjectStorageServiceEndpoint  string
 	ObjectStorageServiceRegion    string
 	ObjectStorageServiceBucket    string
+	InK8s                         bool
 }
 
 func LoadServerConfig() *Configuration {
@@ -35,6 +36,7 @@ func LoadServerConfig() *Configuration {
 		ObjectStorageServiceEndpoint:  os.Getenv("OBJECT_STORAGE_SERVICE_ENDPOINT"),
 		ObjectStorageServiceRegion:    os.Getenv("OBJECT_STORAGE_SERVICE_REGION"),
 		ObjectStorageServiceBucket:    os.Getenv("OBJECT_STORAGE_SERVICE_BUCKET"),
+		InK8s:                         os.Getenv("IN_K8S") == "true",
 	}
 	if config.ObjectStorageServiceAccessKey == "" {
 		clog.Warn(ctx, "OBJECT_STORAGE_SERVICE_ACCESS_KEY enviroment variable is required", nil)
