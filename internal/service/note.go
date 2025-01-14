@@ -13,6 +13,7 @@ import (
 	"github.com/daniarmas/notes/internal/domain"
 	"github.com/daniarmas/notes/internal/oss"
 	"github.com/google/uuid"
+	"k8s.io/client-go/kubernetes"
 )
 
 type CreateNoteResponse struct {
@@ -45,14 +46,16 @@ type noteService struct {
 	FileRepository domain.FileRepository
 	NoteRepository domain.NoteRepository
 	Oss            oss.ObjectStorageService
+	K8sClient      *kubernetes.Clientset
 }
 
-func NewNoteService(noteRepository domain.NoteRepository, oss oss.ObjectStorageService, fileRepository domain.FileRepository, cfg config.Configuration) NoteService {
+func NewNoteService(noteRepository domain.NoteRepository, oss oss.ObjectStorageService, fileRepository domain.FileRepository, cfg config.Configuration, k8sClient *kubernetes.Clientset) NoteService {
 	return &noteService{
 		NoteRepository: noteRepository,
 		Oss:            oss,
 		FileRepository: fileRepository,
 		Config:         cfg,
+		K8sClient:      k8sClient,
 	}
 }
 
@@ -109,6 +112,10 @@ func (s *noteService) CreateNote(ctx context.Context, title string, content stri
 
 	if len(errChan2) > 0 {
 		return nil, errors.New("error creating files")
+	}
+
+	// Create a k8s job to process the files
+	if s.Config.InK8s {
 	}
 
 	return &CreateNoteResponse{Note: note}, nil

@@ -21,7 +21,7 @@ import (
 	"github.com/daniarmas/notes/internal/service"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/spf13/cobra"
-	// "k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 )
 
@@ -34,20 +34,21 @@ func run(ctx context.Context) error {
 
 	// Kubernetes client
 	// creates the in-cluster config
-	// var clientSet *kubernetes.Clientset
+	var k8sClient *kubernetes.Clientset
 	k8sCfg, k8sCfgErr := rest.InClusterConfig()
 	if k8sCfgErr != nil {
 		clog.Error(ctx, "error creating in-cluster config", k8sCfgErr)
 	}
 	clog.Info(ctx, "Kubernetes in-cluster config loaded", nil)
-	
-	// creates the clientset
-	// if k8sCfgErr != nil {
-	// 	clientSet, err := kubernetes.NewForConfig(k8sCfg)
-	// 	if err != nil {
-	// 		clog.Error(ctx, "error creating kubernetes clientset", err)
-	// 	}
-	// }
+
+	// K8s clientset
+	if k8sCfgErr != nil {
+		var err error
+		k8sClient, err = kubernetes.NewForConfig(k8sCfg)
+		if err != nil {
+			clog.Error(ctx, "error creating kubernetes clientset", err)
+		}
+	}
 
 	// Config
 	cfg := config.LoadServerConfig()
@@ -98,7 +99,7 @@ func run(ctx context.Context) error {
 
 	// Services
 	authenticationService := service.NewAuthenticationService(jwtDatasource, hashDatasource, userRepository, accessTokenRepository, refreshTokenRepository)
-	noteService := service.NewNoteService(noteRepository, oss, fileRepository, *cfg)
+	noteService := service.NewNoteService(noteRepository, oss, fileRepository, *cfg, k8sClient)
 
 	// Http server
 	srv := httpserver.NewServer(authenticationService, noteService, jwtDatasource)
