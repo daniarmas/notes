@@ -58,7 +58,7 @@ to quickly create a Cobra application.`,
 		fileRepository := domain.NewFileRepository(fileDatabaseDs, oss, cfg)
 
 		// Process files
-		if _, err := fileRepository.Process(ctx, "original/6f36c25d-2e1a-47cb-a308-7fa223fc1df2.jpg"); err != nil {
+		if err := fileRepository.Process(ctx, "original/668e36f4-bde0-482d-bcff-4d5ed9289693.jpg"); err != nil {
 			clog.Error(ctx, "error processing file", err)
 		}
 

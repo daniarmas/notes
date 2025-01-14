@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -18,6 +19,17 @@ type CreateNoteResponse struct {
 	Note *domain.Note `json:"note"`
 }
 
+type PresignedUrl struct {
+	Url      string `json:"url"`
+	File     string `json:"file"`
+	ObjectId string `json:"object_id"`
+}
+
+// GetPresignedUrlsResponse represents the structure of the get presigned urls response
+type GetPresignedUrlsResponse struct {
+	Urls []PresignedUrl `json:"urls"`
+}
+
 type NoteService interface {
 	CreateNote(ctx context.Context, title string, content string, objectNames []string) (*CreateNoteResponse, error)
 	ListTrashNotesByUser(ctx context.Context, cursor time.Time) (*[]domain.Note, error)
@@ -25,7 +37,7 @@ type NoteService interface {
 	RestoreNote(ctx context.Context, id uuid.UUID) (*domain.Note, error)
 	DeleteNote(ctx context.Context, id uuid.UUID, hard bool) error
 	UpdateNote(ctx context.Context, note *domain.Note) (*domain.Note, error)
-	GetPresignedUrls(ctx context.Context, objectNames []string) (map[string]string, error)
+	GetPresignedUrls(ctx context.Context, objectNames []string) (*GetPresignedUrlsResponse, error)
 }
 
 type noteService struct {
@@ -57,7 +69,7 @@ func (s *noteService) CreateNote(ctx context.Context, title string, content stri
 		wg.Add(1)
 		go func(objectName string) {
 			defer wg.Done()
-			err := s.Oss.ObjectExists(ctx, s.Config.ObjectStorageServiceBucket, fmt.Sprintf("original/%s", objectName))
+			err := s.Oss.ObjectExists(ctx, s.Config.ObjectStorageServiceBucket, objectName)
 			if err != nil {
 				errChan <- err
 				return
@@ -159,8 +171,10 @@ func (s *noteService) DeleteNote(ctx context.Context, id uuid.UUID, isHard bool)
 	return nil
 }
 
-func (s *noteService) GetPresignedUrls(ctx context.Context, objectNames []string) (map[string]string, error) {
-	urls := make(map[string]string)
+func (s *noteService) GetPresignedUrls(ctx context.Context, objectNames []string) (*GetPresignedUrlsResponse, error) {
+	// Make a slice of presigned urls
+	urls := make([]PresignedUrl, 0, len(objectNames))
+
 	var mu sync.Mutex
 	var wg sync.WaitGroup
 	errChan := make(chan error, len(objectNames))
@@ -169,13 +183,18 @@ func (s *noteService) GetPresignedUrls(ctx context.Context, objectNames []string
 		wg.Add(1)
 		go func(objectName string) {
 			defer wg.Done()
-			url, err := s.Oss.GetPresignedUrl(ctx, s.Config.ObjectStorageServiceBucket, objectName)
+			// Generate a new object name
+			id := uuid.New()
+			ext := filepath.Ext(objectName)
+			newObjectName := fmt.Sprintf("original/%s%s", id, ext)
+			// Generate the presigned url
+			url, err := s.Oss.GetPresignedUrl(ctx, s.Config.ObjectStorageServiceBucket, newObjectName)
 			if err != nil {
 				errChan <- err
 				return
 			}
 			mu.Lock()
-			urls[objectName] = url
+			urls = append(urls, PresignedUrl{Url: url, File: objectName, ObjectId: newObjectName})
 			mu.Unlock()
 		}(objectName)
 	}
@@ -187,5 +206,5 @@ func (s *noteService) GetPresignedUrls(ctx context.Context, objectNames []string
 		return nil, <-errChan
 	}
 
-	return urls, nil
+	return &GetPresignedUrlsResponse{Urls: urls}, nil
 }

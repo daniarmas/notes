@@ -53,7 +53,7 @@ type FileRepository interface {
 	Delete() error
 	List() error
 	Move() error
-	Process(ctx context.Context, ossFileId string) (string, error)
+	Process(ctx context.Context, ossFileId string) error
 }
 
 type fileCloudRepository struct {
@@ -96,14 +96,14 @@ func (r *fileCloudRepository) List() error { return nil }
 
 func (r *fileCloudRepository) Move() error { return nil }
 
-func (r *fileCloudRepository) Process(ctx context.Context, ossFileId string) (string, error) {
+func (r *fileCloudRepository) Process(ctx context.Context, ossFileId string) error {
 	// Declare the processed file id
 	var processedFileId string
 
 	// Download the file from the cloud
 	path, err := r.ObjectStorageService.GetObject(ctx, r.Config.ObjectStorageServiceBucket, ossFileId)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	// Remove the file from tmp after the process
@@ -113,17 +113,17 @@ func (r *fileCloudRepository) Process(ctx context.Context, ossFileId string) (st
 	switch fileType(path) {
 	case "picture":
 		if path, err = CompressJpegImage(path); err != nil {
-			return "", err
+			return err
 		}
 		processedFileId = fmt.Sprintf("processed-photos/%s", filepath.Base(path))
 	case "audio":
 		if path, err = CompressAudio(path); err != nil {
-			return "", err
+			return err
 		}
 		processedFileId = fmt.Sprintf("processed-audio/%s", filepath.Base(path))
 	default:
 		clog.Error(ctx, "The file is not supported", nil)
-		return "", fmt.Errorf("the file is not supported")
+		return fmt.Errorf("the file is not supported")
 	}
 
 	// Remove the processed file from tmp after the upload
@@ -132,10 +132,16 @@ func (r *fileCloudRepository) Process(ctx context.Context, ossFileId string) (st
 	// Upload the processed file to the cloud
 	if err := r.ObjectStorageService.PutObject(ctx, r.Config.ObjectStorageServiceBucket, processedFileId, path); err != nil {
 		clog.Error(ctx, "error uploading processed file to the cloud", err)
-		return "", err
+		return err
 	}
 
-	return path, nil
+	// Update the file on the database
+	if _, err := r.FileDatabaseDs.UpdateFileByOriginalId(ctx, ossFileId, processedFileId); err != nil {
+		clog.Error(ctx, "error updating file by original id", err)
+		return err
+	}
+
+	return nil
 }
 
 // CompressAudio compresses the audio file using ffmpeg

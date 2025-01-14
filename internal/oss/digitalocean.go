@@ -12,7 +12,6 @@ import (
 
 	"github.com/daniarmas/notes/internal/clog"
 	"github.com/daniarmas/notes/internal/config"
-	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
@@ -53,10 +52,7 @@ func (o *oss) HealthCheck() error {
 
 func (o *oss) GetPresignedUrl(ctx context.Context, bucketName, objectName string) (string, error) {
 	expiry := time.Second * 24 * 60 * 60 // 1 day.
-	id := uuid.New()
-	ext := filepath.Ext(objectName)
-	newObjectName := fmt.Sprintf("original/%s%s", id, ext)
-	presignedURL, err := o.client.PresignedPutObject(context.Background(), bucketName, newObjectName, expiry)
+	presignedURL, err := o.client.PresignedPutObject(context.Background(), bucketName, objectName, expiry)
 	if err != nil {
 		clog.Error(context.Background(), "error generating presigned URL", err)
 		return "", err
