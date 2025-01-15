@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	corev1 "k8s.io/api/core/v1"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
+
+	corev1 "k8s.io/api/core/v1"
 
 	"github.com/daniarmas/notes/internal/clog"
 	"github.com/daniarmas/notes/internal/config"
@@ -96,17 +97,22 @@ func (s *noteService) CreateNote(ctx context.Context, title string, content stri
 		return nil, err
 	}
 	// Create the files concurrently
+	var files []*domain.File
+	var mu2 sync.Mutex
 	var wg2 sync.WaitGroup
 	errChan2 := make(chan error, len(objectNames))
 	for _, objectName := range objectNames {
 		wg2.Add(1)
 		go func(objectName string) {
 			defer wg2.Done()
-			_, err := s.FileRepository.Create(ctx, objectName, "", note.Id)
+			file, err := s.FileRepository.Create(ctx, objectName, "", note.Id)
 			if err != nil {
 				errChan2 <- err
 				return
 			}
+			mu2.Lock()
+			files = append(files, file)
+			mu2.Unlock()
 		}(objectName)
 	}
 
@@ -153,6 +159,35 @@ func (s *noteService) CreateNote(ctx context.Context, title string, content stri
 			}
 		}
 	}
+
+	// Generate the presigned urls to get the original files concurrently
+	var mu3 sync.Mutex
+	var wg3 sync.WaitGroup
+	errChan3 := make(chan error, len(files))
+	for _, file := range files {
+		wg3.Add(1)
+		go func(file *domain.File) {
+			defer wg3.Done()
+			url, err := s.Oss.PresignedGetObject(ctx, s.Config.ObjectStorageServiceBucket, file.OriginalFile, time.Second*24*60*60)
+			if err != nil {
+				errChan3 <- err
+				return
+			}
+			mu3.Lock()
+			file.OriginalUrl = url
+			mu3.Unlock()
+		}(file)
+	}
+
+	wg3.Wait()
+	close(errChan3)
+
+	if len(errChan3) > 0 {
+		return nil, errors.New("error getting the presigned urls to get the original files")
+	}
+
+	// Include the files in the note
+	note.Files = files
 
 	return &CreateNoteResponse{Note: note}, nil
 }
@@ -231,7 +266,7 @@ func (s *noteService) GetPresignedUrls(ctx context.Context, objectNames []string
 			ext := filepath.Ext(objectName)
 			newObjectName := fmt.Sprintf("original/%s%s", id, ext)
 			// Generate the presigned url
-			url, err := s.Oss.GetPresignedUrl(ctx, s.Config.ObjectStorageServiceBucket, newObjectName)
+			url, err := s.Oss.PresignedPutObject(ctx, s.Config.ObjectStorageServiceBucket, newObjectName)
 			if err != nil {
 				errChan <- err
 				return
