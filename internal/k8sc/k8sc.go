@@ -55,9 +55,10 @@ func (c *k8sc) CreateJob(ctx context.Context, jobName, namespace, imageName stri
 					RestartPolicy: corev1.RestartPolicyNever,
 					Containers: []corev1.Container{
 						{
-							Name:  jobName,
-							Image: imageName,
-							Args:  args,
+							Name:    jobName,
+							Image:   imageName,
+							Command: []string{"/app/notes"},
+							Args:    args,
 						},
 					},
 				},
