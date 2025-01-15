@@ -1,9 +1,13 @@
 package oss
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 type ObjectStorageService interface {
-	GetPresignedUrl(ctx context.Context, bucketName, objectName string) (string, error)
+	PresignedGetObject(ctx context.Context, bucketName, objectName string, expiry time.Duration) (string, error)
+	PresignedPutObject(ctx context.Context, bucketName, objectName string) (string, error)
 	GetObject(ctx context.Context, bucketName, objectName string) (string, error)
 	PutObject(ctx context.Context, bucketName, objectName, filePath string) error
 	ObjectExists(ctx context.Context, bucketName, objectName string) error

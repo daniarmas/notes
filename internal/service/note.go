@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	corev1 "k8s.io/api/core/v1"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
+
+	corev1 "k8s.io/api/core/v1"
 
 	"github.com/daniarmas/notes/internal/clog"
 	"github.com/daniarmas/notes/internal/config"
@@ -231,7 +232,7 @@ func (s *noteService) GetPresignedUrls(ctx context.Context, objectNames []string
 			ext := filepath.Ext(objectName)
 			newObjectName := fmt.Sprintf("original/%s%s", id, ext)
 			// Generate the presigned url
-			url, err := s.Oss.GetPresignedUrl(ctx, s.Config.ObjectStorageServiceBucket, newObjectName)
+			url, err := s.Oss.PresignedPutObject(ctx, s.Config.ObjectStorageServiceBucket, newObjectName)
 			if err != nil {
 				errChan <- err
 				return

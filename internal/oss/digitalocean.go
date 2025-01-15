@@ -50,7 +50,16 @@ func (o *oss) HealthCheck() error {
 	return nil
 }
 
-func (o *oss) GetPresignedUrl(ctx context.Context, bucketName, objectName string) (string, error) {
+func (o *oss) PresignedGetObject(ctx context.Context, bucketName, objectName string, expiry time.Duration) (string, error) {
+	presignedURL, err := o.client.PresignedGetObject(context.Background(), bucketName, objectName, expiry, nil)
+	if err != nil {
+		clog.Error(context.Background(), "error generating presigned URL", err)
+		return "", err
+	}
+	return presignedURL.String(), err
+}
+
+func (o *oss) PresignedPutObject(ctx context.Context, bucketName, objectName string) (string, error) {
 	expiry := time.Second * 24 * 60 * 60 // 1 day.
 	presignedURL, err := o.client.PresignedPutObject(context.Background(), bucketName, objectName, expiry)
 	if err != nil {
