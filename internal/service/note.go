@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	corev1 "k8s.io/api/core/v1"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -128,7 +129,18 @@ func (s *noteService) CreateNote(ctx context.Context, title string, content stri
 		// Append the slice of object names as a comma-separated string
 		args = append(args, strings.Join(objectNames, ","))
 
-		err := s.K8sClient.CreateJob(ctx, jobName, namespace, imageName, args)
+		// Define the environment variables for the job
+		envs := []corev1.EnvFromSource{
+			{
+				SecretRef: &corev1.SecretEnvSource{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: "note-secrets",
+					},
+				},
+			},
+		}
+
+		err := s.K8sClient.CreateJob(ctx, jobName, namespace, imageName, args, envs)
 		if err != nil {
 			clog.Error(ctx, "error creating k8s job", err)
 			return nil, err

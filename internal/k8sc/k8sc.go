@@ -13,7 +13,7 @@ import (
 )
 
 type K8sC interface {
-	CreateJob(ctx context.Context, jobName, namespace, imageName string, args []string) error
+	CreateJob(ctx context.Context, jobName, namespace, imageName string, args []string, envs []corev1.EnvFromSource) error
 }
 
 type k8sc struct {
@@ -43,7 +43,7 @@ func NewClient() (K8sC, error) {
 }
 
 // CreateJob creates a job in the k8s cluster
-func (c *k8sc) CreateJob(ctx context.Context, jobName, namespace, imageName string, args []string) error {
+func (c *k8sc) CreateJob(ctx context.Context, jobName, namespace, imageName string, args []string, envs []corev1.EnvFromSource) error {
 	// Create a job spec
 	job := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
@@ -59,6 +59,7 @@ func (c *k8sc) CreateJob(ctx context.Context, jobName, namespace, imageName stri
 							Image:   imageName,
 							Command: []string{"/app/notes"},
 							Args:    args,
+							EnvFrom: envs,
 						},
 					},
 				},
