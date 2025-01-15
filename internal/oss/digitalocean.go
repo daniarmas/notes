@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"errors"
@@ -24,8 +25,9 @@ type oss struct {
 func NewDigitalOceanWithMinio(cfg *config.Configuration) ObjectStorageService {
 	// Initialize minio client object.
 	minioClient, err := minio.New(cfg.ObjectStorageServiceEndpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(cfg.ObjectStorageServiceAccessKey, cfg.ObjectStorageServiceSecretKey, ""),
-		Secure: true,
+		Creds:        credentials.NewStaticV4(cfg.ObjectStorageServiceAccessKey, cfg.ObjectStorageServiceSecretKey, ""),
+		Secure:       true,
+		BucketLookup: minio.BucketLookupDNS,
 	})
 	if err != nil {
 		clog.Error(context.Background(), "error creating minio client", err)
@@ -56,7 +58,19 @@ func (o *oss) PresignedGetObject(ctx context.Context, bucketName, objectName str
 		clog.Error(context.Background(), "error generating presigned URL", err)
 		return "", err
 	}
-	return presignedURL.String(), err
+	// Parse the presigned URL
+	parsedURL, err := presignedURL.Parse(presignedURL.String())
+	if err != nil {
+		return "", err
+	}
+
+	// Modify the hostname to include the CDN
+	hostnameParts := strings.Split(parsedURL.Host, ".")
+	if len(hostnameParts) >= 3 {
+		hostnameParts[1] = hostnameParts[1] + ".cdn"
+		parsedURL.Host = strings.Join(hostnameParts, ".")
+	}
+	return parsedURL.String(), err
 }
 
 func (o *oss) PresignedPutObject(ctx context.Context, bucketName, objectName string) (string, error) {
