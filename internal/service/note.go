@@ -174,7 +174,7 @@ func (s *noteService) CreateNote(ctx context.Context, title string, content stri
 				return
 			}
 			mu3.Lock()
-			file.OriginalUrl = url
+			file.Url = url
 			mu3.Unlock()
 		}(file)
 	}
@@ -196,9 +196,68 @@ func (s *noteService) ListNotesByUser(ctx context.Context, cursor time.Time) (*[
 	// Get the user ID from the context
 	userId := domain.GetUserIdFromContext(ctx)
 
+	// Get the notes
 	notes, err := s.NoteRepository.ListNotesByUser(ctx, userId, cursor)
 	if err != nil {
 		return nil, err
+	}
+
+	// Get all the ids from notes
+	ids := make([]uuid.UUID, len(*notes))
+	for i, note := range *notes {
+		ids[i] = note.Id
+	}
+
+	// Get the files for each note
+	files, err := s.FileRepository.ListByNoteId(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	// Generate the presigned urls to get the files
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+	errChan := make(chan error, len(*files))
+	for i := range *files {
+		wg.Add(1)
+		go func(file *domain.File) {
+			defer wg.Done()
+			var objectName string
+			if file.ProcessedFile != "" {
+				objectName = file.ProcessedFile
+			} else {
+				objectName = file.OriginalFile
+			}
+			url, err := s.Oss.PresignedGetObject(ctx, s.Config.ObjectStorageServiceBucket, objectName, time.Second*24*60*60)
+			if err != nil {
+				errChan <- err
+				return
+			}
+			mu.Lock()
+			file.Url = url
+			mu.Unlock()
+		}(&(*files)[i])
+	}
+
+	wg.Wait()
+	close(errChan)
+
+	if len(errChan) > 0 {
+		return nil, errors.New("error getting the presigned urls")
+	}
+
+	// Include the files in the notes
+	// Create a map to group files by NoteId
+	fileMap := make(map[uuid.UUID][]*domain.File)
+	for _, file := range *files {
+		fileMap[file.NoteId] = append(fileMap[file.NoteId], &file)
+	}
+
+	// Include the files in the notes
+	for i, note := range *notes {
+		if noteFiles, ok := fileMap[note.Id]; ok {
+			(*notes)[i].Files = noteFiles
+		}
 	}
 
 	return notes, nil

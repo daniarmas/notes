@@ -11,6 +11,19 @@ import (
 	"github.com/google/uuid"
 )
 
+// Parses a file from the database to a domain.File
+func parseFromDatabaseToDomain(f database.File) domain.File {
+	return domain.File{
+		Id:            f.ID,
+		NoteId:        f.NoteID,
+		OriginalFile:  f.OriginalFile,
+		ProcessedFile: f.ProcessedFile.String,
+		CreateTime:    f.CreateTime,
+		UpdateTime:    f.UpdateTime,
+		DeleteTime:    f.DeleteTime.Time,
+	}
+}
+
 type fileDatabaseDs struct {
 	queries *database.Queries
 }
@@ -21,8 +34,17 @@ func NewFileDatabaseDs(queries *database.Queries) domain.FileDatabaseDs {
 	}
 }
 
-func (d *fileDatabaseDs) ListFilesByNote(ctx context.Context, note_id uuid.UUID) (*[]domain.File, error) {
-	return nil, nil
+func (d *fileDatabaseDs) ListFilesByNote(ctx context.Context, noteId []uuid.UUID) (*[]domain.File, error) {
+	res, err := d.queries.ListFilesByNoteId(ctx, noteId)
+	if err != nil {
+		return nil, err
+	}
+	// Preallocate slice with the length of the result set
+	response := make([]domain.File, 0, len(res))
+	for _, file := range res {
+		response = append(response, parseFromDatabaseToDomain(file))
+	}
+	return &response, nil
 }
 
 func (d *fileDatabaseDs) CreateFile(ctx context.Context, file *domain.File) (*domain.File, error) {
