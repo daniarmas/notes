@@ -28,16 +28,13 @@ This is a RESTful API for a notes application, developed using Go. Although the 
 
 - [x] Basic Authentication
 - [x] Notes Managment
-- [ ] File attachments
-- [ ] Google Sign-In
+- [x] File attachments
 
 ## Built With
 
-
-
 * Programming language - [Go](https://go.dev)
 * Http server - [net/http](https://pkg.go.dev/net/http)
-* Database - [CockroachDB](https://www.cockroachlabs.com/docs/stable/)
+* Database - [PostgreSQL](https://www.postgresql.org)
 * Cache - [Redis](https://redis.io/)
 
 
