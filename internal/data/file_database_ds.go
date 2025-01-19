@@ -34,8 +34,8 @@ func NewFileDatabaseDs(queries *database.Queries) domain.FileDatabaseDs {
 	}
 }
 
-func (d *fileDatabaseDs) ListFilesByNote(ctx context.Context, noteId []uuid.UUID) (*[]domain.File, error) {
-	res, err := d.queries.ListFilesByNoteId(ctx, noteId)
+func (d *fileDatabaseDs) ListFilesByNotesIds(ctx context.Context, noteId []uuid.UUID) (*[]domain.File, error) {
+	res, err := d.queries.ListFilesByNotesIds(ctx, noteId)
 	if err != nil {
 		return nil, err
 	}
@@ -45,6 +45,20 @@ func (d *fileDatabaseDs) ListFilesByNote(ctx context.Context, noteId []uuid.UUID
 		response = append(response, parseFromDatabaseToDomain(file))
 	}
 	return &response, nil
+}
+
+func (d *fileDatabaseDs) ListFilesByNoteId(ctx context.Context, noteId uuid.UUID) (*[]domain.File, error) {
+	res, err := d.queries.ListFileByNoteId(ctx, noteId)
+	if err != nil {
+		return nil, err
+	}
+	// Preallocate slice with the length of the result set
+	response := make([]domain.File, 0, len(res))
+	for _, file := range res {
+		response = append(response, parseFromDatabaseToDomain(file))
+	}
+	return &response, nil
+
 }
 
 func (d *fileDatabaseDs) CreateFile(ctx context.Context, file *domain.File) (*domain.File, error) {

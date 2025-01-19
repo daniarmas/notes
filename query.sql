@@ -84,9 +84,13 @@ RETURNING *;
 -- name: DeleteRefreshTokenByUserId :one
 DELETE FROM refresh_tokens WHERE user_id = $1 RETURNING id;
 
--- name: ListFilesByNoteId :many
+-- name: ListFilesByNotesIds :many
 SELECT * FROM files 
 WHERE note_id = ANY($1::uuid[]);
+
+-- name: ListFileByNoteId :many
+SELECT * FROM files 
+WHERE note_id = $1;
 
 -- name: CreateFile :one
 INSERT INTO files (
