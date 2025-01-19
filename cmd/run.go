@@ -89,7 +89,7 @@ func run(ctx context.Context) error {
 	noteService := service.NewNoteService(noteRepository, oss, fileRepository, *cfg, k8sClient)
 
 	// Http server
-	srv := httpserver.NewServer(authenticationService, noteService, jwtDatasource)
+	srv := httpserver.NewServer(authenticationService, noteService, jwtDatasource, *cfg)
 
 	go func() {
 		msg := fmt.Sprintf("Http server listening on %s\n", srv.HttpServer.Addr)
