@@ -34,7 +34,7 @@ func NewFileDatabaseDs(queries *database.Queries) domain.FileDatabaseDs {
 	}
 }
 
-func (d *fileDatabaseDs) ListFilesByNote(ctx context.Context, noteId uuid.UUID) (*[]domain.File, error) {
+func (d *fileDatabaseDs) ListFilesByNote(ctx context.Context, noteId []uuid.UUID) (*[]domain.File, error) {
 	res, err := d.queries.ListFilesByNoteId(ctx, noteId)
 	if err != nil {
 		return nil, err

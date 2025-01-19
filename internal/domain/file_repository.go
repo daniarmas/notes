@@ -51,7 +51,7 @@ type FileRepository interface {
 	Create(ctx context.Context, ossFileId, path string, noteID uuid.UUID) (*File, error)
 	Update() error
 	Delete() error
-	ListByNoteId(ctx context.Context, noteId uuid.UUID) (*[]File, error)
+	ListByNoteId(ctx context.Context, noteId []uuid.UUID) (*[]File, error)
 	Move() error
 	Process(ctx context.Context, ossFileId string) error
 }
@@ -92,7 +92,7 @@ func (r *fileCloudRepository) Update() error { return nil }
 
 func (r *fileCloudRepository) Delete() error { return nil }
 
-func (r *fileCloudRepository) ListByNoteId(ctx context.Context, noteId uuid.UUID) (*[]File, error) {
+func (r *fileCloudRepository) ListByNoteId(ctx context.Context, noteId []uuid.UUID) (*[]File, error) {
 	// Fetch the files from the database
 	files, err := r.FileDatabaseDs.ListFilesByNote(ctx, noteId)
 	if err != nil {

@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 const createAccessToken = `-- name: CreateAccessToken :one
@@ -279,12 +280,12 @@ func (q *Queries) HardDeleteNoteById(ctx context.Context, id uuid.UUID) (Note, e
 }
 
 const listFilesByNoteId = `-- name: ListFilesByNoteId :many
-SELECT id, processed_file, original_file, note_id, create_time, update_time, delete_time FROM files
-WHERE note_id = $1
+SELECT id, processed_file, original_file, note_id, create_time, update_time, delete_time FROM files 
+WHERE note_id = ANY($1::uuid[])
 `
 
-func (q *Queries) ListFilesByNoteId(ctx context.Context, noteID uuid.UUID) ([]File, error) {
-	rows, err := q.db.QueryContext(ctx, listFilesByNoteId, noteID)
+func (q *Queries) ListFilesByNoteId(ctx context.Context, dollar_1 []uuid.UUID) ([]File, error) {
+	rows, err := q.db.QueryContext(ctx, listFilesByNoteId, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
