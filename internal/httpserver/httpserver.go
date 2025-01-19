@@ -3,6 +3,7 @@ package httpserver
 import (
 	"net"
 	"net/http"
+	"time"
 
 	"github.com/daniarmas/notes/internal/domain"
 	"github.com/daniarmas/notes/internal/httpserver/middleware"
@@ -38,8 +39,11 @@ func NewServer(authenticationService service.AuthenticationService, noteService 
 
 	// Create the HTTP server
 	httpServer := &http.Server{
-		Addr:    net.JoinHostPort("0.0.0.0", "8080"),
-		Handler: handler,
+		Addr:         net.JoinHostPort("0.0.0.0", "8080"),
+		Handler:      handler,
+		ReadTimeout:  10 * time.Minute,
+		WriteTimeout: 10 * time.Minute,
+		IdleTimeout:  15 * time.Minute,
 	}
 	return &Server{
 		Mux:        mux,

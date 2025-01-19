@@ -12,4 +12,5 @@ type ObjectStorageService interface {
 	PutObject(ctx context.Context, bucketName, objectName, filePath string) error
 	ObjectExists(ctx context.Context, bucketName, objectName string) error
 	HealthCheck() error
+	RemoveObject(ctx context.Context, bucketName string, objectName string) error
 }

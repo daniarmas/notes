@@ -162,3 +162,13 @@ func (i *oss) PutObject(ctx context.Context, bucketName, objectName, filePath st
 
 	return nil
 }
+
+func (i *oss) RemoveObject(ctx context.Context, bucketName string, objectName string) error {
+	// Remove the object from the object storage service
+	err := i.client.RemoveObject(context.Background(), bucketName, objectName, minio.RemoveObjectOptions{})
+	if err != nil {
+		clog.Error(ctx, "error removing object", err)
+		return err
+	}
+	return nil
+}

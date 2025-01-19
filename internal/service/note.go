@@ -209,7 +209,7 @@ func (s *noteService) ListNotesByUser(ctx context.Context, cursor time.Time) (*[
 	}
 
 	// Get the files for each note
-	files, err := s.FileRepository.ListByNoteId(ctx, ids)
+	files, err := s.FileRepository.ListFilesByNotesIds(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
@@ -298,13 +298,30 @@ func (s *noteService) UpdateNote(ctx context.Context, note *domain.Note) (*domai
 }
 
 func (s *noteService) DeleteNote(ctx context.Context, id uuid.UUID, isHard bool) error {
-	err := s.NoteRepository.DeleteNote(ctx, id, isHard)
-	if err != nil {
-		switch err.(type) {
-		case *customerrors.RecordNotFound:
-			return errors.New("note not found")
+	var files *[]domain.File
+	var err error
+
+	// Get the files if isHard is true before they are deleted from the database
+	if isHard {
+		if files, err = s.FileRepository.ListFilesByNoteId(ctx, id); err != nil {
+			return err
 		}
 	}
+
+	if err = s.NoteRepository.DeleteNote(ctx, id, isHard); err != nil {
+		if _, ok := err.(*customerrors.RecordNotFound); ok {
+			return errors.New("note not found")
+		}
+		return err
+	}
+
+	// Delete the files from the cloud
+	if isHard {
+		if err = s.FileRepository.HardDeleteFiles(ctx, files); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 

@@ -2,12 +2,14 @@ package domain
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"image/jpeg"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/daniarmas/notes/internal/clog"
 	"github.com/daniarmas/notes/internal/config"
@@ -50,8 +52,9 @@ func fileType(path string) string {
 type FileRepository interface {
 	Create(ctx context.Context, ossFileId, path string, noteID uuid.UUID) (*File, error)
 	Update() error
-	Delete() error
-	ListByNoteId(ctx context.Context, noteId []uuid.UUID) (*[]File, error)
+	HardDeleteFiles(ctx context.Context, files *[]File) error
+	ListFilesByNoteId(ctx context.Context, noteId uuid.UUID) (*[]File, error)
+	ListFilesByNotesIds(ctx context.Context, noteId []uuid.UUID) (*[]File, error)
 	Move() error
 	Process(ctx context.Context, ossFileId string) error
 }
@@ -90,11 +93,58 @@ func (r *fileCloudRepository) Create(ctx context.Context, ossFileId, path string
 
 func (r *fileCloudRepository) Update() error { return nil }
 
-func (r *fileCloudRepository) Delete() error { return nil }
+func (r *fileCloudRepository) HardDeleteFiles(ctx context.Context, files *[]File) error {
+	processedFilesNames := make([]string, 0, len(*files))
+	originalFilesNames := make([]string, 0, len(*files))
+	// Get the processed and original files names
+	for _, file := range *files {
+		processedFilesNames = append(processedFilesNames, file.ProcessedFile)
+		originalFilesNames = append(originalFilesNames, file.OriginalFile)
+	}
+	// Delete the files from the cloud
+	var wg sync.WaitGroup
+	errChan := make(chan error, len(processedFilesNames))
+	for i, _ := range processedFilesNames {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			processedFile := processedFilesNames[i]
+			originalFile := originalFilesNames[i]
+			err := r.ObjectStorageService.RemoveObject(ctx, r.Config.ObjectStorageServiceBucket, processedFile)
+			if err != nil {
+				errChan <- errors.New(fmt.Sprintf("error removing processed file %s from the cloud", processedFile))
+				return
+			}
+			err = r.ObjectStorageService.RemoveObject(ctx, r.Config.ObjectStorageServiceBucket, originalFile)
+			if err != nil {
+				errChan <- errors.New(fmt.Sprintf("error removing original file %s from the cloud", originalFile))
+				return
+			}
+		}()
+	}
 
-func (r *fileCloudRepository) ListByNoteId(ctx context.Context, noteId []uuid.UUID) (*[]File, error) {
+	wg.Wait()
+	close(errChan)
+
+	if len(errChan) > 0 {
+		return errors.New("error removing files from the cloud")
+	}
+
+	return nil
+}
+
+func (r *fileCloudRepository) ListFilesByNotesIds(ctx context.Context, noteId []uuid.UUID) (*[]File, error) {
 	// Fetch the files from the database
-	files, err := r.FileDatabaseDs.ListFilesByNote(ctx, noteId)
+	files, err := r.FileDatabaseDs.ListFilesByNotesIds(ctx, noteId)
+	if err != nil {
+		return nil, err
+	}
+	return files, nil
+}
+
+func (r *fileCloudRepository) ListFilesByNoteId(ctx context.Context, noteId uuid.UUID) (*[]File, error) {
+	// Fetch the file ids from the database
+	files, err := r.FileDatabaseDs.ListFilesByNoteId(ctx, noteId)
 	if err != nil {
 		return nil, err
 	}

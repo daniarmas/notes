@@ -260,6 +260,41 @@ func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (User, error) {
 	return i, err
 }
 
+const hardDeleteFilesByNoteId = `-- name: HardDeleteFilesByNoteId :many
+DELETE FROM files WHERE note_id = $1 RETURNING id, processed_file, original_file, note_id, create_time, update_time, delete_time
+`
+
+func (q *Queries) HardDeleteFilesByNoteId(ctx context.Context, noteID uuid.UUID) ([]File, error) {
+	rows, err := q.db.QueryContext(ctx, hardDeleteFilesByNoteId, noteID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []File
+	for rows.Next() {
+		var i File
+		if err := rows.Scan(
+			&i.ID,
+			&i.ProcessedFile,
+			&i.OriginalFile,
+			&i.NoteID,
+			&i.CreateTime,
+			&i.UpdateTime,
+			&i.DeleteTime,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const hardDeleteNoteById = `-- name: HardDeleteNoteById :one
 DELETE FROM notes WHERE id = $1 RETURNING id, user_id, title, content, create_time, update_time, delete_time
 `
@@ -279,13 +314,49 @@ func (q *Queries) HardDeleteNoteById(ctx context.Context, id uuid.UUID) (Note, e
 	return i, err
 }
 
-const listFilesByNoteId = `-- name: ListFilesByNoteId :many
+const listFileByNoteId = `-- name: ListFileByNoteId :many
+SELECT id, processed_file, original_file, note_id, create_time, update_time, delete_time FROM files 
+WHERE note_id = $1
+`
+
+func (q *Queries) ListFileByNoteId(ctx context.Context, noteID uuid.UUID) ([]File, error) {
+	rows, err := q.db.QueryContext(ctx, listFileByNoteId, noteID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []File
+	for rows.Next() {
+		var i File
+		if err := rows.Scan(
+			&i.ID,
+			&i.ProcessedFile,
+			&i.OriginalFile,
+			&i.NoteID,
+			&i.CreateTime,
+			&i.UpdateTime,
+			&i.DeleteTime,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listFilesByNotesIds = `-- name: ListFilesByNotesIds :many
 SELECT id, processed_file, original_file, note_id, create_time, update_time, delete_time FROM files 
 WHERE note_id = ANY($1::uuid[])
 `
 
-func (q *Queries) ListFilesByNoteId(ctx context.Context, dollar_1 []uuid.UUID) ([]File, error) {
-	rows, err := q.db.QueryContext(ctx, listFilesByNoteId, pq.Array(dollar_1))
+func (q *Queries) ListFilesByNotesIds(ctx context.Context, dollar_1 []uuid.UUID) ([]File, error) {
+	rows, err := q.db.QueryContext(ctx, listFilesByNotesIds, pq.Array(dollar_1))
 	if err != nil {
 		return nil, err
 	}
