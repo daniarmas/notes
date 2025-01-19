@@ -85,8 +85,8 @@ func (d *fileDatabaseDs) UpdateFileByOriginalId(ctx context.Context, originalFil
 	return file, nil
 }
 
-func (d *fileDatabaseDs) DeleteNote(ctx context.Context, id uuid.UUID) error {
-	return nil
+func (d *fileDatabaseDs) DeleteFilesByNoteId(ctx context.Context, noteId uuid.UUID) (*[]domain.File, error) {
+	return nil, nil
 }
 
 // ParseToDomain parses a file from the database to a domain.File
