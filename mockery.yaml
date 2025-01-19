@@ -1,0 +1,8 @@
+quiet: False
+keeptree: True
+disable-version-string: True
+with-expecter: True
+packages:
+    github.com/daniarmas/notes:
+        # place your package-specific config here
+        config:

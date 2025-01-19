@@ -1,0 +1,61 @@
+# version: "3.7"
+
+services:
+  postgres:
+    image: postgres
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    restart: always
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    ports:
+      - "8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: prueba@email.com
+      PGADMIN_DEFAULT_PASSWORD: prueba
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    restart: always
+  swagger:
+    image: swaggerapi/swagger-ui:v3.52.3
+    container_name: swagger
+    environment:
+      - SWAGGER_JSON=/temp/swagger.json
+    ports:
+      - 8081:8080
+    volumes:
+      - ../api/openapi-spec/swagger.json:/temp/swagger.json
+    restart: always
+  redis:
+    image: redis/redis-stack-server:7.4.0-v0@sha256:887cf87cc744e4588ccade336d0dbb943e4e46330f738653ccb3a7a55df2f186
+    container_name: redis
+    volumes:
+      - ./config/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    ports:
+      - 6379:6379
+    restart: always
+    command: redis-server /usr/local/etc/redis/redis.conf
+  redisinsight:
+    image: redis/redisinsight:2.54@sha256:938c50cf95f7389bc93ce4d26e6eed6855736a8e5b5b05f7e640f01d1be2d514
+    container_name: redisinsight
+    volumes:
+      - redisinsight:/data
+    ports:
+      - 5540:5540
+    depends_on:
+      - redis
+    restart: always
+volumes:
+  cockroach:
+  redisinsight:
+  pgadmin-data:
+  postgres:

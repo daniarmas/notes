@@ -1,0 +1,1130 @@
+    {
+        "openapi": "3.0.0",
+        "info": {
+            "title": "Notes API",
+            "version": "1.0.0"
+        },
+        "servers": [
+            {
+                "url": "https://api.notes.daniel-enrique.com"
+            }
+        ],
+        "tags": [
+            {
+                "name": "Authentication",
+                "description": "Endpoints for user authentication"
+            },
+            {
+                "name": "Notes",
+                "description": "Endpoints for notes management"
+            }
+        ],
+        "paths": {
+            "/sign-in": {
+                "post": {
+                    "summary": "Sign in users",
+                    "tags": [
+                        "Authentication"
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "OK",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "successful",
+                                            "value": {
+                                                "code": 200,
+                                                "message": "OK",
+                                                "details": {},
+                                                "data": {
+                                                    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MzEwNzQwNzEsImlhdCI6MTYzMTA3MzY3MSwic3ViIjoiMzI2N2I5OTktYTNiYy00ODJlLWFhYmQtY2IyYjJiNjE4Y2I1In0.1",
+                                                    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MzEwNzQwNzEsImlhdCI6MTYzMTA3MzY3MSwic3ViIjoiMzI2N2I5OTktYTNiYy00ODJlLWFhYmQtY2IyYjJiNjE4Y2I1In0.1",
+                                                    "user": {
+                                                        "id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
+                                                        "name": "John Snow",
+                                                        "email": "johnsnow@email.com",
+                                                        "create_time": "2024-09-08T19:33:41.250318Z",
+                                                        "update_time": "2024-09-08T19:33:41.250318Z"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "400": {
+                            "description": "Bad request",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "Invalid email format",
+                                            "value": {
+                                                "code": 400,
+                                                "message": "Bad request",
+                                                "details": {
+                                                    "email": "invalid format"
+                                                },
+                                                "data": {}
+                                            }
+                                        },
+                                        "example2": {
+                                            "summary": "Missing required fields",
+                                            "value": {
+                                                "code": 400,
+                                                "message": "Bad request",
+                                                "details": {
+                                                    "email": "field required",
+                                                    "password": "field required"
+                                                },
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "401": {
+                            "description": "Unauthorized",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "Invalid credentials",
+                                            "value": {
+                                                "code": 401,
+                                                "message": "Invalid credentials",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "email": {
+                                            "type": "string",
+                                            "format": "email",
+                                            "example": "johnsnow@email.com"
+                                        },
+                                        "password": {
+                                            "type": "string",
+                                            "example": "password"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "/me": {
+                "get": {
+                    "summary": "Get current user",
+                    "tags": [
+                        "Authentication"
+                    ],
+                    "parameters": [],
+                    "responses": {
+                        "200": {
+                            "description": "OK",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "successful",
+                                            "value": {
+                                                "code": 200,
+                                                "message": "OK",
+                                                "details": {},
+                                                "data": {
+                                                    "user": {
+                                                        "id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
+                                                        "name": "John Snow",
+                                                        "email": "johnsnow@email.com",
+                                                        "create_time": "2024-09-08T19:33:41.250318Z",
+                                                        "update_time": "2024-09-08T19:33:41.250318Z"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "401": {
+                            "description": "Unauthorized",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "Authorization token has expired",
+                                            "value": {
+                                                "code": 401,
+                                                "message": "Authorization token has expired. Please log in again to continue.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        },
+                                        "example2": {
+                                            "summary": "User not logged",
+                                            "value": {
+                                                "code": 401,
+                                                "message": "User is not logged in. Please log in to access this resource.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "/sign-out": {
+                "post": {
+                    "summary": "Sign out current user",
+                    "tags": [
+                        "Authentication"
+                    ],
+                    "parameters": [],
+                    "responses": {
+                        "204": {
+                            "description": "No Content"
+                        },
+                        "401": {
+                            "description": "Unauthorized",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "Authorization token has expired",
+                                            "value": {
+                                                "code": 401,
+                                                "message": "Authorization token has expired. Please log in again to continue.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        },
+                                        "example2": {
+                                            "summary": "User not logged",
+                                            "value": {
+                                                "code": 401,
+                                                "message": "User is not logged in. Please log in to access this resource.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "/note/trash": {
+                "get": {
+                    "summary": "List notes from trash",
+                    "tags": [
+                        "Notes"
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "OK",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "successful",
+                                            "value": {
+                                                "code": 200,
+                                                "message": "OK",
+                                                "details": {},
+                                                "data": {
+                                                    "notes": [
+                                                        {
+                                                            "id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
+                                                            "user_id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
+                                                            "title": "Title",
+                                                            "content": "Content",
+                                                            "create_time": "2024-09-08T19:33:41.250318Z",
+                                                            "update_time": "2024-09-08T19:33:41.250318Z",
+                                                            "delete_time": "2024-09-08T19:33:41.250318Z"
+                                                        },
+                                                        {
+                                                            "id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
+                                                            "user_id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
+                                                            "title": "Title",
+                                                            "content": "Content",
+                                                            "create_time": "2024-09-08T19:33:41.250318Z",
+                                                            "update_time": "2024-09-08T19:33:41.250318Z",
+                                                            "delete_time": "2024-09-08T19:33:41.250318Z"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "400": {
+                            "description": "Bad request",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "Invalid JSON request",
+                                            "value": {
+                                                "code": 400,
+                                                "message": "Invalid JSON request",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "401": {
+                            "description": "Unauthorized",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "Authorization token has expired",
+                                            "value": {
+                                                "code": 401,
+                                                "message": "Authorization token has expired. Please log in again to continue.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        },
+                                        "example2": {
+                                            "summary": "User not logged",
+                                            "value": {
+                                                "code": 401,
+                                                "message": "User is not logged in. Please log in to access this resource.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "/note": {
+                "get": {
+                    "summary": "List notes",
+                    "tags": [
+                        "Notes"
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "OK",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "successful",
+                                            "value": {
+                                                "code": 200,
+                                                "message": "OK",
+                                                "details": {},
+                                                "data": {
+                                                    "notes": [
+                                                        {
+                                                            "id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
+                                                            "user_id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
+                                                            "title": "Title",
+                                                            "content": "Content",
+                                                            "create_time": "2024-09-08T19:33:41.250318Z",
+                                                            "update_time": "2024-09-08T19:33:41.250318Z",
+                                                            "delete_time": "2024-09-08T19:33:41.250318Z"
+                                                        },
+                                                        {
+                                                            "id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
+                                                            "user_id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
+                                                            "title": "Title",
+                                                            "content": "Content",
+                                                            "create_time": "2024-09-08T19:33:41.250318Z",
+                                                            "update_time": "2024-09-08T19:33:41.250318Z",
+                                                            "delete_time": "2024-09-08T19:33:41.250318Z"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "400": {
+                            "description": "Bad request",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "Invalid JSON request",
+                                            "value": {
+                                                "code": 400,
+                                                "message": "Invalid JSON request",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "401": {
+                            "description": "Unauthorized",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "Authorization token has expired",
+                                            "value": {
+                                                "code": 401,
+                                                "message": "Authorization token has expired. Please log in again to continue.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        },
+                                        "example2": {
+                                            "summary": "User not logged",
+                                            "value": {
+                                                "code": 401,
+                                                "message": "User is not logged in. Please log in to access this resource.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "post": {
+                    "summary": "Create a note",
+                    "tags": [
+                        "Notes"
+                    ],
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "title": {
+                                            "type": "string",
+                                            "example": "Title"
+                                        },
+                                        "content": {
+                                            "type": "string",
+                                            "example": "Content"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "OK",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "successful",
+                                            "value": {
+                                                "code": 200,
+                                                "message": "OK",
+                                                "details": {},
+                                                "data": {
+                                                    "note": {
+                                                        "id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
+                                                        "user_id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
+                                                        "title": "Title",
+                                                        "content": "Content",
+                                                        "create_time": "2024-09-08T19:33:41.250318Z",
+                                                        "update_time": "2024-09-08T19:33:41.250318Z",
+                                                        "delete_time": "2024-09-08T19:33:41.250318Z"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "400": {
+                            "description": "Bad request",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "Invalid JSON request",
+                                            "value": {
+                                                "code": 400,
+                                                "message": "Invalid JSON request",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        },
+                                        "example2": {
+                                            "summary": "Missing required fields",
+                                            "value": {
+                                                "code": 400,
+                                                "message": "Bad request",
+                                                "details": {
+                                                    "title": "field required",
+                                                    "content": "field required"
+                                                },
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "401": {
+                            "description": "Unauthorized",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "Authorization token has expired",
+                                            "value": {
+                                                "code": 401,
+                                                "message": "Authorization token has expired. Please log in again to continue.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        },
+                                        "example2": {
+                                            "summary": "User not logged",
+                                            "value": {
+                                                "code": 401,
+                                                "message": "User is not logged in. Please log in to access this resource.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "/note/{id}/restore": {
+                "patch": {
+                    "summary": "Restore a note from trash",
+                    "tags": [
+                        "Notes"
+                    ],
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "in": "path",
+                            "required": true,
+                            "schema": {
+                                "$ref": "#/components/schemas/UUID"
+                            }
+                        }
+                    ],
+                    "responses": {
+                        "204": {
+                            "description": "No Content"
+                        },
+                        "400": {
+                            "description": "Bad request",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "Id invalid",
+                                            "value": {
+                                                "code": 400,
+                                                "message": "Provided ID path parameter is invalid. It must be a valid UUID.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "401": {
+                            "description": "Unauthorized",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "Authorization token has expired",
+                                            "value": {
+                                                "code": 401,
+                                                "message": "Authorization token has expired. Please log in again to continue.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        },
+                                        "example2": {
+                                            "summary": "User not logged",
+                                            "value": {
+                                                "code": 401,
+                                                "message": "User is not logged in. Please log in to access this resource.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "404": {
+                            "description": "Not found",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "Not found",
+                                            "value": {
+                                                "code": 404,
+                                                "message": "Not found",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "/note/{id}": {
+                "patch": {
+                    "summary": "Update a note",
+                    "tags": [
+                        "Notes"
+                    ],
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "in": "path",
+                            "required": true,
+                            "schema": {
+                                "$ref": "#/components/schemas/UUID"
+                            }
+                        }
+                    ],
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "title": {
+                                            "type": "string",
+                                            "example": "Title"
+                                        },
+                                        "content": {
+                                            "type": "string",
+                                            "example": "Content"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "OK",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "successful",
+                                            "value": {
+                                                "code": 200,
+                                                "message": "OK",
+                                                "details": {},
+                                                "data": {
+                                                    "note": {
+                                                        "id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
+                                                        "user_id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
+                                                        "title": "Title",
+                                                        "content": "Content",
+                                                        "create_time": "2024-09-08T19:33:41.250318Z",
+                                                        "update_time": "2024-09-08T19:33:41.250318Z",
+                                                        "delete_time": "2024-09-08T19:33:41.250318Z"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "400": {
+                            "description": "Bad request",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example": {
+                                            "summary": "Invalid JSON request",
+                                            "value": {
+                                                "code": 400,
+                                                "message": "Invalid JSON request",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        },
+                                        "example1": {
+                                            "summary": "Id invalid",
+                                            "value": {
+                                                "code": 400,
+                                                "message": "Provided ID path parameter is invalid. It must be a valid UUID.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        },
+                                        "example2": {
+                                            "summary": "Missing required fields",
+                                            "value": {
+                                                "code": 400,
+                                                "message": "Bad request",
+                                                "details": {
+                                                    "title": "field required",
+                                                    "content": "field required"
+                                                },
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "401": {
+                            "description": "Unauthorized",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "Authorization token has expired",
+                                            "value": {
+                                                "code": 401,
+                                                "message": "Authorization token has expired. Please log in again to continue.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        },
+                                        "example2": {
+                                            "summary": "User not logged",
+                                            "value": {
+                                                "code": 401,
+                                                "message": "User is not logged in. Please log in to access this resource.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "404": {
+                            "description": "Not found",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "Not found",
+                                            "value": {
+                                                "code": 404,
+                                                "message": "Not found",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "delete": {
+                    "summary": "Soft delete a note",
+                    "tags": [
+                        "Notes"
+                    ],
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "in": "path",
+                            "required": true,
+                            "schema": {
+                                "$ref": "#/components/schemas/UUID"
+                            }
+                        }
+                    ],
+                    "responses": {
+                        "204": {
+                            "description": "No Content"
+                        },
+                        "400": {
+                            "description": "Bad request",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "Id invalid",
+                                            "value": {
+                                                "code": 400,
+                                                "message": "Provided ID path parameter is invalid. It must be a valid UUID.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "401": {
+                            "description": "Unauthorized",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "Authorization token has expired",
+                                            "value": {
+                                                "code": 401,
+                                                "message": "Authorization token has expired. Please log in again to continue.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        },
+                                        "example2": {
+                                            "summary": "User not logged",
+                                            "value": {
+                                                "code": 401,
+                                                "message": "User is not logged in. Please log in to access this resource.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "404": {
+                            "description": "Not found",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "Not found",
+                                            "value": {
+                                                "code": 404,
+                                                "message": "Not found",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "/note/{id}/hard": {
+                "delete": {
+                    "summary": "Hard delete a note",
+                    "tags": [
+                        "Notes"
+                    ],
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "in": "path",
+                            "required": true,
+                            "schema": {
+                                "$ref": "#/components/schemas/UUID"
+                            }
+                        }
+                    ],
+                    "responses": {
+                        "204": {
+                            "description": "No Content"
+                        },
+                        "400": {
+                            "description": "Bad request",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "Id invalid",
+                                            "value": {
+                                                "code": 400,
+                                                "message": "Provided ID path parameter is invalid. It must be a valid UUID.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "401": {
+                            "description": "Unauthorized",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "Authorization token has expired",
+                                            "value": {
+                                                "code": 401,
+                                                "message": "Authorization token has expired. Please log in again to continue.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        },
+                                        "example2": {
+                                            "summary": "User not logged",
+                                            "value": {
+                                                "code": 401,
+                                                "message": "User is not logged in. Please log in to access this resource.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "404": {
+                            "description": "Not found",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "Not found",
+                                            "value": {
+                                                "code": 404,
+                                                "message": "Not found",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "components": {
+            "schemas": {
+                "Response": {
+                    "type": "object",
+                    "properties": {
+                        "code": {
+                            "type": "integer"
+                        },
+                        "message": {
+                            "type": "string"
+                        },
+                        "details": {
+                            "type": "object"
+                        },
+                        "data": {
+                            "type": "object"
+                        }
+                    }
+                },
+                "Note": {
+                    "type": "object",
+                    "description": "Note representation",
+                    "properties": {
+                        "id": {
+                            "$ref": "#/components/schemas/UUID",
+                            "example": "3267b999-a3bc-482e-aabd-cb2b2b618cb5"
+                        },
+                        "user_id": {
+                            "$ref": "#/components/schemas/UUID",
+                            "example": "3267b999-a3bc-482e-aabd-cb2b2b618cb5"
+                        },
+                        "title": {
+                            "type": "string",
+                            "example": "Title"
+                        },
+                        "content": {
+                            "type": "string",
+                            "example": "Content"
+                        },
+                        "create_time": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2024-09-08T19:33:41.250318Z"
+                        },
+                        "update_time": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2024-09-08T19:33:41.250318Z"
+                        },
+                        "delete_time": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2024-09-08T19:33:41.250318Z"
+                        }
+                    }
+                },
+                "User": {
+                    "type": "object",
+                    "description": "User representation",
+                    "required": [
+                        "name",
+                        "email",
+                        "password"
+                    ],
+                    "properties": {
+                        "id": {
+                            "$ref": "#/components/schemas/UUID"
+                        },
+                        "name": {
+                            "type": "string",
+                            "example": "John Snow"
+                        },
+                        "email": {
+                            "type": "string",
+                            "example": "johnsnow@email.com"
+                        },
+                        "create_time": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2024-09-08T19:33:41.250318Z"
+                        },
+                        "update_time": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2024-09-08T19:33:41.250318Z"
+                        }
+                    }
+                },
+                "UUID": {
+                    "type": "string",
+                    "x-go-type": "uuid.UUID",
+                    "x-go-type-import": {
+                        "name": "uuid",
+                        "path": "github.com/google/uuid"
+                    },
+                    "example": "3267b999-a3bc-482e-aabd-cb2b2b618cb5"
+                }
+            }
+        }
+    }
