@@ -96,7 +96,7 @@ INSERT INTO files (
 )
 RETURNING *;
 
--- name: HardDeleteFilesByByNoteId :many
+-- name: HardDeleteFilesByNoteId :many
 DELETE FROM files WHERE note_id = $1 RETURNING *;
 
 -- name: UpdateFileByOriginalId :one

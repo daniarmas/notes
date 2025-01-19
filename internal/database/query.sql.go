@@ -260,12 +260,12 @@ func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (User, error) {
 	return i, err
 }
 
-const hardDeleteFilesByByNoteId = `-- name: HardDeleteFilesByByNoteId :many
+const hardDeleteFilesByNoteId = `-- name: HardDeleteFilesByNoteId :many
 DELETE FROM files WHERE note_id = $1 RETURNING id, processed_file, original_file, note_id, create_time, update_time, delete_time
 `
 
-func (q *Queries) HardDeleteFilesByByNoteId(ctx context.Context, noteID uuid.UUID) ([]File, error) {
-	rows, err := q.db.QueryContext(ctx, hardDeleteFilesByByNoteId, noteID)
+func (q *Queries) HardDeleteFilesByNoteId(ctx context.Context, noteID uuid.UUID) ([]File, error) {
+	rows, err := q.db.QueryContext(ctx, hardDeleteFilesByNoteId, noteID)
 	if err != nil {
 		return nil, err
 	}

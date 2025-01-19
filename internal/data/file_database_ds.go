@@ -85,8 +85,17 @@ func (d *fileDatabaseDs) UpdateFileByOriginalId(ctx context.Context, originalFil
 	return file, nil
 }
 
-func (d *fileDatabaseDs) DeleteFilesByNoteId(ctx context.Context, noteId uuid.UUID) (*[]domain.File, error) {
-	return nil, nil
+func (d *fileDatabaseDs) HardDeleteFilesByNoteId(ctx context.Context, noteId uuid.UUID) (*[]domain.File, error) {
+	res, err := d.queries.HardDeleteFilesByNoteId(ctx, noteId)
+	if err != nil {
+		return nil, err
+	}
+	// Preallocate slice with the length of the result set
+	response := make([]domain.File, 0, len(res))
+	for _, file := range res {
+		response = append(response, parseFromDatabaseToDomain(file))
+	}
+	return &response, nil
 }
 
 // ParseToDomain parses a file from the database to a domain.File
