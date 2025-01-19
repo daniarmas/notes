@@ -50,7 +50,7 @@ func fileType(path string) string {
 type FileRepository interface {
 	Create(ctx context.Context, ossFileId, path string, noteID uuid.UUID) (*File, error)
 	Update() error
-	HardDeleteFilesByNoteId(ctx context.Context, noteID uuid.UUID) error
+	HardDeleteFilesByNoteId(ctx context.Context, noteId uuid.UUID) error
 	ListByNoteId(ctx context.Context, noteId []uuid.UUID) (*[]File, error)
 	Move() error
 	Process(ctx context.Context, ossFileId string) error
@@ -90,7 +90,7 @@ func (r *fileCloudRepository) Create(ctx context.Context, ossFileId, path string
 
 func (r *fileCloudRepository) Update() error { return nil }
 
-func (r *fileCloudRepository) HardDeleteFilesByNoteId(ctx context.Context, noteID uuid.UUID) error {
+func (r *fileCloudRepository) HardDeleteFilesByNoteId(ctx context.Context, noteId uuid.UUID) error {
 	return nil
 }
 
