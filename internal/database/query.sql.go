@@ -260,6 +260,41 @@ func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (User, error) {
 	return i, err
 }
 
+const hardDeleteFilesByByNoteId = `-- name: HardDeleteFilesByByNoteId :many
+DELETE FROM files WHERE note_id = $1 RETURNING id, processed_file, original_file, note_id, create_time, update_time, delete_time
+`
+
+func (q *Queries) HardDeleteFilesByByNoteId(ctx context.Context, noteID uuid.UUID) ([]File, error) {
+	rows, err := q.db.QueryContext(ctx, hardDeleteFilesByByNoteId, noteID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []File
+	for rows.Next() {
+		var i File
+		if err := rows.Scan(
+			&i.ID,
+			&i.ProcessedFile,
+			&i.OriginalFile,
+			&i.NoteID,
+			&i.CreateTime,
+			&i.UpdateTime,
+			&i.DeleteTime,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const hardDeleteNoteById = `-- name: HardDeleteNoteById :one
 DELETE FROM notes WHERE id = $1 RETURNING id, user_id, title, content, create_time, update_time, delete_time
 `

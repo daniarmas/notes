@@ -96,6 +96,9 @@ INSERT INTO files (
 )
 RETURNING *;
 
+-- name: HardDeleteFilesByByNoteId :many
+DELETE FROM files WHERE note_id = $1 RETURNING *;
+
 -- name: UpdateFileByOriginalId :one
 UPDATE files SET
   processed_file = $2, update_time = $3
