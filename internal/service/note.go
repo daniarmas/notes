@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"path/filepath"
@@ -51,24 +52,45 @@ type noteService struct {
 	NoteRepository domain.NoteRepository
 	Oss            oss.ObjectStorageService
 	K8sClient      k8sc.K8sC
+	Db             *sql.DB
 }
 
-func NewNoteService(noteRepository domain.NoteRepository, oss oss.ObjectStorageService, fileRepository domain.FileRepository, cfg config.Configuration, k8sClient k8sc.K8sC) NoteService {
+func NewNoteService(noteRepository domain.NoteRepository, oss oss.ObjectStorageService, fileRepository domain.FileRepository, cfg config.Configuration, k8sClient k8sc.K8sC, db *sql.DB) NoteService {
 	return &noteService{
 		NoteRepository: noteRepository,
 		Oss:            oss,
 		FileRepository: fileRepository,
 		Config:         cfg,
 		K8sClient:      k8sClient,
+		Db:             db,
 	}
 }
 
 func (s *noteService) CreateNote(ctx context.Context, title string, content string, objectNames []string) (*CreateNoteResponse, error) {
+	// Start the sql transaction
+	tx, err := s.Db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// Defer the transaction rollback or commit
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			panic(p)
+		} else if err != nil {
+			tx.Rollback()
+		} else {
+			err = tx.Commit()
+		}
+	}()
+
 	note := &domain.Note{
 		UserId:  domain.GetUserIdFromContext(ctx),
 		Title:   title,
 		Content: content,
 	}
+
 	// Check concurrently if the objects exists in the oss
 	var wg sync.WaitGroup
 	errChan := make(chan error, len(objectNames))
@@ -92,7 +114,7 @@ func (s *noteService) CreateNote(ctx context.Context, title string, content stri
 	}
 
 	// Create the note
-	note, err := s.NoteRepository.CreateNote(ctx, note)
+	note, err = s.NoteRepository.CreateNote(ctx, tx, note)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +127,7 @@ func (s *noteService) CreateNote(ctx context.Context, title string, content stri
 		wg2.Add(1)
 		go func(objectName string) {
 			defer wg2.Done()
-			file, err := s.FileRepository.Create(ctx, objectName, "", note.Id)
+			file, err := s.FileRepository.Create(ctx, tx, objectName, "", note.Id)
 			if err != nil {
 				errChan2 <- err
 				return
@@ -154,7 +176,7 @@ func (s *noteService) CreateNote(ctx context.Context, title string, content stri
 	} else {
 		// This is a mock for the k8s job on dev environment
 		for _, file := range objectNames {
-			if err := s.FileRepository.Process(ctx, file); err != nil {
+			if err := s.FileRepository.Process(ctx, tx, file); err != nil {
 				clog.Error(ctx, "error processing file", err)
 			}
 		}
@@ -335,30 +357,85 @@ func (s *noteService) ListTrashNotesByUser(ctx context.Context, cursor time.Time
 }
 
 func (s *noteService) RestoreNote(ctx context.Context, id uuid.UUID) (*domain.Note, error) {
-	note, err := s.NoteRepository.RestoreNote(ctx, id)
+	// Start the sql transaction
+	tx, err := s.Db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// Defer the transaction rollback or commit
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			panic(p)
+		} else if err != nil {
+			tx.Rollback()
+		} else {
+			err = tx.Commit()
+		}
+	}()
+
+	note, err := s.NoteRepository.RestoreNote(ctx, tx, id)
 	if err != nil {
 		switch err.(type) {
 		case *customerrors.RecordNotFound:
 			return nil, errors.New("note not found")
 		}
 	}
+
 	return note, nil
 }
 
 func (s *noteService) UpdateNote(ctx context.Context, note *domain.Note) (*domain.Note, error) {
-	note, err := s.NoteRepository.UpdateNote(ctx, note)
+	// Start the sql transaction
+	tx, err := s.Db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// Defer the transaction rollback or commit
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			panic(p)
+		} else if err != nil {
+			tx.Rollback()
+		} else {
+			err = tx.Commit()
+		}
+	}()
+
+	note, err = s.NoteRepository.UpdateNote(ctx, tx, note)
 	if err != nil {
 		switch err.(type) {
 		case *customerrors.RecordNotFound:
 			return nil, errors.New("note not found")
 		}
 	}
+
 	return note, nil
 }
 
 func (s *noteService) DeleteNote(ctx context.Context, id uuid.UUID, isHard bool) error {
+	// Start the sql transaction
+	tx, err := s.Db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	// Defer the transaction rollback or commit
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			panic(p)
+		} else if err != nil {
+			tx.Rollback()
+		} else {
+			err = tx.Commit()
+		}
+	}()
+
 	var files *[]domain.File
-	var err error
 
 	// Get the files if isHard is true before they are deleted from the database
 	if isHard {
@@ -367,7 +444,7 @@ func (s *noteService) DeleteNote(ctx context.Context, id uuid.UUID, isHard bool)
 		}
 	}
 
-	if err = s.NoteRepository.DeleteNote(ctx, id, isHard); err != nil {
+	if err = s.NoteRepository.DeleteNote(ctx, tx, id, isHard); err != nil {
 		if _, ok := err.(*customerrors.RecordNotFound); ok {
 			return errors.New("note not found")
 		}
@@ -376,7 +453,7 @@ func (s *noteService) DeleteNote(ctx context.Context, id uuid.UUID, isHard bool)
 
 	// Delete the files from the cloud
 	if isHard {
-		if err = s.FileRepository.HardDeleteFiles(ctx, files); err != nil {
+		if err = s.FileRepository.HardDeleteFiles(ctx, tx, files); err != nil {
 			return err
 		}
 	}

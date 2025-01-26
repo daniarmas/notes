@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"image/jpeg"
@@ -50,13 +51,13 @@ func fileType(path string) string {
 }
 
 type FileRepository interface {
-	Create(ctx context.Context, ossFileId, path string, noteID uuid.UUID) (*File, error)
+	Create(ctx context.Context, tx *sql.Tx, ossFileId, path string, noteID uuid.UUID) (*File, error)
 	Update() error
-	HardDeleteFiles(ctx context.Context, files *[]File) error
+	HardDeleteFiles(ctx context.Context, tx *sql.Tx, files *[]File) error
 	ListFilesByNoteId(ctx context.Context, noteId uuid.UUID) (*[]File, error)
 	ListFilesByNotesIds(ctx context.Context, noteId []uuid.UUID) (*[]File, error)
 	Move() error
-	Process(ctx context.Context, ossFileId string) error
+	Process(ctx context.Context, tx *sql.Tx, ossFileId string) error
 }
 
 type fileCloudRepository struct {
@@ -73,11 +74,11 @@ func NewFileRepository(fileDatabaseDs FileDatabaseDs, objectStorageService oss.O
 	}
 }
 
-func (r *fileCloudRepository) Create(ctx context.Context, ossFileId, path string, noteID uuid.UUID) (*File, error) {
+func (r *fileCloudRepository) Create(ctx context.Context, tx *sql.Tx, ossFileId, path string, noteID uuid.UUID) (*File, error) {
 	if ossFileId != "" {
 		// Save the file on the database
 		file := &File{OriginalFile: ossFileId, NoteId: noteID}
-		file, err := r.FileDatabaseDs.CreateFile(ctx, file)
+		file, err := r.FileDatabaseDs.CreateFile(ctx, tx, file)
 		if err != nil {
 			return nil, err
 		}
@@ -93,7 +94,7 @@ func (r *fileCloudRepository) Create(ctx context.Context, ossFileId, path string
 
 func (r *fileCloudRepository) Update() error { return nil }
 
-func (r *fileCloudRepository) HardDeleteFiles(ctx context.Context, files *[]File) error {
+func (r *fileCloudRepository) HardDeleteFiles(ctx context.Context, tx *sql.Tx, files *[]File) error {
 	processedFilesNames := make([]string, 0, len(*files))
 	originalFilesNames := make([]string, 0, len(*files))
 	// Get the processed and original files names
@@ -153,7 +154,7 @@ func (r *fileCloudRepository) ListFilesByNoteId(ctx context.Context, noteId uuid
 
 func (r *fileCloudRepository) Move() error { return nil }
 
-func (r *fileCloudRepository) Process(ctx context.Context, ossFileId string) error {
+func (r *fileCloudRepository) Process(ctx context.Context, tx *sql.Tx, ossFileId string) error {
 	// Declare the processed file id
 	var processedFileId string
 
@@ -193,7 +194,7 @@ func (r *fileCloudRepository) Process(ctx context.Context, ossFileId string) err
 	}
 
 	// Update the file on the database
-	if _, err := r.FileDatabaseDs.UpdateFileByOriginalId(ctx, ossFileId, processedFileId); err != nil {
+	if _, err := r.FileDatabaseDs.UpdateFileByOriginalId(ctx, tx, ossFileId, processedFileId); err != nil {
 		clog.Error(ctx, "error updating file by original id", err)
 		return err
 	}
