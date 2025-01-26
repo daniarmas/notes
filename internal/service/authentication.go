@@ -49,7 +49,7 @@ func NewAuthenticationService(jwtDatasource domain.JwtDatasource, hashDatasource
 
 func (s *authenticationService) SignIn(ctx context.Context, email string, password string) (*SignInResponse, error) {
 	// Start the sql transaction
-	tx, err := s.Db.Begin()
+	tx, err := s.Db.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
