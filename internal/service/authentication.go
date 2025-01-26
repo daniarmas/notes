@@ -176,13 +176,6 @@ func (s *authenticationService) SignOut(ctx context.Context) error {
 		return err
 	}
 
-	// Commit the transaction
-	err = tx.Commit()
-	if err != nil {
-		clog.Error(ctx, "error committing transaction", err)
-		return err
-	}
-
 	return nil
 }
 
