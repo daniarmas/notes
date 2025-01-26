@@ -6,7 +6,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/daniarmas/notes/internal/clog"
 	"github.com/daniarmas/notes/internal/customerrors"
 	"github.com/daniarmas/notes/internal/domain"
 )
