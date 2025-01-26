@@ -54,6 +54,7 @@ func (s *authenticationService) SignIn(ctx context.Context, email string, passwo
 		return nil, err
 	}
 
+	// Defer the transaction rollback or commit
 	defer func() {
 		if p := recover(); p != nil {
 			tx.Rollback()
