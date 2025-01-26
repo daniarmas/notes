@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"database/sql"
 	"log/slog"
 
 	"github.com/daniarmas/notes/internal/utils"
@@ -10,8 +11,8 @@ import (
 
 type RefreshTokenRepository interface {
 	GetRefreshToken(ctx context.Context, id uuid.UUID) (*RefreshToken, error)
-	CreateRefreshToken(ctx context.Context, refreshToken *RefreshToken) (*RefreshToken, error)
-	DeleteRefreshTokenByUserId(ctx context.Context, userId uuid.UUID) error
+	CreateRefreshToken(ctx context.Context, tx *sql.Tx, refreshToken *RefreshToken) (*RefreshToken, error)
+	DeleteRefreshTokenByUserId(ctx context.Context, tx *sql.Tx, userId uuid.UUID) error
 }
 
 type refreshTokenRepository struct {
@@ -49,9 +50,9 @@ func (r *refreshTokenRepository) GetRefreshToken(ctx context.Context, id uuid.UU
 	return refreshToken, nil
 }
 
-func (r *refreshTokenRepository) CreateRefreshToken(ctx context.Context, refreshToken *RefreshToken) (*RefreshToken, error) {
+func (r *refreshTokenRepository) CreateRefreshToken(ctx context.Context, tx *sql.Tx, refreshToken *RefreshToken) (*RefreshToken, error) {
 	// Save the refresh token on the database
-	user, err := r.RefreshTokenDatabaseDs.CreateRefreshToken(ctx, refreshToken)
+	user, err := r.RefreshTokenDatabaseDs.CreateRefreshToken(ctx, tx, refreshToken)
 	if err != nil {
 		return nil, err
 	}
@@ -72,9 +73,9 @@ func (r *refreshTokenRepository) CreateRefreshToken(ctx context.Context, refresh
 	return user, nil
 }
 
-func (r *refreshTokenRepository) DeleteRefreshTokenByUserId(ctx context.Context, userId uuid.UUID) error {
+func (r *refreshTokenRepository) DeleteRefreshTokenByUserId(ctx context.Context, tx *sql.Tx, userId uuid.UUID) error {
 	// Delete the refresh token on the database
-	id, err := r.RefreshTokenDatabaseDs.DeleteRefreshTokenByUserId(ctx, userId)
+	id, err := r.RefreshTokenDatabaseDs.DeleteRefreshTokenByUserId(ctx, tx, userId)
 	if err != nil {
 		return err
 	}

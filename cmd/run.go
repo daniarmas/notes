@@ -85,7 +85,7 @@ func run(ctx context.Context) error {
 	fileRepository := domain.NewFileRepository(fileDatabaseDs, oss, cfg)
 
 	// Services
-	authenticationService := service.NewAuthenticationService(jwtDatasource, hashDatasource, userRepository, accessTokenRepository, refreshTokenRepository)
+	authenticationService := service.NewAuthenticationService(jwtDatasource, hashDatasource, userRepository, accessTokenRepository, refreshTokenRepository, db)
 	noteService := service.NewNoteService(noteRepository, oss, fileRepository, *cfg, k8sClient)
 
 	// Http server

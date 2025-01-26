@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"time"
 
+	"github.com/daniarmas/notes/internal/clog"
 	"github.com/daniarmas/notes/internal/customerrors"
 	"github.com/daniarmas/notes/internal/domain"
 )
@@ -31,19 +33,38 @@ type authenticationService struct {
 	UserRepository         domain.UserRepository
 	AccessTokenRepository  domain.AccessTokenRepository
 	RefreshTokenRepository domain.RefreshTokenRepository
+	Db                     *sql.DB
 }
 
-func NewAuthenticationService(jwtDatasource domain.JwtDatasource, hashDatasource domain.HashDatasource, userRepository domain.UserRepository, accessTokenRepository domain.AccessTokenRepository, refreshTokenRepository domain.RefreshTokenRepository) AuthenticationService {
+func NewAuthenticationService(jwtDatasource domain.JwtDatasource, hashDatasource domain.HashDatasource, userRepository domain.UserRepository, accessTokenRepository domain.AccessTokenRepository, refreshTokenRepository domain.RefreshTokenRepository, db *sql.DB) AuthenticationService {
 	return &authenticationService{
 		UserRepository:         userRepository,
 		AccessTokenRepository:  accessTokenRepository,
 		RefreshTokenRepository: refreshTokenRepository,
 		HashDatasource:         hashDatasource,
 		JwtDatasource:          jwtDatasource,
+		Db:                     db,
 	}
 }
 
 func (s *authenticationService) SignIn(ctx context.Context, email string, password string) (*SignInResponse, error) {
+	// Start the sql transaction
+	tx, err := s.Db.Begin()
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			panic(p)
+		} else if err != nil {
+			tx.Rollback()
+		} else {
+			err = tx.Commit()
+		}
+	}()
+
 	// Get the user by email
 	user, err := s.UserRepository.GetUserByEmail(ctx, email)
 	if err != nil {
@@ -66,7 +87,7 @@ func (s *authenticationService) SignIn(ctx context.Context, email string, passwo
 	}
 
 	// Delete the existing access token
-	err = s.AccessTokenRepository.DeleteAccessTokenByUserId(ctx, user.Id)
+	err = s.AccessTokenRepository.DeleteAccessTokenByUserId(ctx, tx, user.Id)
 	if err != nil {
 		switch err.(type) {
 		case *customerrors.RecordNotFound:
@@ -75,8 +96,9 @@ func (s *authenticationService) SignIn(ctx context.Context, email string, passwo
 			return nil, err
 		}
 	}
+
 	// Delete the existing refresh token
-	err = s.RefreshTokenRepository.DeleteRefreshTokenByUserId(ctx, user.Id)
+	err = s.RefreshTokenRepository.DeleteRefreshTokenByUserId(ctx, tx, user.Id)
 	if err != nil {
 		switch err.(type) {
 		case *customerrors.RecordNotFound:
@@ -86,14 +108,14 @@ func (s *authenticationService) SignIn(ctx context.Context, email string, passwo
 		}
 	}
 	// Create a new refresh token
-	refreshToken, err := s.RefreshTokenRepository.CreateRefreshToken(ctx, &domain.RefreshToken{
+	refreshToken, err := s.RefreshTokenRepository.CreateRefreshToken(ctx, tx, &domain.RefreshToken{
 		UserId: user.Id,
 	})
 	if err != nil {
 		return nil, err
 	}
 	// Create a new access token
-	accessToken, err := s.AccessTokenRepository.CreateAccessToken(ctx, user.Id, refreshToken.Id)
+	accessToken, err := s.AccessTokenRepository.CreateAccessToken(ctx, tx, user.Id, refreshToken.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -111,6 +133,7 @@ func (s *authenticationService) SignIn(ctx context.Context, email string, passwo
 	if err != nil {
 		return nil, err
 	}
+
 	return &SignInResponse{
 		AccessToken:  *accessTokenJWT,
 		RefreshToken: *refreshTokenJWT,
@@ -119,18 +142,36 @@ func (s *authenticationService) SignIn(ctx context.Context, email string, passwo
 }
 
 func (s *authenticationService) SignOut(ctx context.Context) error {
+	// Start the sql transaction
+	tx, err := s.Db.Begin()
+	if err != nil {
+		clog.Error(ctx, "error starting transaction", err)
+		return err
+	}
+	defer tx.Rollback()
+
 	// Get the user from the context
 	userId := domain.GetUserIdFromContext(ctx)
+
 	// Delete the existing access token
-	err := s.AccessTokenRepository.DeleteAccessTokenByUserId(ctx, userId)
+	err = s.AccessTokenRepository.DeleteAccessTokenByUserId(ctx, tx, userId)
 	if err != nil {
 		return err
 	}
+
 	// Delete the existing refresh token
-	err = s.RefreshTokenRepository.DeleteRefreshTokenByUserId(ctx, userId)
+	err = s.RefreshTokenRepository.DeleteRefreshTokenByUserId(ctx, tx, userId)
 	if err != nil {
 		return err
 	}
+
+	// Commit the transaction
+	err = tx.Commit()
+	if err != nil {
+		clog.Error(ctx, "error committing transaction", err)
+		return err
+	}
+
 	return nil
 }
 
