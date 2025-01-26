@@ -144,12 +144,22 @@ func (s *authenticationService) SignIn(ctx context.Context, email string, passwo
 
 func (s *authenticationService) SignOut(ctx context.Context) error {
 	// Start the sql transaction
-	tx, err := s.Db.Begin()
+	tx, err := s.Db.BeginTx(ctx, nil)
 	if err != nil {
-		clog.Error(ctx, "error starting transaction", err)
 		return err
 	}
-	defer tx.Rollback()
+
+	// Defer the transaction rollback or commit
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			panic(p)
+		} else if err != nil {
+			tx.Rollback()
+		} else {
+			err = tx.Commit()
+		}
+	}()
 
 	// Get the user from the context
 	userId := domain.GetUserIdFromContext(ctx)
