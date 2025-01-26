@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/daniarmas/notes/internal/customerrors"
 	"github.com/daniarmas/notes/internal/database"
@@ -28,8 +29,8 @@ func NewRefreshTokenDatabaseDs(queries *database.Queries) domain.RefreshTokenDat
 	}
 }
 
-func (d *refreshTokenDatabaseDs) CreateRefreshToken(ctx context.Context, refreshToken *domain.RefreshToken) (*domain.RefreshToken, error) {
-	res, err := d.queries.CreateRefreshToken(ctx, refreshToken.UserId)
+func (d *refreshTokenDatabaseDs) CreateRefreshToken(ctx context.Context, tx *sql.Tx, refreshToken *domain.RefreshToken) (*domain.RefreshToken, error) {
+	res, err := d.queries.WithTx(tx).CreateRefreshToken(ctx, refreshToken.UserId)
 	if err != nil {
 		switch err.Error() {
 		case "ERROR: insert on table \"refresh_tokens\" violates foreign key constraint \"fk_user\" (SQLSTATE 23503)":
@@ -54,8 +55,8 @@ func (d *refreshTokenDatabaseDs) GetRefreshTokenById(ctx context.Context, id uui
 	return parseRefreshTokenToDomain(&res), nil
 }
 
-func (d *refreshTokenDatabaseDs) DeleteRefreshTokenByUserId(ctx context.Context, userId uuid.UUID) (*uuid.UUID, error) {
-	id, err := d.queries.DeleteRefreshTokenByUserId(ctx, userId)
+func (d *refreshTokenDatabaseDs) DeleteRefreshTokenByUserId(ctx context.Context, tx *sql.Tx, userId uuid.UUID) (*uuid.UUID, error) {
+	id, err := d.queries.WithTx(tx).DeleteRefreshTokenByUserId(ctx, userId)
 	if err != nil {
 		switch err.Error() {
 		case "sql: no rows in result set":

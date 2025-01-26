@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"database/sql"
 	"log/slog"
 
 	"github.com/daniarmas/notes/internal/customerrors"
@@ -11,8 +12,8 @@ import (
 
 type AccessTokenRepository interface {
 	GetAccessToken(ctx context.Context, id uuid.UUID) (*AccessToken, error)
-	CreateAccessToken(ctx context.Context, userId uuid.UUID, refreshTokenId uuid.UUID) (*AccessToken, error)
-	DeleteAccessTokenByUserId(ctx context.Context, userId uuid.UUID) error
+	CreateAccessToken(ctx context.Context, tx *sql.Tx, userId uuid.UUID, refreshTokenId uuid.UUID) (*AccessToken, error)
+	DeleteAccessTokenByUserId(ctx context.Context, tx *sql.Tx, userId uuid.UUID) error
 }
 
 type accessTokenRepository struct {
@@ -64,10 +65,10 @@ func (r *accessTokenRepository) GetAccessToken(ctx context.Context, id uuid.UUID
 	return accessToken, nil
 }
 
-func (r *accessTokenRepository) CreateAccessToken(ctx context.Context, userId uuid.UUID, refreshTokenId uuid.UUID) (*AccessToken, error) {
+func (r *accessTokenRepository) CreateAccessToken(ctx context.Context, tx *sql.Tx, userId uuid.UUID, refreshTokenId uuid.UUID) (*AccessToken, error) {
 	accessToken := NewAccessToken(userId, refreshTokenId)
 	// Save the access token in the database
-	accessToken, err := r.AccessTokenDatabaseDs.CreateAccessToken(ctx, accessToken)
+	accessToken, err := r.AccessTokenDatabaseDs.CreateAccessToken(ctx, tx, accessToken)
 	if err != nil {
 		slog.LogAttrs(
 			context.Background(),
@@ -100,9 +101,9 @@ func (r *accessTokenRepository) CreateAccessToken(ctx context.Context, userId uu
 	return accessToken, nil
 }
 
-func (r *accessTokenRepository) DeleteAccessTokenByUserId(ctx context.Context, userId uuid.UUID) error {
+func (r *accessTokenRepository) DeleteAccessTokenByUserId(ctx context.Context, tx *sql.Tx, userId uuid.UUID) error {
 	// Delete the refresh token on the database
-	id, err := r.AccessTokenDatabaseDs.DeleteAccessTokenByUserId(ctx, userId)
+	id, err := r.AccessTokenDatabaseDs.DeleteAccessTokenByUserId(ctx, tx, userId)
 	if err != nil {
 		return err
 	}

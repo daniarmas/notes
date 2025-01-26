@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/daniarmas/notes/internal/customerrors"
 	"github.com/daniarmas/notes/internal/database"
@@ -35,8 +36,8 @@ func NewAccessTokenDatabaseDs(queries *database.Queries) domain.AccessTokenDatab
 	}
 }
 
-func (d *accessTokenDatabaseDs) CreateAccessToken(ctx context.Context, accessToken *domain.AccessToken) (*domain.AccessToken, error) {
-	res, err := d.queries.CreateAccessToken(ctx, database.CreateAccessTokenParams{
+func (d *accessTokenDatabaseDs) CreateAccessToken(ctx context.Context, tx *sql.Tx, accessToken *domain.AccessToken) (*domain.AccessToken, error) {
+	res, err := d.queries.WithTx(tx).CreateAccessToken(ctx, database.CreateAccessTokenParams{
 		UserID:         accessToken.UserId,
 		RefreshTokenID: accessToken.RefreshTokenId,
 	})
@@ -66,8 +67,8 @@ func (d *accessTokenDatabaseDs) GetAccessTokenById(ctx context.Context, id uuid.
 	return parseAccessTokenToDomain(&res), nil
 }
 
-func (d *accessTokenDatabaseDs) DeleteAccessTokenByUserId(ctx context.Context, userId uuid.UUID) (*uuid.UUID, error) {
-	id, err := d.queries.DeleteAccessTokenByUserId(ctx, userId)
+func (d *accessTokenDatabaseDs) DeleteAccessTokenByUserId(ctx context.Context, tx *sql.Tx, userId uuid.UUID) (*uuid.UUID, error) {
+	id, err := d.queries.WithTx(tx).DeleteAccessTokenByUserId(ctx, userId)
 	if err != nil {
 		switch err.Error() {
 		case "sql: no rows in result set":

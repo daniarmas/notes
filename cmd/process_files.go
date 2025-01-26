@@ -68,7 +68,26 @@ to quickly create a Cobra application.`,
 
 		// Process files concurrently
 		for _, file := range files {
-			if err := fileRepository.Process(ctx, file); err != nil {
+			// Start the sql transaction
+			tx, err := db.BeginTx(ctx, nil)
+			if err != nil {
+				clog.Error(ctx, "error starting transaction", err)
+				os.Exit(0)
+			}
+
+			// Defer the transaction rollback or commit
+			defer func() {
+				if p := recover(); p != nil {
+					tx.Rollback()
+					panic(p)
+				} else if err != nil {
+					tx.Rollback()
+				} else {
+					err = tx.Commit()
+				}
+			}()
+
+			if err := fileRepository.Process(ctx, tx, file); err != nil {
 				clog.Error(ctx, "error processing file", err)
 			}
 		}

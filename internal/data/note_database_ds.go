@@ -21,11 +21,11 @@ func NewNoteDatabaseDs(queries *database.Queries) domain.NoteDatabaseDs {
 	}
 }
 
-func (d *noteDatabaseDs) CreateNote(ctx context.Context, note *domain.Note) (*domain.Note, error) {
+func (d *noteDatabaseDs) CreateNote(ctx context.Context, tx *sql.Tx, note *domain.Note) (*domain.Note, error) {
 	// Get current time
 	timeNow := time.Now().UTC()
 
-	res, err := d.queries.CreateNote(ctx, database.CreateNoteParams{
+	res, err := d.queries.WithTx(tx).CreateNote(ctx, database.CreateNoteParams{
 		UserID:     note.UserId,
 		Title:      sql.NullString{String: note.Title, Valid: true},
 		Content:    sql.NullString{String: note.Content, Valid: true},
@@ -92,8 +92,8 @@ func (d *noteDatabaseDs) GetNote(ctx context.Context, id uuid.UUID) (*domain.Not
 	return nil, nil
 }
 
-func (d *noteDatabaseDs) UpdateNote(ctx context.Context, note *domain.Note) (*domain.Note, error) {
-	res, err := d.queries.UpdateNoteById(ctx, database.UpdateNoteByIdParams{
+func (d *noteDatabaseDs) UpdateNote(ctx context.Context, tx *sql.Tx, note *domain.Note) (*domain.Note, error) {
+	res, err := d.queries.WithTx(tx).UpdateNoteById(ctx, database.UpdateNoteByIdParams{
 		ID:         note.Id,
 		Title:      sql.NullString{String: note.Title, Valid: true},
 		Content:    sql.NullString{String: note.Content, Valid: true},
@@ -118,8 +118,8 @@ func (d *noteDatabaseDs) UpdateNote(ctx context.Context, note *domain.Note) (*do
 	}, nil
 }
 
-func (d *noteDatabaseDs) RestoreNote(ctx context.Context, id uuid.UUID) (*domain.Note, error) {
-	res, err := d.queries.RestoreNoteById(ctx, id)
+func (d *noteDatabaseDs) RestoreNote(ctx context.Context, tx *sql.Tx, id uuid.UUID) (*domain.Note, error) {
+	res, err := d.queries.WithTx(tx).RestoreNoteById(ctx, id)
 	if err != nil {
 		switch err.Error() {
 		case "sql: no rows in result set":
@@ -139,8 +139,8 @@ func (d *noteDatabaseDs) RestoreNote(ctx context.Context, id uuid.UUID) (*domain
 	}, nil
 }
 
-func (d *noteDatabaseDs) HardDeleteNote(ctx context.Context, id uuid.UUID) error {
-	_, err := d.queries.HardDeleteNoteById(ctx, id)
+func (d *noteDatabaseDs) HardDeleteNote(ctx context.Context, tx *sql.Tx, id uuid.UUID) error {
+	_, err := d.queries.WithTx(tx).HardDeleteNoteById(ctx, id)
 	if err != nil {
 		switch err.Error() {
 		case "sql: no rows in result set":
@@ -152,8 +152,8 @@ func (d *noteDatabaseDs) HardDeleteNote(ctx context.Context, id uuid.UUID) error
 	return nil
 }
 
-func (d *noteDatabaseDs) SoftDeleteNote(ctx context.Context, id uuid.UUID) error {
-	_, err := d.queries.SoftDeleteNoteById(ctx, database.SoftDeleteNoteByIdParams{
+func (d *noteDatabaseDs) SoftDeleteNote(ctx context.Context, tx *sql.Tx, id uuid.UUID) error {
+	_, err := d.queries.WithTx(tx).SoftDeleteNoteById(ctx, database.SoftDeleteNoteByIdParams{
 		ID:         id,
 		DeleteTime: sql.NullTime{Time: time.Now().UTC(), Valid: true},
 	})
