@@ -10,11 +10,11 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/daniarmas/notes/graph"
 	"github.com/vektah/gqlparser/v2/ast"
 
 	"github.com/daniarmas/notes/internal/config"
 	"github.com/daniarmas/notes/internal/domain"
+	"github.com/daniarmas/notes/internal/graph"
 	"github.com/daniarmas/notes/internal/httpserver/middleware"
 	"github.com/daniarmas/notes/internal/service"
 )
@@ -72,12 +72,12 @@ func NewRestServer(authenticationService service.AuthenticationService, noteServ
 }
 
 // NewGraphQLServer creates and configures a new GraphQL server with the specified address.
-func NewGraphQLServer(cfg config.Configuration) *Server {
+func NewGraphQLServer(authenticationService service.AuthenticationService, cfg config.Configuration) *Server {
 	// Create a new ServeMux
 	mux := http.NewServeMux()
 
 	// Create the GraphQL server
-	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
+	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{AuthSrv: authenticationService}}))
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.GET{})
 	srv.AddTransport(transport.POST{})

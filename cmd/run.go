@@ -90,7 +90,7 @@ func run(ctx context.Context) error {
 
 	// Http server
 	resSrv := httpserver.NewRestServer(authenticationService, noteService, jwtDatasource, *cfg)
-	graphSrv := httpserver.NewGraphQLServer(*cfg)
+	graphSrv := httpserver.NewGraphQLServer(authenticationService, *cfg)
 
 	// Start the Rest server
 	go func() {
