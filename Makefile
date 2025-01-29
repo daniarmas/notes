@@ -25,6 +25,10 @@ clear:
 	@echo "Delete all database data..."
 	go run main.go delete tables
 
+gen-graph:
+	@echo "Generating graphql files..."
+	go run github.com/99designs/gqlgen generate
+
 # Docker commands
 docker-up: 
 	@echo "Starting docker containers..."

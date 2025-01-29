@@ -89,15 +89,28 @@ func run(ctx context.Context) error {
 	noteService := service.NewNoteService(noteRepository, oss, fileRepository, *cfg, k8sClient, db)
 
 	// Http server
-	srv := httpserver.NewServer(authenticationService, noteService, jwtDatasource, *cfg)
+	resSrv := httpserver.NewRestServer(authenticationService, noteService, jwtDatasource, *cfg)
+	graphSrv := httpserver.NewGraphQLServer(*cfg)
 
+	// Start the Rest server
 	go func() {
-		msg := fmt.Sprintf("Http server listening on %s\n", srv.HttpServer.Addr)
+		msg := fmt.Sprintf("Http server listening on %s\n", resSrv.HttpServer.Addr)
 		clog.Info(ctx, msg, nil)
-		if err := srv.HttpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			clog.Error(ctx, "error listening and serving", err)
+		if err := resSrv.HttpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			clog.Error(ctx, "error listening and serving rest server", err)
 		}
 	}()
+
+	// Start the GraphQL server
+	go func() {
+		msg := fmt.Sprintf("connect to http://localhost:%s/ for GraphQL playground", graphSrv.GraphQLServer.Addr)
+		clog.Info(context.Background(), msg, nil)
+		if err := graphSrv.GraphQLServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			clog.Error(ctx, "error listening and serving graphql server", err)
+		}
+	}()
+
+	// Graceful shutdown
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
@@ -105,11 +118,15 @@ func run(ctx context.Context) error {
 		<-ctx.Done()
 		shutdownCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 		defer cancel()
-		if err := srv.HttpServer.Shutdown(shutdownCtx); err != nil {
+		if err := resSrv.HttpServer.Shutdown(shutdownCtx); err != nil {
 			clog.Error(ctx, "error shutting down http server", err)
+		}
+		if err := graphSrv.GraphQLServer.Shutdown(shutdownCtx); err != nil {
+			clog.Error(ctx, "error shutting down graphql server", err)
 		}
 	}()
 	wg.Wait()
+
 	return nil
 }
 
