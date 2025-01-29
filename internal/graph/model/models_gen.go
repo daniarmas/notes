@@ -23,13 +23,6 @@ type RefreshToken struct {
 	UpdateTime *string `json:"updateTime,omitempty"`
 }
 
-type Response struct {
-	Code    int32           `json:"code"`
-	Message string          `json:"message"`
-	Details *string         `json:"details,omitempty"`
-	Data    *SignInResponse `json:"data,omitempty"`
-}
-
 type SignInInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`

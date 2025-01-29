@@ -26,7 +26,7 @@ type User {
 }
 
 type Query {
-  users: [User!]!
+  me: User!
 }
 
 input SignInInput {

@@ -56,7 +56,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Users func(childComplexity int) int
+		Me func(childComplexity int) int
 	}
 
 	RefreshToken struct {
@@ -64,13 +64,6 @@ type ComplexityRoot struct {
 		ID         func(childComplexity int) int
 		UpdateTime func(childComplexity int) int
 		UserID     func(childComplexity int) int
-	}
-
-	Response struct {
-		Code    func(childComplexity int) int
-		Data    func(childComplexity int) int
-		Details func(childComplexity int) int
-		Message func(childComplexity int) int
 	}
 
 	SignInResponse struct {
@@ -154,12 +147,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.SignIn(childComplexity, args["input"].(model.SignInInput)), true
 
-	case "Query.users":
-		if e.complexity.Query.Users == nil {
+	case "Query.me":
+		if e.complexity.Query.Me == nil {
 			break
 		}
 
-		return e.complexity.Query.Users(childComplexity), true
+		return e.complexity.Query.Me(childComplexity), true
 
 	case "RefreshToken.createTime":
 		if e.complexity.RefreshToken.CreateTime == nil {
@@ -188,34 +181,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RefreshToken.UserID(childComplexity), true
-
-	case "Response.code":
-		if e.complexity.Response.Code == nil {
-			break
-		}
-
-		return e.complexity.Response.Code(childComplexity), true
-
-	case "Response.data":
-		if e.complexity.Response.Data == nil {
-			break
-		}
-
-		return e.complexity.Response.Data(childComplexity), true
-
-	case "Response.details":
-		if e.complexity.Response.Details == nil {
-			break
-		}
-
-		return e.complexity.Response.Details(childComplexity), true
-
-	case "Response.message":
-		if e.complexity.Response.Message == nil {
-			break
-		}
-
-		return e.complexity.Response.Message(childComplexity), true
 
 	case "SignInResponse.accessToken":
 		if e.complexity.SignInResponse.AccessToken == nil {

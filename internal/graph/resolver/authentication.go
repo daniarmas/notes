@@ -7,6 +7,7 @@ import (
 	"github.com/daniarmas/notes/internal/domain"
 	"github.com/daniarmas/notes/internal/graph/model"
 	"github.com/daniarmas/notes/internal/service"
+	"github.com/google/uuid"
 )
 
 // map from domain to graphql model user
@@ -40,4 +41,22 @@ func SignIn(ctx context.Context, input model.SignInInput, srv service.Authentica
 		AccessToken:  res.AccessToken,
 		RefreshToken: res.RefreshToken,
 	}, nil
+}
+
+// Me is the resolver for the me field.
+func Me(ctx context.Context, srv service.AuthenticationService) (*model.User, error) {
+	// Check if the user is authenticated
+	userId := domain.GetUserIdFromContext(ctx)
+	if userId == uuid.Nil {
+		return nil, errors.New("unauthenticated")
+	}
+
+	res, err := srv.Me(ctx)
+	if err != nil {
+		switch err.Error() {
+		default:
+			return nil, errors.New("internal server error")
+		}
+	}
+	return mapUser(res.User), nil
 }

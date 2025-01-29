@@ -72,7 +72,7 @@ func NewRestServer(authenticationService service.AuthenticationService, noteServ
 }
 
 // NewGraphQLServer creates and configures a new GraphQL server with the specified address.
-func NewGraphQLServer(authenticationService service.AuthenticationService, cfg config.Configuration) *Server {
+func NewGraphQLServer(authenticationService service.AuthenticationService, cfg config.Configuration, jwtDatasource domain.JwtDatasource) *Server {
 	// Create a new ServeMux
 	mux := http.NewServeMux()
 
@@ -94,6 +94,8 @@ func NewGraphQLServer(authenticationService service.AuthenticationService, cfg c
 	mux.Handle("/query", srv)
 
 	var handler http.Handler = mux
+	// Add middlewares
+	handler = middleware.SetUserInContext(handler, jwtDatasource)
 
 	// Create the HTTP server
 	readTimeOut := 10 * time.Second
