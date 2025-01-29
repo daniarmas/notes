@@ -72,12 +72,12 @@ func NewRestServer(authenticationService service.AuthenticationService, noteServ
 }
 
 // NewGraphQLServer creates and configures a new GraphQL server with the specified address.
-func NewGraphQLServer(authenticationService service.AuthenticationService, cfg config.Configuration, jwtDatasource domain.JwtDatasource) *Server {
+func NewGraphQLServer(authenticationService service.AuthenticationService, noteService service.NoteService, cfg config.Configuration, jwtDatasource domain.JwtDatasource) *Server {
 	// Create a new ServeMux
 	mux := http.NewServeMux()
 
 	// Create the GraphQL server
-	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{AuthSrv: authenticationService}}))
+	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{AuthSrv: authenticationService, NoteSrv: noteService}}))
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.GET{})
 	srv.AddTransport(transport.POST{})

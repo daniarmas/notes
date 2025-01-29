@@ -3,6 +3,7 @@ package resolver
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/daniarmas/notes/internal/domain"
 	"github.com/daniarmas/notes/internal/graph/model"
@@ -14,13 +15,13 @@ import (
 func mapUser(user domain.User) *model.User {
 	var updateTime string
 	if !user.UpdateTime.IsZero() {
-		updateTime = user.UpdateTime.String()
+		updateTime = user.UpdateTime.Format(time.RFC3339)
 	}
 	return &model.User{
 		ID:         user.Id.String(),
 		Email:      user.Email,
 		Name:       user.Name,
-		CreateTime: user.CreateTime.String(),
+		CreateTime: user.CreateTime.Format(time.RFC3339),
 		UpdateTime: &updateTime,
 	}
 }

@@ -51,13 +51,39 @@ type ComplexityRoot struct {
 		UserID         func(childComplexity int) int
 	}
 
+	File struct {
+		CreateTime    func(childComplexity int) int
+		ID            func(childComplexity int) int
+		NoteID        func(childComplexity int) int
+		OriginalFile  func(childComplexity int) int
+		ProcessedFile func(childComplexity int) int
+		URL           func(childComplexity int) int
+		UpdateTime    func(childComplexity int) int
+	}
+
 	Mutation struct {
 		SignIn  func(childComplexity int, input model.SignInInput) int
 		SignOut func(childComplexity int) int
 	}
 
+	Note struct {
+		Content    func(childComplexity int) int
+		CreateTime func(childComplexity int) int
+		Files      func(childComplexity int) int
+		ID         func(childComplexity int) int
+		Title      func(childComplexity int) int
+		UpdateTime func(childComplexity int) int
+		UserID     func(childComplexity int) int
+	}
+
+	NotesResponse struct {
+		Cursor func(childComplexity int) int
+		Notes  func(childComplexity int) int
+	}
+
 	Query struct {
-		Me func(childComplexity int) int
+		Me    func(childComplexity int) int
+		Notes func(childComplexity int, input *model.NotesInput) int
 	}
 
 	RefreshToken struct {
@@ -136,6 +162,55 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AccessToken.UserID(childComplexity), true
 
+	case "File.createTime":
+		if e.complexity.File.CreateTime == nil {
+			break
+		}
+
+		return e.complexity.File.CreateTime(childComplexity), true
+
+	case "File.id":
+		if e.complexity.File.ID == nil {
+			break
+		}
+
+		return e.complexity.File.ID(childComplexity), true
+
+	case "File.noteId":
+		if e.complexity.File.NoteID == nil {
+			break
+		}
+
+		return e.complexity.File.NoteID(childComplexity), true
+
+	case "File.originalFile":
+		if e.complexity.File.OriginalFile == nil {
+			break
+		}
+
+		return e.complexity.File.OriginalFile(childComplexity), true
+
+	case "File.processedFile":
+		if e.complexity.File.ProcessedFile == nil {
+			break
+		}
+
+		return e.complexity.File.ProcessedFile(childComplexity), true
+
+	case "File.url":
+		if e.complexity.File.URL == nil {
+			break
+		}
+
+		return e.complexity.File.URL(childComplexity), true
+
+	case "File.updateTime":
+		if e.complexity.File.UpdateTime == nil {
+			break
+		}
+
+		return e.complexity.File.UpdateTime(childComplexity), true
+
 	case "Mutation.signIn":
 		if e.complexity.Mutation.SignIn == nil {
 			break
@@ -155,12 +230,87 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.SignOut(childComplexity), true
 
+	case "Note.content":
+		if e.complexity.Note.Content == nil {
+			break
+		}
+
+		return e.complexity.Note.Content(childComplexity), true
+
+	case "Note.createTime":
+		if e.complexity.Note.CreateTime == nil {
+			break
+		}
+
+		return e.complexity.Note.CreateTime(childComplexity), true
+
+	case "Note.files":
+		if e.complexity.Note.Files == nil {
+			break
+		}
+
+		return e.complexity.Note.Files(childComplexity), true
+
+	case "Note.id":
+		if e.complexity.Note.ID == nil {
+			break
+		}
+
+		return e.complexity.Note.ID(childComplexity), true
+
+	case "Note.title":
+		if e.complexity.Note.Title == nil {
+			break
+		}
+
+		return e.complexity.Note.Title(childComplexity), true
+
+	case "Note.updateTime":
+		if e.complexity.Note.UpdateTime == nil {
+			break
+		}
+
+		return e.complexity.Note.UpdateTime(childComplexity), true
+
+	case "Note.userId":
+		if e.complexity.Note.UserID == nil {
+			break
+		}
+
+		return e.complexity.Note.UserID(childComplexity), true
+
+	case "NotesResponse.cursor":
+		if e.complexity.NotesResponse.Cursor == nil {
+			break
+		}
+
+		return e.complexity.NotesResponse.Cursor(childComplexity), true
+
+	case "NotesResponse.notes":
+		if e.complexity.NotesResponse.Notes == nil {
+			break
+		}
+
+		return e.complexity.NotesResponse.Notes(childComplexity), true
+
 	case "Query.me":
 		if e.complexity.Query.Me == nil {
 			break
 		}
 
 		return e.complexity.Query.Me(childComplexity), true
+
+	case "Query.notes":
+		if e.complexity.Query.Notes == nil {
+			break
+		}
+
+		args, err := ec.field_Query_notes_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Notes(childComplexity, args["input"].(*model.NotesInput)), true
 
 	case "RefreshToken.createTime":
 		if e.complexity.RefreshToken.CreateTime == nil {
@@ -254,6 +404,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
 	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputNotesInput,
 		ec.unmarshalInputSignInInput,
 	)
 	first := true

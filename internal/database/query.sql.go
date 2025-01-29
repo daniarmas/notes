@@ -390,7 +390,7 @@ const listNotesByUserId = `-- name: ListNotesByUserId :many
 SELECT id, user_id, title, content, create_time, update_time, delete_time FROM notes
 WHERE user_id = $1 AND update_time < $2 AND delete_time IS NULL
 ORDER BY update_time DESC
-LIMIT 20
+LIMIT 10
 `
 
 type ListNotesByUserIdParams struct {
@@ -433,7 +433,7 @@ const listTrashNotesByUserId = `-- name: ListTrashNotesByUserId :many
 SELECT id, user_id, title, content, create_time, update_time, delete_time FROM notes
 WHERE user_id = $1 AND delete_time < $2 AND delete_time IS NOT NULL
 ORDER BY delete_time DESC
-LIMIT 20
+LIMIT 10
 `
 
 type ListTrashNotesByUserIdParams struct {

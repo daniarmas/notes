@@ -18,13 +18,13 @@ RETURNING *;
 SELECT * FROM notes
 WHERE user_id = $1 AND update_time < $2 AND delete_time IS NULL
 ORDER BY update_time DESC
-LIMIT 20;
+LIMIT 10;
 
 -- name: ListTrashNotesByUserId :many
 SELECT * FROM notes
 WHERE user_id = $1 AND delete_time < $2 AND delete_time IS NOT NULL
 ORDER BY delete_time DESC
-LIMIT 20;
+LIMIT 10;
 
 -- name: CreateNote :one
 INSERT INTO notes (

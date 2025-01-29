@@ -10,7 +10,36 @@ type AccessToken struct {
 	UpdateTime     *string `json:"updateTime,omitempty"`
 }
 
+type File struct {
+	ID            string  `json:"id"`
+	NoteID        string  `json:"noteId"`
+	OriginalFile  string  `json:"originalFile"`
+	ProcessedFile *string `json:"processedFile,omitempty"`
+	URL           string  `json:"url"`
+	CreateTime    string  `json:"createTime"`
+	UpdateTime    *string `json:"updateTime,omitempty"`
+}
+
 type Mutation struct {
+}
+
+type Note struct {
+	ID         string  `json:"id"`
+	UserID     string  `json:"userId"`
+	Title      *string `json:"title,omitempty"`
+	Content    *string `json:"content,omitempty"`
+	Files      []*File `json:"files,omitempty"`
+	CreateTime string  `json:"createTime"`
+	UpdateTime *string `json:"updateTime,omitempty"`
+}
+
+type NotesInput struct {
+	Cursor string `json:"cursor"`
+}
+
+type NotesResponse struct {
+	Notes  []*Note `json:"notes,omitempty"`
+	Cursor string  `json:"cursor"`
 }
 
 type Query struct {

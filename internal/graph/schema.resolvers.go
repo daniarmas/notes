@@ -26,6 +26,11 @@ func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
 	return resolver.Me(ctx, r.AuthSrv)
 }
 
+// Notes is the resolver for the notes field.
+func (r *queryResolver) Notes(ctx context.Context, input *model.NotesInput) (*model.NotesResponse, error) {
+	return resolver.Notes(ctx, input, r.NoteSrv)
+}
+
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 

@@ -1,6 +1,25 @@
-# GraphQL schema example
-#
-# https://gqlgen.com/getting-started/
+# Types models
+#############################################
+
+type Note {
+	id: ID!
+	userId: ID!
+	title: String
+	content: String
+	files: [File]
+  createTime: String!
+  updateTime: String
+}
+
+type File {
+	id: ID! 
+	noteId: ID!
+	originalFile: String!
+	processedFile: String
+	url: String!
+  createTime: String!
+  updateTime: String
+}
 
 type AccessToken {
   id: ID!
@@ -25,14 +44,8 @@ type User {
 	updateTime: String
 }
 
-type Query {
-  me: User!
-}
-
-input SignInInput {
-  email: String!
-  password: String!
-}
+# Types responses
+#############################################
 
 type SignInResponse {
   user: User!
@@ -40,7 +53,32 @@ type SignInResponse {
   refreshToken: String!
 }
 
+type NotesResponse {
+  notes: [Note]
+  cursor: String!
+}
+
+# Inputs
+#############################################
+
+input SignInInput {
+  email: String!
+  password: String!
+}
+
+input NotesInput {
+  cursor: String!
+}
+
+# Queries and Mutations
+#############################################
+
 type Mutation {
   signIn(input: SignInInput!): SignInResponse!
   signOut: Boolean!
+}
+
+type Query {
+  me: User!
+  notes(input: NotesInput): NotesResponse!
 }

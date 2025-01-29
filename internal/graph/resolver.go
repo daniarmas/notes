@@ -10,4 +10,5 @@ import (
 
 type Resolver struct {
 	AuthSrv service.AuthenticationService
+	NoteSrv service.NoteService
 }
