@@ -60,3 +60,20 @@ func Me(ctx context.Context, srv service.AuthenticationService) (*model.User, er
 	}
 	return mapUser(res.User), nil
 }
+
+func SignOut(ctx context.Context, srv service.AuthenticationService) (bool, error) {
+	// Check if the user is authenticated
+	userId := domain.GetUserIdFromContext(ctx)
+	if userId == uuid.Nil {
+		return false, errors.New("unauthenticated")
+	}
+
+	err := srv.SignOut(ctx)
+	if err != nil {
+		switch err.Error() {
+		default:
+			return false, errors.New("internal server error")
+		}
+	}
+	return true, nil
+}

@@ -42,4 +42,5 @@ type SignInResponse {
 
 type Mutation {
   signIn(input: SignInInput!): SignInResponse!
+  signOut: Boolean!
 }

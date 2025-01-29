@@ -52,7 +52,8 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		SignIn func(childComplexity int, input model.SignInInput) int
+		SignIn  func(childComplexity int, input model.SignInInput) int
+		SignOut func(childComplexity int) int
 	}
 
 	Query struct {
@@ -146,6 +147,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.SignIn(childComplexity, args["input"].(model.SignInInput)), true
+
+	case "Mutation.signOut":
+		if e.complexity.Mutation.SignOut == nil {
+			break
+		}
+
+		return e.complexity.Mutation.SignOut(childComplexity), true
 
 	case "Query.me":
 		if e.complexity.Query.Me == nil {
