@@ -88,7 +88,9 @@ func NewGraphQLServer(cfg config.Configuration) *Server {
 	})
 
 	// Routes
-	mux.Handle("/", playground.Handler("GraphQL playground", "/query"))
+	if cfg.Environment == "development" {
+		mux.Handle("/", playground.Handler("GraphQL playground", "/query"))
+	}
 	mux.Handle("/query", srv)
 
 	var handler http.Handler = mux
