@@ -41,6 +41,11 @@ func (r *mutationResolver) DeleteNote(ctx context.Context, id string) (bool, err
 	return resolver.DeleteNote(ctx, id, r.NoteSrv)
 }
 
+// RestoreNote is the resolver for the restoreNote field.
+func (r *mutationResolver) RestoreNote(ctx context.Context, id string) (bool, error) {
+	return resolver.RestoreNote(ctx, id, r.NoteSrv)
+}
+
 // Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
 	return resolver.Me(ctx, r.AuthSrv)
@@ -59,18 +64,3 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
-/*
-	func (r *mutationResolver) SoftDeleteNotes(ctx context.Context, id string) (bool, error) {
-	return resolver.SoftDeleteNotes(ctx, id, r.NoteSrv)
-}
-func (r *mutationResolver) DeleteNotes(ctx context.Context, id string) (bool, error) {
-	panic(fmt.Errorf("not implemented: DeleteNotes - deleteNotes"))
-}
-*/

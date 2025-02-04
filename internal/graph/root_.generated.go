@@ -69,6 +69,7 @@ type ComplexityRoot struct {
 		CreateNote         func(childComplexity int, input model.CreateNoteInput) int
 		CreatePresignedURL func(childComplexity int, objectName []string) int
 		DeleteNote         func(childComplexity int, id string) int
+		RestoreNote        func(childComplexity int, id string) int
 		SignIn             func(childComplexity int, input model.SignInInput) int
 		SignOut            func(childComplexity int) int
 		SoftDeleteNote     func(childComplexity int, id string) int
@@ -267,6 +268,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeleteNote(childComplexity, args["id"].(string)), true
+
+	case "Mutation.restoreNote":
+		if e.complexity.Mutation.RestoreNote == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_restoreNote_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RestoreNote(childComplexity, args["id"].(string)), true
 
 	case "Mutation.signIn":
 		if e.complexity.Mutation.SignIn == nil {

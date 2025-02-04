@@ -99,6 +99,7 @@ type Mutation {
   createPresignedUrl(objectName: [String!]!): CreatePresignedUrlsResponse!
   softDeleteNote(id: ID!): Boolean!
   deleteNote(id: ID!): Boolean!
+  restoreNote(id: ID!): Boolean!
 }
 
 type Query {
