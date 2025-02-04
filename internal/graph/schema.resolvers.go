@@ -31,6 +31,11 @@ func (r *mutationResolver) CreatePresignedURL(ctx context.Context, objectName []
 	return resolver.CreatePresignedURL(ctx, objectName, r.NoteSrv)
 }
 
+// SoftDeleteNotes is the resolver for the softDeleteNotes field.
+func (r *mutationResolver) SoftDeleteNotes(ctx context.Context, id string) (bool, error) {
+	return resolver.SoftDeleteNotes(ctx, id, r.NoteSrv)
+}
+
 // Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
 	return resolver.Me(ctx, r.AuthSrv)
