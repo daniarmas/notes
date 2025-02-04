@@ -97,7 +97,8 @@ type Mutation {
   # Notes
   createNote(input: CreateNoteInput!): Note!
   createPresignedUrl(objectName: [String!]!): CreatePresignedUrlsResponse!
-  softDeleteNotes(id: ID!): Boolean!
+  softDeleteNote(id: ID!): Boolean!
+  deleteNote(id: ID!): Boolean!
 }
 
 type Query {

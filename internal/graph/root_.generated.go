@@ -68,9 +68,10 @@ type ComplexityRoot struct {
 	Mutation struct {
 		CreateNote         func(childComplexity int, input model.CreateNoteInput) int
 		CreatePresignedURL func(childComplexity int, objectName []string) int
+		DeleteNote         func(childComplexity int, id string) int
 		SignIn             func(childComplexity int, input model.SignInInput) int
 		SignOut            func(childComplexity int) int
-		SoftDeleteNotes    func(childComplexity int, id string) int
+		SoftDeleteNote     func(childComplexity int, id string) int
 	}
 
 	Note struct {
@@ -255,6 +256,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreatePresignedURL(childComplexity, args["objectName"].([]string)), true
 
+	case "Mutation.deleteNote":
+		if e.complexity.Mutation.DeleteNote == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteNote_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteNote(childComplexity, args["id"].(string)), true
+
 	case "Mutation.signIn":
 		if e.complexity.Mutation.SignIn == nil {
 			break
@@ -274,17 +287,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.SignOut(childComplexity), true
 
-	case "Mutation.softDeleteNotes":
-		if e.complexity.Mutation.SoftDeleteNotes == nil {
+	case "Mutation.softDeleteNote":
+		if e.complexity.Mutation.SoftDeleteNote == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_softDeleteNotes_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_softDeleteNote_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.SoftDeleteNotes(childComplexity, args["id"].(string)), true
+		return e.complexity.Mutation.SoftDeleteNote(childComplexity, args["id"].(string)), true
 
 	case "Note.content":
 		if e.complexity.Note.Content == nil {

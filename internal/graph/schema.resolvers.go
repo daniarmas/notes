@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/daniarmas/notes/internal/graph/model"
 	"github.com/daniarmas/notes/internal/graph/resolver"
@@ -31,9 +32,14 @@ func (r *mutationResolver) CreatePresignedURL(ctx context.Context, objectName []
 	return resolver.CreatePresignedURL(ctx, objectName, r.NoteSrv)
 }
 
-// SoftDeleteNotes is the resolver for the softDeleteNotes field.
-func (r *mutationResolver) SoftDeleteNotes(ctx context.Context, id string) (bool, error) {
-	return resolver.SoftDeleteNotes(ctx, id, r.NoteSrv)
+// SoftDeleteNote is the resolver for the softDeleteNote field.
+func (r *mutationResolver) SoftDeleteNote(ctx context.Context, id string) (bool, error) {
+	return resolver.SoftDeleteNote(ctx, id, r.NoteSrv)
+}
+
+// DeleteNote is the resolver for the deleteNote field.
+func (r *mutationResolver) DeleteNote(ctx context.Context, id string) (bool, error) {
+	panic(fmt.Errorf("not implemented: DeleteNote - deleteNote"))
 }
 
 // Me is the resolver for the me field.
@@ -54,3 +60,18 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+/*
+	func (r *mutationResolver) SoftDeleteNotes(ctx context.Context, id string) (bool, error) {
+	return resolver.SoftDeleteNotes(ctx, id, r.NoteSrv)
+}
+func (r *mutationResolver) DeleteNotes(ctx context.Context, id string) (bool, error) {
+	panic(fmt.Errorf("not implemented: DeleteNotes - deleteNotes"))
+}
+*/

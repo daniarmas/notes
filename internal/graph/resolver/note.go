@@ -190,8 +190,8 @@ func CreatePresignedURL(ctx context.Context, objectName []string, srv service.No
 	}, nil
 }
 
-// SoftDeleteNotes is the resolver for the softDeleteNotes field.
-func SoftDeleteNotes(ctx context.Context, id string, srv service.NoteService) (bool, error) {
+// SoftDeleteNote is the resolver for the softDeleteNotes field.
+func SoftDeleteNote(ctx context.Context, id string, srv service.NoteService) (bool, error) {
 	// Check if the user is authenticated
 	userId := domain.GetUserIdFromContext(ctx)
 	if userId == uuid.Nil {
