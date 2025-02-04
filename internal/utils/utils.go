@@ -13,7 +13,12 @@ const RequestIDKey contextKey = "request-id"
 
 // parseTime parses a string into a time.Time using the RFC3339 layout
 func ParseTime(timeStr string) (time.Time, error) {
-	return time.Parse(time.RFC3339, timeStr)
+	layout := time.RFC3339
+	parsedTime, err := time.Parse(layout, timeStr)
+	if err != nil {
+		return time.Time{}, err
+	}
+	return parsedTime, nil
 }
 
 // GetFileName returns the file name of the caller

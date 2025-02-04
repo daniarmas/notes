@@ -1,0 +1,116 @@
+# Types models
+#############################################
+
+type Note {
+	id: ID!
+	userId: ID!
+	title: String
+	content: String
+	files: [File]
+  createTime: String!
+  updateTime: String
+}
+
+type File {
+	id: ID! 
+	noteId: ID!
+	originalFile: String!
+	processedFile: String
+	url: String!
+  createTime: String!
+  updateTime: String
+}
+
+type AccessToken {
+  id: ID!
+  userId: ID!
+  refreshTokenId: ID!
+  createTime: String!
+  updateTime: String
+}
+
+type RefreshToken {
+  id: ID!
+  userId: ID!
+  createTime: String!
+  updateTime: String
+}
+
+type User {
+	id: ID!
+	name: String!
+	email: String!
+	createTime: String!
+	updateTime: String
+}
+
+# Types responses
+#############################################
+
+type SignInResponse {
+  user: User!
+  accessToken: String!
+  refreshToken: String!
+}
+
+type NotesResponse {
+  notes: [Note]
+  cursor: String!
+}
+
+type PresignedUrl {
+	Url:      String!
+	File:     String!
+	ObjectId: String!
+}
+
+type CreatePresignedUrlsResponse {
+	Urls: [PresignedUrl]
+}
+
+# Inputs
+#############################################
+
+input SignInInput {
+  email: String!
+  password: String!
+}
+
+input NotesInput {
+  cursor: String
+  trash: Boolean
+}
+
+input CreateNoteInput {
+  title: String
+  content: String
+  objectNames: [String]
+}
+
+input UpdateNoteInput {
+  title: String
+  content: String
+}
+
+# Queries and Mutations
+#############################################
+
+type Mutation {
+  # Authentication
+  signIn(input: SignInInput!): SignInResponse!
+  signOut: Boolean!
+  # Notes
+  createNote(input: CreateNoteInput!): Note!
+  createPresignedUrl(objectName: [String!]!): CreatePresignedUrlsResponse!
+  softDeleteNote(id: ID!): Boolean!
+  deleteNote(id: ID!): Boolean!
+  restoreNote(id: ID!): Boolean!
+  updateNote(id: ID!, input: UpdateNoteInput!): Note!
+}
+
+type Query {
+  # Authentication
+  me: User!
+  # Notes
+  listNotes(input: NotesInput): NotesResponse!
+}

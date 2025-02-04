@@ -390,7 +390,7 @@ const listNotesByUserId = `-- name: ListNotesByUserId :many
 SELECT id, user_id, title, content, create_time, update_time, delete_time FROM notes
 WHERE user_id = $1 AND update_time < $2 AND delete_time IS NULL
 ORDER BY update_time DESC
-LIMIT 20
+LIMIT 10
 `
 
 type ListNotesByUserIdParams struct {
@@ -433,7 +433,7 @@ const listTrashNotesByUserId = `-- name: ListTrashNotesByUserId :many
 SELECT id, user_id, title, content, create_time, update_time, delete_time FROM notes
 WHERE user_id = $1 AND delete_time < $2 AND delete_time IS NOT NULL
 ORDER BY delete_time DESC
-LIMIT 20
+LIMIT 10
 `
 
 type ListTrashNotesByUserIdParams struct {
@@ -550,22 +550,22 @@ func (q *Queries) UpdateFileByOriginalId(ctx context.Context, arg UpdateFileByOr
 
 const updateNoteById = `-- name: UpdateNoteById :one
 UPDATE notes SET
-  title = $2, content = $3, update_time = $4
+  title = COALESCE(NULLIF($2, ''), title), content = COALESCE(NULLIF($3, ''), content), update_time = $4
 WHERE id = $1 RETURNING id, user_id, title, content, create_time, update_time, delete_time
 `
 
 type UpdateNoteByIdParams struct {
 	ID         uuid.UUID
-	Title      sql.NullString
-	Content    sql.NullString
+	Column2    interface{}
+	Column3    interface{}
 	UpdateTime time.Time
 }
 
 func (q *Queries) UpdateNoteById(ctx context.Context, arg UpdateNoteByIdParams) (Note, error) {
 	row := q.db.QueryRowContext(ctx, updateNoteById,
 		arg.ID,
-		arg.Title,
-		arg.Content,
+		arg.Column2,
+		arg.Column3,
 		arg.UpdateTime,
 	)
 	var i Note
