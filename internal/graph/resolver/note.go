@@ -61,7 +61,7 @@ func ListNotes(ctx context.Context, input *model.NotesInput, srv service.NoteSer
 
 	// Get the cursor from the query parameters
 	var cursorQueryParam string
-	if input.Cursor != nil {
+	if input != nil && input.Cursor != nil {
 		cursorQueryParam = *input.Cursor
 	}
 	// parse the cursor query parameter
@@ -77,7 +77,7 @@ func ListNotes(ctx context.Context, input *model.NotesInput, srv service.NoteSer
 	// Check if trash is true
 	var notes *[]domain.Note
 
-	if input.Trash != nil && *input.Trash {
+	if input != nil && input.Trash != nil && *input.Trash {
 		notes, err = srv.ListTrashNotesByUser(ctx, cursor)
 	} else {
 		notes, err = srv.ListNotesByUser(ctx, cursor)
@@ -110,4 +110,49 @@ func ListNotes(ctx context.Context, input *model.NotesInput, srv service.NoteSer
 		Notes:  notesRes,
 		Cursor: nextCursor.Format(time.RFC3339),
 	}, nil
+}
+
+// CreateNote is the resolver for the createNote field.
+func CreateNote(ctx context.Context, input model.CreateNoteInput, srv service.NoteService) (*model.Note, error) {
+	// Check if the user is authenticated
+	userId := domain.GetUserIdFromContext(ctx)
+	if userId == uuid.Nil {
+		return nil, errors.New("unauthenticated")
+	}
+
+	var (
+		title   string
+		content string
+	)
+
+	if input.Title != nil {
+		title = *input.Title
+	}
+
+	if input.Content != nil {
+		content = *input.Content
+	}
+
+	objectNames := make([]string, len(input.ObjectNames))
+	for i, objectName := range input.ObjectNames {
+		objectNames[i] = *objectName
+	}
+
+	// Validate the input
+	if input.Title == nil || *input.Title == "" {
+		return nil, errors.New("field 'title' is required")
+	}
+
+	res, err := srv.CreateNote(ctx, title, content, objectNames)
+	if err != nil {
+		switch err.Error() {
+		case "objects not found":
+			msg := "One or more objects not found in the object storage service"
+			return nil, errors.New(msg)
+		default:
+			return nil, errors.New("internal server error")
+		}
+	}
+	// Parse domain.Note to model.Note
+	return mapNote(*res.Note), nil
 }

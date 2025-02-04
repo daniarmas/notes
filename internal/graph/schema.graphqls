@@ -71,15 +71,26 @@ input NotesInput {
   trash: Boolean
 }
 
+input CreateNoteInput {
+  title: String
+  content: String
+  objectNames: [String]
+}
+
 # Queries and Mutations
 #############################################
 
 type Mutation {
+  # Authentication
   signIn(input: SignInInput!): SignInResponse!
   signOut: Boolean!
+  # Notes
+  createNote(input: CreateNoteInput!): Note!
 }
 
 type Query {
+  # Authentication
   me: User!
+  # Notes
   listNotes(input: NotesInput): NotesResponse!
 }

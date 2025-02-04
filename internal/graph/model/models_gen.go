@@ -10,6 +10,12 @@ type AccessToken struct {
 	UpdateTime     *string `json:"updateTime,omitempty"`
 }
 
+type CreateNoteInput struct {
+	Title       *string   `json:"title,omitempty"`
+	Content     *string   `json:"content,omitempty"`
+	ObjectNames []*string `json:"objectNames,omitempty"`
+}
+
 type File struct {
 	ID            string  `json:"id"`
 	NoteID        string  `json:"noteId"`

@@ -62,8 +62,9 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		SignIn  func(childComplexity int, input model.SignInInput) int
-		SignOut func(childComplexity int) int
+		CreateNote func(childComplexity int, input model.CreateNoteInput) int
+		SignIn     func(childComplexity int, input model.SignInInput) int
+		SignOut    func(childComplexity int) int
 	}
 
 	Note struct {
@@ -210,6 +211,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.File.UpdateTime(childComplexity), true
+
+	case "Mutation.createNote":
+		if e.complexity.Mutation.CreateNote == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createNote_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateNote(childComplexity, args["input"].(model.CreateNoteInput)), true
 
 	case "Mutation.signIn":
 		if e.complexity.Mutation.SignIn == nil {
@@ -404,6 +417,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
 	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputCreateNoteInput,
 		ec.unmarshalInputNotesInput,
 		ec.unmarshalInputSignInInput,
 	)
