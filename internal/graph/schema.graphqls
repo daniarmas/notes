@@ -67,7 +67,8 @@ input SignInInput {
 }
 
 input NotesInput {
-  cursor: String!
+  cursor: String
+  trash: Boolean
 }
 
 # Queries and Mutations

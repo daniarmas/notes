@@ -1938,7 +1938,7 @@ func (ec *executionContext) unmarshalInputNotesInput(ctx context.Context, obj an
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"cursor"}
+	fieldsInOrder := [...]string{"cursor", "trash"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -1947,11 +1947,18 @@ func (ec *executionContext) unmarshalInputNotesInput(ctx context.Context, obj an
 		switch k {
 		case "cursor":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cursor"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Cursor = data
+		case "trash":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("trash"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Trash = data
 		}
 	}
 

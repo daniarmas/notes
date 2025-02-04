@@ -58,11 +58,11 @@ func Notes(ctx context.Context, input *model.NotesInput, srv service.NoteService
 	if userId == uuid.Nil {
 		return nil, errors.New("unauthenticated")
 	}
-	
+
 	// Get the cursor from the query parameters
 	var cursorQueryParam string
-	if input != nil {
-		cursorQueryParam = input.Cursor
+	if input.Cursor != nil {
+		cursorQueryParam = *input.Cursor
 	}
 	// parse the cursor query parameter
 	if cursorQueryParam == "" {
@@ -74,7 +74,15 @@ func Notes(ctx context.Context, input *model.NotesInput, srv service.NoteService
 		return nil, errors.New(msg)
 	}
 
-	notes, err := srv.ListNotesByUser(ctx, cursor)
+	// Check if trash is true
+	var notes *[]domain.Note
+
+	if input.Trash != nil && *input.Trash {
+		notes, err = srv.ListTrashNotesByUser(ctx, cursor)
+	} else {
+		notes, err = srv.ListNotesByUser(ctx, cursor)
+	}
+
 	if err != nil {
 		switch err.Error() {
 		default:

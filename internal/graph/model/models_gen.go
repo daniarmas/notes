@@ -34,7 +34,8 @@ type Note struct {
 }
 
 type NotesInput struct {
-	Cursor string `json:"cursor"`
+	Cursor *string `json:"cursor,omitempty"`
+	Trash  *bool   `json:"trash,omitempty"`
 }
 
 type NotesResponse struct {
