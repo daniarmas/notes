@@ -22,6 +22,7 @@ type MutationResolver interface {
 	SignIn(ctx context.Context, input model.SignInInput) (*model.SignInResponse, error)
 	SignOut(ctx context.Context) (bool, error)
 	CreateNote(ctx context.Context, input model.CreateNoteInput) (*model.Note, error)
+	CreatePresignedURL(ctx context.Context, objectName []string) (*model.CreatePresignedUrlsResponse, error)
 }
 type QueryResolver interface {
 	Me(ctx context.Context) (*model.User, error)
@@ -52,6 +53,29 @@ func (ec *executionContext) field_Mutation_createNote_argsInput(
 	}
 
 	var zeroVal model.CreateNoteInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_createPresignedUrl_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_createPresignedUrl_argsObjectName(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["objectName"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_createPresignedUrl_argsObjectName(
+	ctx context.Context,
+	rawArgs map[string]any,
+) ([]string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("objectName"))
+	if tmp, ok := rawArgs["objectName"]; ok {
+		return ec.unmarshalNString2ᚕstringᚄ(ctx, tmp)
+	}
+
+	var zeroVal []string
 	return zeroVal, nil
 }
 
@@ -344,6 +368,55 @@ func (ec *executionContext) fieldContext_AccessToken_updateTime(_ context.Contex
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CreatePresignedUrlsResponse_Urls(ctx context.Context, field graphql.CollectedField, obj *model.CreatePresignedUrlsResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreatePresignedUrlsResponse_Urls(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Urls, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.PresignedURL)
+	fc.Result = res
+	return ec.marshalOPresignedUrl2ᚕᚖgithubᚗcomᚋdaniarmasᚋnotesᚋinternalᚋgraphᚋmodelᚐPresignedURL(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CreatePresignedUrlsResponse_Urls(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreatePresignedUrlsResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "Url":
+				return ec.fieldContext_PresignedUrl_Url(ctx, field)
+			case "File":
+				return ec.fieldContext_PresignedUrl_File(ctx, field)
+			case "ObjectId":
+				return ec.fieldContext_PresignedUrl_ObjectId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PresignedUrl", field.Name)
 		},
 	}
 	return fc, nil
@@ -829,6 +902,65 @@ func (ec *executionContext) fieldContext_Mutation_createNote(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_createPresignedUrl(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createPresignedUrl(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreatePresignedURL(rctx, fc.Args["objectName"].([]string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.CreatePresignedUrlsResponse)
+	fc.Result = res
+	return ec.marshalNCreatePresignedUrlsResponse2ᚖgithubᚗcomᚋdaniarmasᚋnotesᚋinternalᚋgraphᚋmodelᚐCreatePresignedUrlsResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createPresignedUrl(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "Urls":
+				return ec.fieldContext_CreatePresignedUrlsResponse_Urls(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CreatePresignedUrlsResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createPresignedUrl_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Note_id(ctx context.Context, field graphql.CollectedField, obj *model.Note) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Note_id(ctx, field)
 	if err != nil {
@@ -1232,6 +1364,138 @@ func (ec *executionContext) _NotesResponse_cursor(ctx context.Context, field gra
 func (ec *executionContext) fieldContext_NotesResponse_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "NotesResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PresignedUrl_Url(ctx context.Context, field graphql.CollectedField, obj *model.PresignedURL) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PresignedUrl_Url(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.URL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PresignedUrl_Url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PresignedUrl",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PresignedUrl_File(ctx context.Context, field graphql.CollectedField, obj *model.PresignedURL) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PresignedUrl_File(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.File, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PresignedUrl_File(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PresignedUrl",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PresignedUrl_ObjectId(ctx context.Context, field graphql.CollectedField, obj *model.PresignedURL) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PresignedUrl_ObjectId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ObjectID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PresignedUrl_ObjectId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PresignedUrl",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -2199,6 +2463,42 @@ func (ec *executionContext) _AccessToken(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
+var createPresignedUrlsResponseImplementors = []string{"CreatePresignedUrlsResponse"}
+
+func (ec *executionContext) _CreatePresignedUrlsResponse(ctx context.Context, sel ast.SelectionSet, obj *model.CreatePresignedUrlsResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, createPresignedUrlsResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CreatePresignedUrlsResponse")
+		case "Urls":
+			out.Values[i] = ec._CreatePresignedUrlsResponse_Urls(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var fileImplementors = []string{"File"}
 
 func (ec *executionContext) _File(ctx context.Context, sel ast.SelectionSet, obj *model.File) graphql.Marshaler {
@@ -2302,6 +2602,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "createPresignedUrl":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createPresignedUrl(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2397,6 +2704,55 @@ func (ec *executionContext) _NotesResponse(ctx context.Context, sel ast.Selectio
 			out.Values[i] = ec._NotesResponse_notes(ctx, field, obj)
 		case "cursor":
 			out.Values[i] = ec._NotesResponse_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var presignedUrlImplementors = []string{"PresignedUrl"}
+
+func (ec *executionContext) _PresignedUrl(ctx context.Context, sel ast.SelectionSet, obj *model.PresignedURL) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, presignedUrlImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PresignedUrl")
+		case "Url":
+			out.Values[i] = ec._PresignedUrl_Url(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "File":
+			out.Values[i] = ec._PresignedUrl_File(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "ObjectId":
+			out.Values[i] = ec._PresignedUrl_ObjectId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2682,6 +3038,20 @@ func (ec *executionContext) unmarshalNCreateNoteInput2githubᚗcomᚋdaniarmas�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalNCreatePresignedUrlsResponse2githubᚗcomᚋdaniarmasᚋnotesᚋinternalᚋgraphᚋmodelᚐCreatePresignedUrlsResponse(ctx context.Context, sel ast.SelectionSet, v model.CreatePresignedUrlsResponse) graphql.Marshaler {
+	return ec._CreatePresignedUrlsResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCreatePresignedUrlsResponse2ᚖgithubᚗcomᚋdaniarmasᚋnotesᚋinternalᚋgraphᚋmodelᚐCreatePresignedUrlsResponse(ctx context.Context, sel ast.SelectionSet, v *model.CreatePresignedUrlsResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CreatePresignedUrlsResponse(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNNote2githubᚗcomᚋdaniarmasᚋnotesᚋinternalᚋgraphᚋmodelᚐNote(ctx context.Context, sel ast.SelectionSet, v model.Note) graphql.Marshaler {
 	return ec._Note(ctx, sel, &v)
 }
@@ -2845,6 +3215,54 @@ func (ec *executionContext) unmarshalONotesInput2ᚖgithubᚗcomᚋdaniarmasᚋn
 	}
 	res, err := ec.unmarshalInputNotesInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOPresignedUrl2ᚕᚖgithubᚗcomᚋdaniarmasᚋnotesᚋinternalᚋgraphᚋmodelᚐPresignedURL(ctx context.Context, sel ast.SelectionSet, v []*model.PresignedURL) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOPresignedUrl2ᚖgithubᚗcomᚋdaniarmasᚋnotesᚋinternalᚋgraphᚋmodelᚐPresignedURL(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) marshalOPresignedUrl2ᚖgithubᚗcomᚋdaniarmasᚋnotesᚋinternalᚋgraphᚋmodelᚐPresignedURL(ctx context.Context, sel ast.SelectionSet, v *model.PresignedURL) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._PresignedUrl(ctx, sel, v)
 }
 
 // endregion ***************************** type.gotpl *****************************

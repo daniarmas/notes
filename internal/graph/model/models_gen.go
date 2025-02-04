@@ -16,6 +16,10 @@ type CreateNoteInput struct {
 	ObjectNames []*string `json:"objectNames,omitempty"`
 }
 
+type CreatePresignedUrlsResponse struct {
+	Urls []*PresignedURL `json:"Urls,omitempty"`
+}
+
 type File struct {
 	ID            string  `json:"id"`
 	NoteID        string  `json:"noteId"`
@@ -47,6 +51,12 @@ type NotesInput struct {
 type NotesResponse struct {
 	Notes  []*Note `json:"notes,omitempty"`
 	Cursor string  `json:"cursor"`
+}
+
+type PresignedURL struct {
+	URL      string `json:"Url"`
+	File     string `json:"File"`
+	ObjectID string `json:"ObjectId"`
 }
 
 type Query struct {

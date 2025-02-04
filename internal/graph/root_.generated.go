@@ -51,6 +51,10 @@ type ComplexityRoot struct {
 		UserID         func(childComplexity int) int
 	}
 
+	CreatePresignedUrlsResponse struct {
+		Urls func(childComplexity int) int
+	}
+
 	File struct {
 		CreateTime    func(childComplexity int) int
 		ID            func(childComplexity int) int
@@ -62,9 +66,10 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateNote func(childComplexity int, input model.CreateNoteInput) int
-		SignIn     func(childComplexity int, input model.SignInInput) int
-		SignOut    func(childComplexity int) int
+		CreateNote         func(childComplexity int, input model.CreateNoteInput) int
+		CreatePresignedURL func(childComplexity int, objectName []string) int
+		SignIn             func(childComplexity int, input model.SignInInput) int
+		SignOut            func(childComplexity int) int
 	}
 
 	Note struct {
@@ -80,6 +85,12 @@ type ComplexityRoot struct {
 	NotesResponse struct {
 		Cursor func(childComplexity int) int
 		Notes  func(childComplexity int) int
+	}
+
+	PresignedUrl struct {
+		File     func(childComplexity int) int
+		ObjectID func(childComplexity int) int
+		URL      func(childComplexity int) int
 	}
 
 	Query struct {
@@ -163,6 +174,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AccessToken.UserID(childComplexity), true
 
+	case "CreatePresignedUrlsResponse.Urls":
+		if e.complexity.CreatePresignedUrlsResponse.Urls == nil {
+			break
+		}
+
+		return e.complexity.CreatePresignedUrlsResponse.Urls(childComplexity), true
+
 	case "File.createTime":
 		if e.complexity.File.CreateTime == nil {
 			break
@@ -223,6 +241,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateNote(childComplexity, args["input"].(model.CreateNoteInput)), true
+
+	case "Mutation.createPresignedUrl":
+		if e.complexity.Mutation.CreatePresignedURL == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createPresignedUrl_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreatePresignedURL(childComplexity, args["objectName"].([]string)), true
 
 	case "Mutation.signIn":
 		if e.complexity.Mutation.SignIn == nil {
@@ -305,6 +335,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.NotesResponse.Notes(childComplexity), true
+
+	case "PresignedUrl.File":
+		if e.complexity.PresignedUrl.File == nil {
+			break
+		}
+
+		return e.complexity.PresignedUrl.File(childComplexity), true
+
+	case "PresignedUrl.ObjectId":
+		if e.complexity.PresignedUrl.ObjectID == nil {
+			break
+		}
+
+		return e.complexity.PresignedUrl.ObjectID(childComplexity), true
+
+	case "PresignedUrl.Url":
+		if e.complexity.PresignedUrl.URL == nil {
+			break
+		}
+
+		return e.complexity.PresignedUrl.URL(childComplexity), true
 
 	case "Query.listNotes":
 		if e.complexity.Query.ListNotes == nil {

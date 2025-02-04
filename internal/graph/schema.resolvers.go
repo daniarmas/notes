@@ -26,6 +26,11 @@ func (r *mutationResolver) CreateNote(ctx context.Context, input model.CreateNot
 	return resolver.CreateNote(ctx, input, r.NoteSrv)
 }
 
+// CreatePresignedURL is the resolver for the createPresignedUrl field.
+func (r *mutationResolver) CreatePresignedURL(ctx context.Context, objectName []string) (*model.CreatePresignedUrlsResponse, error) {
+	return resolver.CreatePresignedURL(ctx, objectName, r.NoteSrv)
+}
+
 // Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
 	return resolver.Me(ctx, r.AuthSrv)

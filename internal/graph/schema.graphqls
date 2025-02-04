@@ -58,6 +58,16 @@ type NotesResponse {
   cursor: String!
 }
 
+type PresignedUrl {
+	Url:      String!
+	File:     String!
+	ObjectId: String!
+}
+
+type CreatePresignedUrlsResponse {
+	Urls: [PresignedUrl]
+}
+
 # Inputs
 #############################################
 
@@ -86,6 +96,7 @@ type Mutation {
   signOut: Boolean!
   # Notes
   createNote(input: CreateNoteInput!): Note!
+  createPresignedUrl(objectName: [String!]!): CreatePresignedUrlsResponse!
 }
 
 type Query {

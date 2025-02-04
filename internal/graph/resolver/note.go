@@ -156,3 +156,36 @@ func CreateNote(ctx context.Context, input model.CreateNoteInput, srv service.No
 	// Parse domain.Note to model.Note
 	return mapNote(*res.Note), nil
 }
+
+// CreatePresignedURL is the resolver for the createPresignedUrl field.
+func CreatePresignedURL(ctx context.Context, objectName []string, srv service.NoteService) (*model.CreatePresignedUrlsResponse, error) {
+	// Check if the user is authenticated
+	userId := domain.GetUserIdFromContext(ctx)
+	if userId == uuid.Nil {
+		return nil, errors.New("unauthenticated")
+	}
+
+	// Validate the input
+	if len(objectName) == 0 {
+		return nil, errors.New("field 'objectName' is required")
+	}
+
+	res, err := srv.GetPresignedUrls(ctx, objectName)
+	if err != nil {
+		return nil, errors.New("internal server error")
+	}
+
+	// Parse domain.PresignedURL to model.PresignedURL
+	urls := make([]*model.PresignedURL, len(res.Urls))
+	for i, url := range res.Urls {
+		urls[i] = &model.PresignedURL{
+			ObjectID: url.ObjectId,
+			URL:      url.Url,
+			File:     url.File,
+		}
+	}
+
+	return &model.CreatePresignedUrlsResponse{
+		Urls: urls,
+	}, nil
+}
