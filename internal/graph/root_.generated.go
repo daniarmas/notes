@@ -73,6 +73,7 @@ type ComplexityRoot struct {
 		SignIn             func(childComplexity int, input model.SignInInput) int
 		SignOut            func(childComplexity int) int
 		SoftDeleteNote     func(childComplexity int, id string) int
+		UpdateNote         func(childComplexity int, id string, input model.UpdateNoteInput) int
 	}
 
 	Note struct {
@@ -312,6 +313,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.SoftDeleteNote(childComplexity, args["id"].(string)), true
 
+	case "Mutation.updateNote":
+		if e.complexity.Mutation.UpdateNote == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateNote_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateNote(childComplexity, args["id"].(string), args["input"].(model.UpdateNoteInput)), true
+
 	case "Note.content":
 		if e.complexity.Note.Content == nil {
 			break
@@ -510,6 +523,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateNoteInput,
 		ec.unmarshalInputNotesInput,
 		ec.unmarshalInputSignInInput,
+		ec.unmarshalInputUpdateNoteInput,
 	)
 	first := true
 

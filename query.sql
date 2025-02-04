@@ -36,7 +36,7 @@ RETURNING *;
 
 -- name: UpdateNoteById :one
 UPDATE notes SET
-  title = $2, content = $3, update_time = $4
+  title = COALESCE(NULLIF($2, ''), title), content = COALESCE(NULLIF($3, ''), content), update_time = $4
 WHERE id = $1 RETURNING *;
 
 -- name: RestoreNoteById :one

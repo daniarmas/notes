@@ -95,8 +95,8 @@ func (d *noteDatabaseDs) GetNote(ctx context.Context, id uuid.UUID) (*domain.Not
 func (d *noteDatabaseDs) UpdateNote(ctx context.Context, tx *sql.Tx, note *domain.Note) (*domain.Note, error) {
 	res, err := d.queries.WithTx(tx).UpdateNoteById(ctx, database.UpdateNoteByIdParams{
 		ID:         note.Id,
-		Title:      sql.NullString{String: note.Title, Valid: true},
-		Content:    sql.NullString{String: note.Content, Valid: true},
+		Column2:    note.Title,
+		Column3:    note.Content,
 		UpdateTime: time.Now().UTC(),
 	})
 	if err != nil {

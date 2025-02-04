@@ -267,3 +267,53 @@ func RestoreNote(ctx context.Context, id string, srv service.NoteService) (bool,
 
 	return true, nil
 }
+
+// UpdateNote is the resolver for the updateNote field.
+func UpdateNote(ctx context.Context, id string, input model.UpdateNoteInput, srv service.NoteService) (*model.Note, error) {
+	// Check if the user is authenticated
+	userId := domain.GetUserIdFromContext(ctx)
+	if userId == uuid.Nil {
+		return nil, errors.New("unauthenticated")
+	}
+
+	noteId, err := uuid.Parse(id)
+	if err != nil {
+		return nil, errors.New("invalid note id")
+	}
+
+	var (
+		title   string
+		content string
+	)
+
+	if input.Title != nil {
+		title = *input.Title
+	}
+
+	if input.Content != nil {
+		content = *input.Content
+	}
+
+	// Validate the input
+	if (input.Title == nil || *input.Title == "") && (input.Content == nil || *input.Content == "") {
+		return nil, errors.New("field 'title' or 'content' is required")
+	}
+
+	note := &domain.Note{
+		Id:      noteId,
+		Title:   title,
+		Content: content,
+	}
+
+	res, err := srv.UpdateNote(ctx, note)
+	if err != nil {
+		switch err.Error() {
+		case "note not found":
+			return nil, errors.New("note not found")
+		default:
+			return nil, errors.New("internal server error")
+		}
+	}
+
+	return mapNote(*res), nil
+}

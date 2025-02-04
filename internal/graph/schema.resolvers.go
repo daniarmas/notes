@@ -46,6 +46,11 @@ func (r *mutationResolver) RestoreNote(ctx context.Context, id string) (bool, er
 	return resolver.RestoreNote(ctx, id, r.NoteSrv)
 }
 
+// UpdateNote is the resolver for the updateNote field.
+func (r *mutationResolver) UpdateNote(ctx context.Context, id string, input model.UpdateNoteInput) (*model.Note, error) {
+	return resolver.UpdateNote(ctx, id, input, r.NoteSrv)
+}
+
 // Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
 	return resolver.Me(ctx, r.AuthSrv)

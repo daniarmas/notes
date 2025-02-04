@@ -80,6 +80,11 @@ type SignInResponse struct {
 	RefreshToken string `json:"refreshToken"`
 }
 
+type UpdateNoteInput struct {
+	Title   *string `json:"title,omitempty"`
+	Content *string `json:"content,omitempty"`
+}
+
 type User struct {
 	ID         string  `json:"id"`
 	Name       string  `json:"name"`
