@@ -44,12 +44,19 @@ func NewClient() (K8sC, error) {
 
 // CreateJob creates a job in the k8s cluster
 func (c *k8sc) CreateJob(ctx context.Context, jobName, namespace, imageName string, args []string, envs []corev1.EnvFromSource) error {
+	// Define the TTL duration in seconds
+	ttlSecondsAfterFinished := int32(15) // 15 seconds
+	// Define the backoff limit
+	backoffLimit := int32(4) // Retry up to 4 times
+
 	// Create a job spec
 	job := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: jobName,
 		},
 		Spec: batchv1.JobSpec{
+			TTLSecondsAfterFinished: &ttlSecondsAfterFinished,
+			BackoffLimit:            &backoffLimit,
 			Template: corev1.PodTemplateSpec{
 				Spec: corev1.PodSpec{
 					RestartPolicy: corev1.RestartPolicyNever,

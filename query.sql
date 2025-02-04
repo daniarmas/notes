@@ -18,13 +18,13 @@ RETURNING *;
 SELECT * FROM notes
 WHERE user_id = $1 AND update_time < $2 AND delete_time IS NULL
 ORDER BY update_time DESC
-LIMIT 20;
+LIMIT 10;
 
 -- name: ListTrashNotesByUserId :many
 SELECT * FROM notes
 WHERE user_id = $1 AND delete_time < $2 AND delete_time IS NOT NULL
 ORDER BY delete_time DESC
-LIMIT 20;
+LIMIT 10;
 
 -- name: CreateNote :one
 INSERT INTO notes (
@@ -36,7 +36,7 @@ RETURNING *;
 
 -- name: UpdateNoteById :one
 UPDATE notes SET
-  title = $2, content = $3, update_time = $4
+  title = COALESCE(NULLIF($2, ''), title), content = COALESCE(NULLIF($3, ''), content), update_time = $4
 WHERE id = $1 RETURNING *;
 
 -- name: RestoreNoteById :one

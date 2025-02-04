@@ -9,6 +9,7 @@ import (
 )
 
 type Configuration struct {
+	Environment                   string
 	DatabaseUrl                   string
 	JwtSecret                     string
 	RedisHost                     string
@@ -22,11 +23,14 @@ type Configuration struct {
 	ObjectStorageServiceBucket    string
 	InK8s                         bool
 	DockerImageName               string
+	GraphqlServerPort             string
+	RestServerPort                string
 }
 
 func LoadServerConfig() *Configuration {
 	ctx := context.Background()
 	config := Configuration{
+		Environment:                   os.Getenv("ENVIRONMENT"),
 		DatabaseUrl:                   os.Getenv("DATABASE_URL"),
 		RedisHost:                     os.Getenv("REDIS_HOST"),
 		RedisPort:                     os.Getenv("REDIS_PORT"),
@@ -39,6 +43,17 @@ func LoadServerConfig() *Configuration {
 		ObjectStorageServiceBucket:    os.Getenv("OBJECT_STORAGE_SERVICE_BUCKET"),
 		InK8s:                         os.Getenv("IN_K8S") == "true",
 		DockerImageName:               os.Getenv("DOCKER_IMAGE_NAME"),
+		GraphqlServerPort:             os.Getenv("GRAPHQL_SERVER_PORT"),
+		RestServerPort:                os.Getenv("REST_SERVER_PORT"),
+	}
+	if config.RestServerPort == "" {
+		config.RestServerPort = "3030"
+	}
+	if config.GraphqlServerPort == "" {
+		config.GraphqlServerPort = "2210"
+	}
+	if config.Environment == "" {
+		config.Environment = "development"
 	}
 	if config.DockerImageName == "" {
 		config.DockerImageName = "ghcr.io/daniarmas/notes"

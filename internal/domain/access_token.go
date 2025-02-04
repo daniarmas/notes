@@ -14,6 +14,7 @@ type AccessToken struct {
 	UpdateTime     time.Time `json:"update_time"`
 }
 
+
 // NewAccessToken creates a new AccessToken instance
 func NewAccessToken(userId uuid.UUID, refreshTokenId uuid.UUID) *AccessToken {
 	now := time.Now()

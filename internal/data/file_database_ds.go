@@ -61,11 +61,11 @@ func (d *fileDatabaseDs) ListFilesByNoteId(ctx context.Context, noteId uuid.UUID
 
 }
 
-func (d *fileDatabaseDs) CreateFile(ctx context.Context, file *domain.File) (*domain.File, error) {
+func (d *fileDatabaseDs) CreateFile(ctx context.Context, tx *sql.Tx, file *domain.File) (*domain.File, error) {
 	// Get current time
 	timeNow := time.Now().UTC()
 
-	res, err := d.queries.CreateFile(ctx, database.CreateFileParams{
+	res, err := d.queries.WithTx(tx).CreateFile(ctx, database.CreateFileParams{
 		NoteID:       file.NoteId,
 		OriginalFile: file.OriginalFile,
 		CreateTime:   timeNow,
@@ -84,11 +84,11 @@ func (d *fileDatabaseDs) CreateFile(ctx context.Context, file *domain.File) (*do
 	}, nil
 }
 
-func (d *fileDatabaseDs) UpdateFileByOriginalId(ctx context.Context, originalFileId, processFileId string) (*domain.File, error) {
+func (d *fileDatabaseDs) UpdateFileByOriginalId(ctx context.Context, tx *sql.Tx, originalFileId, processFileId string) (*domain.File, error) {
 	// Get current time
 	timeNow := time.Now().UTC()
 
-	res, err := d.queries.UpdateFileByOriginalId(ctx, database.UpdateFileByOriginalIdParams{OriginalFile: originalFileId, ProcessedFile: sql.NullString{String: processFileId, Valid: true}, UpdateTime: timeNow})
+	res, err := d.queries.WithTx(tx).UpdateFileByOriginalId(ctx, database.UpdateFileByOriginalIdParams{OriginalFile: originalFileId, ProcessedFile: sql.NullString{String: processFileId, Valid: true}, UpdateTime: timeNow})
 	if err != nil {
 		clog.Error(ctx, "error updating file by original id", err)
 		return nil, err
@@ -99,8 +99,8 @@ func (d *fileDatabaseDs) UpdateFileByOriginalId(ctx context.Context, originalFil
 	return file, nil
 }
 
-func (d *fileDatabaseDs) HardDeleteFilesByNoteId(ctx context.Context, noteId uuid.UUID) (*[]domain.File, error) {
-	res, err := d.queries.HardDeleteFilesByNoteId(ctx, noteId)
+func (d *fileDatabaseDs) HardDeleteFilesByNoteId(ctx context.Context, tx *sql.Tx, noteId uuid.UUID) (*[]domain.File, error) {
+	res, err := d.queries.WithTx(tx).HardDeleteFilesByNoteId(ctx, noteId)
 	if err != nil {
 		return nil, err
 	}
