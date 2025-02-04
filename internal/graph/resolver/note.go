@@ -9,6 +9,7 @@ import (
 	"github.com/daniarmas/notes/internal/graph/model"
 	"github.com/daniarmas/notes/internal/service"
 	"github.com/daniarmas/notes/internal/utils"
+	"github.com/google/uuid"
 )
 
 func mapFile(file domain.File) *model.File {
@@ -52,6 +53,12 @@ func mapNote(note domain.Note) *model.Note {
 
 // Notes is the resolver for the notes field.
 func Notes(ctx context.Context, input *model.NotesInput, srv service.NoteService) (*model.NotesResponse, error) {
+	// Check if the user is authenticated
+	userId := domain.GetUserIdFromContext(ctx)
+	if userId == uuid.Nil {
+		return nil, errors.New("unauthenticated")
+	}
+	
 	// Get the cursor from the query parameters
 	var cursorQueryParam string
 	if input != nil {
