@@ -82,8 +82,8 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Me    func(childComplexity int) int
-		Notes func(childComplexity int, input *model.NotesInput) int
+		ListNotes func(childComplexity int, input *model.NotesInput) int
+		Me        func(childComplexity int) int
 	}
 
 	RefreshToken struct {
@@ -293,24 +293,24 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.NotesResponse.Notes(childComplexity), true
 
+	case "Query.listNotes":
+		if e.complexity.Query.ListNotes == nil {
+			break
+		}
+
+		args, err := ec.field_Query_listNotes_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ListNotes(childComplexity, args["input"].(*model.NotesInput)), true
+
 	case "Query.me":
 		if e.complexity.Query.Me == nil {
 			break
 		}
 
 		return e.complexity.Query.Me(childComplexity), true
-
-	case "Query.notes":
-		if e.complexity.Query.Notes == nil {
-			break
-		}
-
-		args, err := ec.field_Query_notes_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Notes(childComplexity, args["input"].(*model.NotesInput)), true
 
 	case "RefreshToken.createTime":
 		if e.complexity.RefreshToken.CreateTime == nil {

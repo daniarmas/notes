@@ -26,9 +26,9 @@ func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
 	return resolver.Me(ctx, r.AuthSrv)
 }
 
-// Notes is the resolver for the notes field.
-func (r *queryResolver) Notes(ctx context.Context, input *model.NotesInput) (*model.NotesResponse, error) {
-	return resolver.Notes(ctx, input, r.NoteSrv)
+// ListNotes is the resolver for the listNotes field.
+func (r *queryResolver) ListNotes(ctx context.Context, input *model.NotesInput) (*model.NotesResponse, error) {
+	return resolver.ListNotes(ctx, input, r.NoteSrv)
 }
 
 // Mutation returns MutationResolver implementation.
@@ -39,3 +39,15 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+/*
+	func (r *queryResolver) Notes(ctx context.Context, input *model.NotesInput) (*model.NotesResponse, error) {
+	return resolver.Notes(ctx, input, r.NoteSrv)
+}
+*/

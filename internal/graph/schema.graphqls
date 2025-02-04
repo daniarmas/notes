@@ -81,5 +81,5 @@ type Mutation {
 
 type Query {
   me: User!
-  notes(input: NotesInput): NotesResponse!
+  listNotes(input: NotesInput): NotesResponse!
 }

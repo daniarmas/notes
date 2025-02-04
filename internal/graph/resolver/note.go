@@ -51,8 +51,8 @@ func mapNote(note domain.Note) *model.Note {
 	}
 }
 
-// Notes is the resolver for the notes field.
-func Notes(ctx context.Context, input *model.NotesInput, srv service.NoteService) (*model.NotesResponse, error) {
+// ListNotes is the resolver for the notes field.
+func ListNotes(ctx context.Context, input *model.NotesInput, srv service.NoteService) (*model.NotesResponse, error) {
 	// Check if the user is authenticated
 	userId := domain.GetUserIdFromContext(ctx)
 	if userId == uuid.Nil {
