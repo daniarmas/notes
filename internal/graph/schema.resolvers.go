@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/daniarmas/notes/internal/graph/model"
 	"github.com/daniarmas/notes/internal/graph/resolver"
@@ -39,7 +38,7 @@ func (r *mutationResolver) SoftDeleteNote(ctx context.Context, id string) (bool,
 
 // DeleteNote is the resolver for the deleteNote field.
 func (r *mutationResolver) DeleteNote(ctx context.Context, id string) (bool, error) {
-	panic(fmt.Errorf("not implemented: DeleteNote - deleteNote"))
+	return resolver.DeleteNote(ctx, id, r.NoteSrv)
 }
 
 // Me is the resolver for the me field.

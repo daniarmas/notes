@@ -215,3 +215,29 @@ func SoftDeleteNote(ctx context.Context, id string, srv service.NoteService) (bo
 
 	return true, nil
 }
+
+// DeleteNote is the resolver for the deleteNote field.
+func DeleteNote(ctx context.Context, id string, srv service.NoteService) (bool, error) {
+	// Check if the user is authenticated
+	userId := domain.GetUserIdFromContext(ctx)
+	if userId == uuid.Nil {
+		return false, errors.New("unauthenticated")
+	}
+
+	noteId, err := uuid.Parse(id)
+	if err != nil {
+		return false, errors.New("invalid note id")
+	}
+
+	err = srv.DeleteNote(ctx, noteId, true)
+	if err != nil {
+		switch err.Error() {
+		case "note not found":
+			return false, errors.New("note not found")
+		default:
+			return false, errors.New("internal server error")
+		}
+	}
+
+	return true, nil
+}
