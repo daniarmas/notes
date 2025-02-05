@@ -63,8 +63,7 @@ This is a RESTful API for a notes application, developed using Go. Although the 
 4. Install Docker [https://docs.docker.com/desktop/](https://docs.docker.com/desktop/)
 5. Deploy docker compose file
    ```sh
-   cd deploy
-   docker compose -f docker-compose-dev.yaml up -d
+   docker compose -f deploy/docker-compose-dev.yaml up -d
    ```
 6. Create the database tables
    ```sh
@@ -74,7 +73,7 @@ This is a RESTful API for a notes application, developed using Go. Although the 
    ```sh
    go run main.go create seed
    ```
-8. Run the app
+8.  Run the app
    ```sh
    go run main.go run
    ```
