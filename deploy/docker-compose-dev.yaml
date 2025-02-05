@@ -26,7 +26,7 @@ services:
       - postgres
     restart: always
   swagger:
-    image: swaggerapi/swagger-ui:v3.52.3
+    image: swaggerapi/swagger-ui:v5.18.3@sha256:2d34d6ae875512b7155b443656d06b60111d69916cc8fccd779c7297c03cbb8a
     container_name: swagger
     environment:
       - SWAGGER_JSON=/temp/swagger.json
