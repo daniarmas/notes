@@ -47,33 +47,36 @@ This is a RESTful API for a notes application, developed using Go. Although the 
 
 * [Swagger Documentation](https://api.notes.daniel-enrique.com/doc) 
 
+<!-- PREREQUISITES -->
+## Prerequisites
+
+1. Install Go 1.22.4 [https://go.dev/doc/install](https://go.dev/doc/install)
+2. Install Docker [https://docs.docker.com/desktop/](https://docs.docker.com/desktop/)
 
 <!-- INSTALLATION -->
 ## Installation
 
-1. Install Go 1.22.4 [https://go.dev/doc/install](https://go.dev/doc/install)
-2. Clone the repo
+1. Clone the repo
    ```sh
    git clone https://github.com/daniarmas/notes.git
    ```
-3. Install Go dependencies
+2. Install Go dependencies
    ```sh
    go mod download
    ```
-4. Install Docker [https://docs.docker.com/desktop/](https://docs.docker.com/desktop/)
-5. Deploy docker compose file
+3. Deploy docker compose file
    ```sh
    docker compose -f deploy/docker-compose-dev.yaml up -d
    ```
-6. Create the database tables
+4. Create the database tables
    ```sh
    go run main.go create database
    ```
-7. Seed the database. This create the users in the database for test purpose
+5. Seed the database. This create the users in the database for test purpose
    ```sh
    go run main.go create seed
    ```
-8.  Run the app
+6.  Run the app
    ```sh
    go run main.go run
    ```
