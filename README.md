@@ -17,18 +17,10 @@
   </p>
 </div>
 
-
-
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
 This is a RESTful API for a notes application, developed using Go. Although the API is designed to be simple in terms of business logic, it serves as a robust example of a Go project implementation. It is intended to be a solid starting point for more complex applications.
-
-## Features
-
-- [x] Basic Authentication
-- [x] Notes Managment
-- [x] File attachments
 
 ## Built With
 
@@ -36,7 +28,6 @@ This is a RESTful API for a notes application, developed using Go. Although the 
 * Http server - [net/http](https://pkg.go.dev/net/http)
 * Database - [PostgreSQL](https://www.postgresql.org)
 * Cache - [Redis](https://redis.io/)
-
 
 ## How to test
 
@@ -73,7 +64,7 @@ This is a RESTful API for a notes application, developed using Go. Although the 
    ```sh
    direnv allow
    ```
-5. Create the .envrc file with the env vars in example.env
+5. Create the `.envrc` file with the env vars in example.env
 6. ```sh
    cp example.env .envrc
    ```
