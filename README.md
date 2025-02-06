@@ -1,12 +1,13 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-This is a RESTful API for a notes application, developed using Go. Although the API is designed to be simple in terms of business logic, it serves as a robust example of a Go project implementation. It is intended to be a solid starting point for more complex applications.
+This is a backend application for a notes app, developed using Go. The API supports both REST and GraphQL communication. While the application is designed to be simple in terms of business logic, it serves as a robust example of a Go project structure. It is intended to be a solid starting point for more complex applications.
 
 ## Built With
 
 * Programming language - [Go](https://go.dev)
 * Http server - [net/http](https://pkg.go.dev/net/http)
+* GraphQL library - [gqlgen](https://gqlgen.com)
 * Database - [PostgreSQL](https://www.postgresql.org)
 * Cache - [Redis](https://redis.io/)
 
