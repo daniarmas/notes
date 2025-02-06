@@ -50,11 +50,12 @@ This is a RESTful API for a notes application, developed using Go. Although the 
 <!-- PREREQUISITES -->
 ## Prerequisites
 
-1. Install Go 1.22.4 [https://go.dev/doc/install](https://go.dev/doc/install)
-2. Install Docker [https://docs.docker.com/desktop/](https://docs.docker.com/desktop/)
+1. Install [Go 1.22.4](https://go.dev/doc/install)
+2. Install [Docker](https://docs.docker.com/desktop/)
+3. Install [direnv](https://direnv.net) to export the environment variables. (*only for development*)
 
 <!-- INSTALLATION -->
-## Installation
+## Setup for development
 
 1. Clone the repo
    ```sh
@@ -68,15 +69,24 @@ This is a RESTful API for a notes application, developed using Go. Although the 
    ```sh
    docker compose -f deploy/docker-compose-dev.yaml up -d
    ```
-4. Create the database tables
+4. Run direnv command to approve his content
+   ```sh
+   direnv allow
+   ```
+5. Create the .envrc file with the env vars in example.env
+6. ```sh
+   cp example.env .envrc
+   ```
+7. Create the database tables
    ```sh
    go run main.go create database
    ```
-5. Seed the database. This create the users in the database for test purpose
+8. Seed the database. This seed the database for test purpose
    ```sh
    go run main.go create seed
    ```
-6.  Run the app
+9. Configure an object storage service compatible with the Amazon S3 API. [DigitalOcean Spaces](https://docs.digitalocean.com/products/spaces/) was used in the development. Ensure you update the ***access key***, ***secret key*** and ***bucket name*** in the `.envrc` file.
+10.  Run the app
    ```sh
    go run main.go run
    ```
