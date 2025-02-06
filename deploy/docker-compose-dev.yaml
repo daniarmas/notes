@@ -18,8 +18,8 @@ services:
     ports:
       - "8888:80"
     environment:
-      PGADMIN_DEFAULT_EMAIL: prueba@email.com
-      PGADMIN_DEFAULT_PASSWORD: prueba
+      PGADMIN_DEFAULT_EMAIL: test@email.com
+      PGADMIN_DEFAULT_PASSWORD: test
     volumes:
       - pgadmin-data:/var/lib/pgadmin
     depends_on:
