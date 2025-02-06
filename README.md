@@ -1,22 +1,3 @@
-<a id="readme-top"></a>
-
-[![MIT License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
-
-
-
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-  <h3 align="center">Notes API</h3>
-  <p align="center">
-    <br />
-    <a href="https://api.notes.daniel-enrique.com/doc"><strong>Explore the api docs »</strong></a>
-    <br />
-    <br />
-  </p>
-</div>
-
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
@@ -82,29 +63,15 @@ This is a RESTful API for a notes application, developed using Go. Although the 
    go run main.go run
    ```
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- # Entity Relationship Diagram
-![Entity Relationship Diagram](assets/erd.png) -->
-
-
 <!-- LICENSE -->
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
 <!-- CONTACT -->
 ## Contact
 
-[Linkedin]([Linkedin](https://www.linkedin.com/in/d3v06/))
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
+[Contact information](https://github.com/daniarmas)
 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
@@ -113,21 +80,3 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 * [PostgreSQL Driver](https://github.com/jackc/pgx)
 * [Library for CLI apps](https://github.com/spf13/cobra)
 * [Redis client](https://github.com/redis/go-redis/)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=for-the-badge
-[license-url]: https://github.com/daniarmas/notes/blob/main/LICENSE
-[linkedin-shield]: https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white
-[linkedin-url]: https://www.linkedin.com/in/d3v06/
-
-[Go.dev]: https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white
-[Go-url]: https://go.dev/
-[Redis.io]: https://img.shields.io/badge/redis-%23DD0031.svg?&style=for-the-badge&logo=redis&logoColor=white
-[Redis-url]: https://redis.io/
-[Cockroachlabs.com]: https://img.shields.io/badge/Cockroach%20Labs-6933FF?style=for-the-badge&logo=Cockroach%20Labs&logoColor=white
-[Cockroachlabs-url]: https://www.cockroachlabs.com/
