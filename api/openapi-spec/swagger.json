@@ -280,6 +280,18 @@
                                                             "user_id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
                                                             "title": "Title",
                                                             "content": "Content",
+                                                            "files": [
+                                                            {
+                                                                "id": "442d91e6-be2a-4b81-96dd-55d99a0126c5",
+                                                                "note_id": "ecb55e26-e595-4800-8aee-cffba508a6a6",
+                                                                "original_file": "original/6b06ab2b-2faf-4f1c-b9f9-35204be29b70.jpg",
+                                                                "processed_file": "",
+                                                                "url": "https://object-storage-service.nyc3.cdn.digitaloceanspaces.com/original/6b06ab2b-2faf-4f1c-b9f9-35204be29b70.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00JCJEATLPGFZDPQCE%2F20250208%2Fnyc3%2Fs3%2Faws4_request&X-Amz-Date=20250208T020547Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=79b561b2dfc1c1acaf7256db5de76cb6e1304b72d3ac577a3d767587507bd6ba",
+                                                                "create_time": "2025-02-08T02:05:46.295338Z",
+                                                                "update_time": "2025-02-08T02:05:46.295338Z",
+                                                                "delete_time": "0001-01-01T00:00:00Z"
+                                                            }
+                                                        ],
                                                             "create_time": "2024-09-08T19:33:41.250318Z",
                                                             "update_time": "2024-09-08T19:33:41.250318Z",
                                                             "delete_time": "2024-09-08T19:33:41.250318Z"
@@ -289,6 +301,18 @@
                                                             "user_id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
                                                             "title": "Title",
                                                             "content": "Content",
+                                                            "files": [
+                                                            {
+                                                                "id": "442d91e6-be2a-4b81-96dd-55d99a0126c5",
+                                                                "note_id": "ecb55e26-e595-4800-8aee-cffba508a6a6",
+                                                                "original_file": "original/6b06ab2b-2faf-4f1c-b9f9-35204be29b70.jpg",
+                                                                "processed_file": "",
+                                                                "url": "https://object-storage-service.nyc3.cdn.digitaloceanspaces.com/original/6b06ab2b-2faf-4f1c-b9f9-35204be29b70.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00JCJEATLPGFZDPQCE%2F20250208%2Fnyc3%2Fs3%2Faws4_request&X-Amz-Date=20250208T020547Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=79b561b2dfc1c1acaf7256db5de76cb6e1304b72d3ac577a3d767587507bd6ba",
+                                                                "create_time": "2025-02-08T02:05:46.295338Z",
+                                                                "update_time": "2025-02-08T02:05:46.295338Z",
+                                                                "delete_time": "0001-01-01T00:00:00Z"
+                                                            }
+                                                        ],
                                                             "create_time": "2024-09-08T19:33:41.250318Z",
                                                             "update_time": "2024-09-08T19:33:41.250318Z",
                                                             "delete_time": "2024-09-08T19:33:41.250318Z"
@@ -383,6 +407,18 @@
                                                             "user_id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
                                                             "title": "Title",
                                                             "content": "Content",
+                                                            "files": [
+                                                            {
+                                                                "id": "442d91e6-be2a-4b81-96dd-55d99a0126c5",
+                                                                "note_id": "ecb55e26-e595-4800-8aee-cffba508a6a6",
+                                                                "original_file": "original/6b06ab2b-2faf-4f1c-b9f9-35204be29b70.jpg",
+                                                                "processed_file": "",
+                                                                "url": "https://object-storage-service.nyc3.cdn.digitaloceanspaces.com/original/6b06ab2b-2faf-4f1c-b9f9-35204be29b70.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00JCJEATLPGFZDPQCE%2F20250208%2Fnyc3%2Fs3%2Faws4_request&X-Amz-Date=20250208T020547Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=79b561b2dfc1c1acaf7256db5de76cb6e1304b72d3ac577a3d767587507bd6ba",
+                                                                "create_time": "2025-02-08T02:05:46.295338Z",
+                                                                "update_time": "2025-02-08T02:05:46.295338Z",
+                                                                "delete_time": "0001-01-01T00:00:00Z"
+                                                            }
+                                                        ],
                                                             "create_time": "2024-09-08T19:33:41.250318Z",
                                                             "update_time": "2024-09-08T19:33:41.250318Z",
                                                             "delete_time": "2024-09-08T19:33:41.250318Z"
@@ -392,6 +428,18 @@
                                                             "user_id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
                                                             "title": "Title",
                                                             "content": "Content",
+                                                            "files": [
+                                                            {
+                                                                "id": "442d91e6-be2a-4b81-96dd-55d99a0126c5",
+                                                                "note_id": "ecb55e26-e595-4800-8aee-cffba508a6a6",
+                                                                "original_file": "original/6b06ab2b-2faf-4f1c-b9f9-35204be29b70.jpg",
+                                                                "processed_file": "",
+                                                                "url": "https://object-storage-service.nyc3.cdn.digitaloceanspaces.com/original/6b06ab2b-2faf-4f1c-b9f9-35204be29b70.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00JCJEATLPGFZDPQCE%2F20250208%2Fnyc3%2Fs3%2Faws4_request&X-Amz-Date=20250208T020547Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=79b561b2dfc1c1acaf7256db5de76cb6e1304b72d3ac577a3d767587507bd6ba",
+                                                                "create_time": "2025-02-08T02:05:46.295338Z",
+                                                                "update_time": "2025-02-08T02:05:46.295338Z",
+                                                                "delete_time": "0001-01-01T00:00:00Z"
+                                                            }
+                                                        ],
                                                             "create_time": "2024-09-08T19:33:41.250318Z",
                                                             "update_time": "2024-09-08T19:33:41.250318Z",
                                                             "delete_time": "2024-09-08T19:33:41.250318Z"
@@ -760,6 +808,18 @@
                                                         "user_id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
                                                         "title": "Title",
                                                         "content": "Content",
+                                                        "files": [
+                                                            {
+                                                                "id": "442d91e6-be2a-4b81-96dd-55d99a0126c5",
+                                                                "note_id": "ecb55e26-e595-4800-8aee-cffba508a6a6",
+                                                                "original_file": "original/6b06ab2b-2faf-4f1c-b9f9-35204be29b70.jpg",
+                                                                "processed_file": "",
+                                                                "url": "https://object-storage-service.nyc3.cdn.digitaloceanspaces.com/original/6b06ab2b-2faf-4f1c-b9f9-35204be29b70.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00JCJEATLPGFZDPQCE%2F20250208%2Fnyc3%2Fs3%2Faws4_request&X-Amz-Date=20250208T020547Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=79b561b2dfc1c1acaf7256db5de76cb6e1304b72d3ac577a3d767587507bd6ba",
+                                                                "create_time": "2025-02-08T02:05:46.295338Z",
+                                                                "update_time": "2025-02-08T02:05:46.295338Z",
+                                                                "delete_time": "0001-01-01T00:00:00Z"
+                                                            }
+                                                        ],
                                                         "create_time": "2024-09-08T19:33:41.250318Z",
                                                         "update_time": "2024-09-08T19:33:41.250318Z",
                                                         "delete_time": "2024-09-08T19:33:41.250318Z"
