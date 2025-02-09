@@ -39,8 +39,8 @@ to quickly create a Cobra application.`,
 		cfg := config.LoadServerConfig()
 
 		// Database connection
-		db := database.Open(cfg, true)
-		defer database.Close(db, true)
+		db := database.Open(ctx, cfg, true)
+		defer database.Close(ctx, db, true)
 
 		// Database queries
 		dbQueries := database.New(db)
