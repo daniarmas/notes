@@ -29,8 +29,8 @@ to quickly create a Cobra application.`,
 		cfg := config.LoadServerConfig()
 
 		// Database connection
-		db := database.Open(cfg, false)
-		defer database.Close(db, false)
+		db := database.Open(ctx, cfg, false)
+		defer database.Close(ctx, db, false)
 
 		// Create notes_database if not exists
 		stmt, err := db.Prepare(`
