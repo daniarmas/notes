@@ -4,8 +4,9 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"log"
+	"context"
 
+	"github.com/daniarmas/notes/internal/clog"
 	"github.com/daniarmas/notes/internal/config"
 	"github.com/daniarmas/notes/internal/database"
 	"github.com/spf13/cobra"
@@ -22,12 +23,14 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		ctx := context.Background()
+
 		// Config
 		cfg := config.LoadServerConfig()
 
 		// Database connection
-		db := database.Open(cfg, false)
-		defer database.Close(db, false)
+		db := database.Open(ctx, cfg, false)
+		defer database.Close(ctx, db, false)
 
 		// Create notes_database if not exists
 		stmt, err := db.Prepare(`
@@ -40,11 +43,11 @@ to quickly create a Cobra application.`,
 			END
 			$$;`)
 		if err != nil {
-			log.Fatal(err)
+			clog.Error(ctx, "error preparing sql to create notes_database", err)
 		}
 		_, err = stmt.Exec()
 		if err != nil {
-			log.Fatal(err)
+			clog.Error(ctx, "error creating notes_database", err)
 		}
 
 		// Create users table if not exists
@@ -59,11 +62,11 @@ to quickly create a Cobra application.`,
 			CONSTRAINT users_pk PRIMARY KEY (id)
 		);`)
 		if err != nil {
-			log.Fatal(err)
+			clog.Error(ctx, "error preparing sql to create users table", err)
 		}
 		_, err = stmt.Exec()
 		if err != nil {
-			log.Fatal(err)
+			clog.Error(ctx, "error exec sql to create users table", err)
 		}
 
 		// Create refresh tokens table if not exists
@@ -81,11 +84,11 @@ to quickly create a Cobra application.`,
 			)
 		`)
 		if err != nil {
-			log.Fatal(err)
+			clog.Error(ctx, "error preparing sql to create refresh_tokens table", err)
 		}
 		_, err = stmt.Exec()
 		if err != nil {
-			log.Fatal(err)
+			clog.Error(ctx, "error exec sql to create refresh_tokens table", err)
 		}
 
 		// Create access tokens table if not exists
@@ -108,11 +111,11 @@ to quickly create a Cobra application.`,
 			)
 		`)
 		if err != nil {
-			log.Fatal(err)
+			clog.Error(ctx, "error preparing sql to create access_tokens table", err)
 		}
 		_, err = stmt.Exec()
 		if err != nil {
-			log.Fatal(err)
+			clog.Error(ctx, "error exec sql to create access_tokens table", err)
 		}
 
 		// Create notes table if not exists
@@ -133,11 +136,11 @@ to quickly create a Cobra application.`,
 			)
 		`)
 		if err != nil {
-			log.Fatal(err)
+			clog.Error(ctx, "error preparing sql to create notes table", err)
 		}
 		_, err = stmt.Exec()
 		if err != nil {
-			log.Fatal(err)
+			clog.Error(ctx, "error exec sql to create notes table", err)
 		}
 
 		// Create files table if not exists
@@ -158,12 +161,14 @@ to quickly create a Cobra application.`,
 			)
 		`)
 		if err != nil {
-			log.Fatal(err)
+			clog.Error(ctx, "error preparing sql to create files table", err)
 		}
 		_, err = stmt.Exec()
 		if err != nil {
-			log.Fatal(err)
+			clog.Error(ctx, "error exec sql to create files table", err)
 		}
+
+		clog.Info(ctx, "Database tables created successfully", nil)
 	},
 }
 

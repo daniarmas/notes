@@ -5,8 +5,8 @@ package cmd
 
 import (
 	"context"
-	"log"
 
+	"github.com/daniarmas/notes/internal/clog"
 	"github.com/daniarmas/notes/internal/config"
 	"github.com/daniarmas/notes/internal/data"
 	"github.com/daniarmas/notes/internal/database"
@@ -26,8 +26,8 @@ var seedCmd = &cobra.Command{
 		cfg := config.LoadServerConfig()
 
 		// Database connection
-		db := database.Open(cfg, false)
-		defer database.Close(db, false)
+		db := database.Open(ctx, cfg, false)
+		defer database.Close(ctx, db, false)
 
 		// Get sqlc queries
 		queries := database.New(db)
@@ -40,12 +40,13 @@ var seedCmd = &cobra.Command{
 		user2Pass, _ := hashDs.Hash("user2")
 		_, err := queries.CreateUser(ctx, database.CreateUserParams{Name: "user1", Email: "user1@email.com", Password: user1Pass})
 		if err != nil {
-			log.Fatal(err)
+			clog.Error(ctx, "error creating user 1", err)
 		}
 		_, err = queries.CreateUser(ctx, database.CreateUserParams{Name: "user2", Email: "user2@email.com", Password: user2Pass})
 		if err != nil {
-			log.Fatal(err)
+			clog.Error(ctx, "error creating user 2", err)
 		}
+		clog.Info(ctx, "Database seeding completed successfully", nil)
 	},
 }
 

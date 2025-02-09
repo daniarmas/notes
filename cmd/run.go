@@ -47,15 +47,15 @@ func run(ctx context.Context) error {
 	}
 
 	// Database connection
-	db := database.Open(cfg, true)
-	defer database.Close(db, true)
+	db := database.Open(ctx, cfg, true)
+	defer database.Close(ctx, db, true)
 
 	// Database queries
 	dbQueries := database.New(db)
 
 	// Cache connection
-	rdb := cache.OpenRedis(cfg)
-	defer cache.CloseRedis(rdb)
+	rdb := cache.OpenRedis(ctx, cfg)
+	defer cache.CloseRedis(ctx, rdb)
 
 	// Object storage service
 	oss := oss.NewDigitalOceanWithMinio(cfg)
