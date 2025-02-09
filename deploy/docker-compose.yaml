@@ -2,7 +2,7 @@
 
 services:
   create-database-tables:
-    image: ghcr.io/daniarmas/notes:v1.0.2
+    image: ghcr.io/daniarmas/notes:v1.0.3
     container_name: create-database-tables
     depends_on:
       postgres:
@@ -31,7 +31,7 @@ services:
       REST_SERVER_PORT: '3030'
     restart: "on-failure"
   create-database-seed:
-    image: ghcr.io/daniarmas/notes:v1.0.2
+    image: ghcr.io/daniarmas/notes:v1.0.3
     container_name: create-database-seed
     depends_on:
       create-database-tables:
@@ -46,6 +46,38 @@ services:
       DATABASE_URL: 'postgresql://postgres:postgres@postgres:5432/postgres?sslmode=disable'
       #Redis configuration
       REDIS_HOST: 'localhost'
+      REIDS_PORT: '6379'
+      REDIS_PASSWORD: ''
+      REDIS_DB: '0'
+      # Object storage configuration
+      OBJECT_STORAGE_SERVICE_ACCESS_KEY: 'access-key'
+      OBJECT_STORAGE_SERVICE_SECRET_KEY: 'secret-key'
+      OBJECT_STORAGE_SERVICE_ENDPOINT: 'object-storage-endpoint'
+      OBJECT_STORAGE_SERVICE_REGION: 'us-east-1'
+      OBJECT_STORAGE_SERVICE_BUCKET: 'bucket-name'
+      # GraphQL configuration
+      GRAPHQL_SERVER_PORT: '2210'
+      REST_SERVER_PORT: '3030'
+    restart: "on-failure"
+  api:
+    image: ghcr.io/daniarmas/notes:v1.0.3
+    container_name: api
+    depends_on:
+      create-database-seed:
+        condition: service_completed_successfully
+    entrypoint: ["/app/notes"]
+    command: ["run"]
+    ports:
+      - 2210:2210
+      - 3030:3030
+    environment:
+      # Application settings
+      ENVIRONMENT: 'development'
+      JWT_SECRET: 'jwt-secret'
+      # Database configuration
+      DATABASE_URL: 'postgresql://postgres:postgres@postgres:5432/postgres?sslmode=disable'
+      #Redis configuration
+      REDIS_HOST: 'redis'
       REIDS_PORT: '6379'
       REDIS_PASSWORD: ''
       REDIS_DB: '0'
