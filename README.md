@@ -15,6 +15,8 @@ This is a backend application for a notes app, developed using Go. The API suppo
 1. Install [Docker](https://docs.docker.com/desktop/)
 2. Install Postman from [here](https://www.postman.com/downloads/).
 3. Download the api postman collection [here](https://github.com/daniarmas/notes/blob/main/assets/notes-api.postman_collection.json)
+4. Configure an object storage service compatible with the Amazon S3 API. [DigitalOcean Spaces](https://docs.digitalocean.com/products/spaces/) was used in the development. Ensure you update the ***access key***, ***secret key*** and ***bucket name*** in the docker compose file enviroment variables.
+5. Download and deploy [docker compose file](https://github.com/daniarmas/notes/blob/main/deploy/docker-compose.yaml) for test 
 
 ## Setup for development
 
