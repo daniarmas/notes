@@ -18,7 +18,7 @@ This is a backend application for a notes app, developed using Go. The API suppo
 
 ## Documentation
 
-* [Swagger Documentation](https://api.notes.daniel-enrique.com/doc) 
+After completing step 3 in the [Setup for development](#setup-for-development) section, go to [http://localhost:8081](http://localhost:8081) to open Swagger UI.
 
 <!-- PREREQUISITES -->
 ## Prerequisites
@@ -46,9 +46,9 @@ This is a backend application for a notes app, developed using Go. The API suppo
    ```sh
    direnv allow
    ```
-5. Create the `.envrc` file with the env vars in example.env
+5. Create the `.envrc` file with the env vars in example.envrc
 6. ```sh
-   cp example.env .envrc
+   cp example.envrc .envrc
    ```
 7. Create the database tables
    ```sh
