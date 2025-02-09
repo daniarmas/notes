@@ -54,8 +54,8 @@ func run(ctx context.Context) error {
 	dbQueries := database.New(db)
 
 	// Cache connection
-	rdb := cache.OpenRedis(cfg)
-	defer cache.CloseRedis(rdb)
+	rdb := cache.OpenRedis(ctx, cfg)
+	defer cache.CloseRedis(ctx, rdb)
 
 	// Object storage service
 	oss := oss.NewDigitalOceanWithMinio(cfg)

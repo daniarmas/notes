@@ -1,16 +1,18 @@
 package cache
 
 import (
-	"log"
+	"context"
+	"fmt"
 	"net"
 	"time"
 
+	"github.com/daniarmas/notes/internal/clog"
 	"github.com/daniarmas/notes/internal/config"
 	"github.com/redis/go-redis/v9"
 )
 
 // Open the redis connection
-func OpenRedis(cfg *config.Configuration) *redis.Client {
+func OpenRedis(ctx context.Context, cfg *config.Configuration) *redis.Client {
 	address := net.JoinHostPort(cfg.RedisHost, cfg.RedisPort)
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     address,
@@ -21,19 +23,23 @@ func OpenRedis(cfg *config.Configuration) *redis.Client {
 
 	conn, err := net.DialTimeout("tcp", address, timeout)
 	if err != nil {
-		log.Fatalf("Could not connect to Redis server at %s: %v\n", address, err)
+		msg := fmt.Sprintf("Could not connect to Redis server at %s: %v\n", address, err)
+		clog.Error(ctx, msg, err)
 	}
 	defer conn.Close()
 
-	log.Printf("Connected to Redis server at %s\n", address)
+	msg := fmt.Sprintf("Connected to Redis server at %s", address)
+	clog.Info(ctx, msg, nil)
+
 	return rdb
 }
 
 // Close the Redis connection gracefully
-func CloseRedis(client *redis.Client) {
+func CloseRedis(ctx context.Context, client *redis.Client) {
 	err := client.Close()
 	if err != nil {
-		log.Fatalf("Error closing Redis connection: %v", err)
+		msg := fmt.Sprintf("Error closing Redis connection: %v", err)
+		clog.Error(ctx, msg, err)
 	}
-	log.Println("Redis connection closed")
+	clog.Info(ctx, "Redis connection closed", nil)
 }
