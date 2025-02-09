@@ -2,7 +2,7 @@
 
 services:
   postgres:
-    image: postgres
+    image: postgres:15.10@sha256:d609c3005478af92bddad773423df829b7402ea0b356d5b72edd2fd54d1ad3ea
     container_name: postgres
     ports:
       - "5432:5432"
@@ -13,20 +13,20 @@ services:
       - postgres:/var/lib/postgresql/data
     restart: always
   pgadmin:
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:2025-02-05-3@sha256:59f90ab0ebb9035f720b664b2295a3714a78b28016e66732296a3b6b835ec305
     container_name: pgadmin
     ports:
       - "8888:80"
     environment:
-      PGADMIN_DEFAULT_EMAIL: prueba@email.com
-      PGADMIN_DEFAULT_PASSWORD: prueba
+      PGADMIN_DEFAULT_EMAIL: test@email.com
+      PGADMIN_DEFAULT_PASSWORD: test
     volumes:
       - pgadmin-data:/var/lib/pgadmin
     depends_on:
       - postgres
     restart: always
   swagger:
-    image: swaggerapi/swagger-ui:v3.52.3
+    image: swaggerapi/swagger-ui:v5.18.3@sha256:2d34d6ae875512b7155b443656d06b60111d69916cc8fccd779c7297c03cbb8a
     container_name: swagger
     environment:
       - SWAGGER_JSON=/temp/swagger.json

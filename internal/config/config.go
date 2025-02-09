@@ -77,7 +77,7 @@ func LoadServerConfig() *Configuration {
 		clog.Warn(ctx, "JWT_SECRET enviroment variable is required", nil)
 	}
 	if config.DatabaseUrl == "" {
-		config.DatabaseUrl = "postgresql://root@localhost:26257/postgres?sslmode=disable"
+		config.DatabaseUrl = "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable"
 	}
 	if config.RedisHost == "" {
 		config.RedisHost = "localhost"

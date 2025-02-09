@@ -280,6 +280,18 @@
                                                             "user_id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
                                                             "title": "Title",
                                                             "content": "Content",
+                                                            "files": [
+                                                            {
+                                                                "id": "442d91e6-be2a-4b81-96dd-55d99a0126c5",
+                                                                "note_id": "ecb55e26-e595-4800-8aee-cffba508a6a6",
+                                                                "original_file": "original/6b06ab2b-2faf-4f1c-b9f9-35204be29b70.jpg",
+                                                                "processed_file": "",
+                                                                "url": "https://object-storage-service.nyc3.cdn.digitaloceanspaces.com/original/6b06ab2b-2faf-4f1c-b9f9-35204be29b70.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00JCJEATLPGFZDPQCE%2F20250208%2Fnyc3%2Fs3%2Faws4_request&X-Amz-Date=20250208T020547Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=79b561b2dfc1c1acaf7256db5de76cb6e1304b72d3ac577a3d767587507bd6ba",
+                                                                "create_time": "2025-02-08T02:05:46.295338Z",
+                                                                "update_time": "2025-02-08T02:05:46.295338Z",
+                                                                "delete_time": "0001-01-01T00:00:00Z"
+                                                            }
+                                                        ],
                                                             "create_time": "2024-09-08T19:33:41.250318Z",
                                                             "update_time": "2024-09-08T19:33:41.250318Z",
                                                             "delete_time": "2024-09-08T19:33:41.250318Z"
@@ -289,6 +301,18 @@
                                                             "user_id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
                                                             "title": "Title",
                                                             "content": "Content",
+                                                            "files": [
+                                                            {
+                                                                "id": "442d91e6-be2a-4b81-96dd-55d99a0126c5",
+                                                                "note_id": "ecb55e26-e595-4800-8aee-cffba508a6a6",
+                                                                "original_file": "original/6b06ab2b-2faf-4f1c-b9f9-35204be29b70.jpg",
+                                                                "processed_file": "",
+                                                                "url": "https://object-storage-service.nyc3.cdn.digitaloceanspaces.com/original/6b06ab2b-2faf-4f1c-b9f9-35204be29b70.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00JCJEATLPGFZDPQCE%2F20250208%2Fnyc3%2Fs3%2Faws4_request&X-Amz-Date=20250208T020547Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=79b561b2dfc1c1acaf7256db5de76cb6e1304b72d3ac577a3d767587507bd6ba",
+                                                                "create_time": "2025-02-08T02:05:46.295338Z",
+                                                                "update_time": "2025-02-08T02:05:46.295338Z",
+                                                                "delete_time": "0001-01-01T00:00:00Z"
+                                                            }
+                                                        ],
                                                             "create_time": "2024-09-08T19:33:41.250318Z",
                                                             "update_time": "2024-09-08T19:33:41.250318Z",
                                                             "delete_time": "2024-09-08T19:33:41.250318Z"
@@ -383,6 +407,18 @@
                                                             "user_id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
                                                             "title": "Title",
                                                             "content": "Content",
+                                                            "files": [
+                                                            {
+                                                                "id": "442d91e6-be2a-4b81-96dd-55d99a0126c5",
+                                                                "note_id": "ecb55e26-e595-4800-8aee-cffba508a6a6",
+                                                                "original_file": "original/6b06ab2b-2faf-4f1c-b9f9-35204be29b70.jpg",
+                                                                "processed_file": "",
+                                                                "url": "https://object-storage-service.nyc3.cdn.digitaloceanspaces.com/original/6b06ab2b-2faf-4f1c-b9f9-35204be29b70.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00JCJEATLPGFZDPQCE%2F20250208%2Fnyc3%2Fs3%2Faws4_request&X-Amz-Date=20250208T020547Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=79b561b2dfc1c1acaf7256db5de76cb6e1304b72d3ac577a3d767587507bd6ba",
+                                                                "create_time": "2025-02-08T02:05:46.295338Z",
+                                                                "update_time": "2025-02-08T02:05:46.295338Z",
+                                                                "delete_time": "0001-01-01T00:00:00Z"
+                                                            }
+                                                        ],
                                                             "create_time": "2024-09-08T19:33:41.250318Z",
                                                             "update_time": "2024-09-08T19:33:41.250318Z",
                                                             "delete_time": "2024-09-08T19:33:41.250318Z"
@@ -392,6 +428,18 @@
                                                             "user_id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
                                                             "title": "Title",
                                                             "content": "Content",
+                                                            "files": [
+                                                            {
+                                                                "id": "442d91e6-be2a-4b81-96dd-55d99a0126c5",
+                                                                "note_id": "ecb55e26-e595-4800-8aee-cffba508a6a6",
+                                                                "original_file": "original/6b06ab2b-2faf-4f1c-b9f9-35204be29b70.jpg",
+                                                                "processed_file": "",
+                                                                "url": "https://object-storage-service.nyc3.cdn.digitaloceanspaces.com/original/6b06ab2b-2faf-4f1c-b9f9-35204be29b70.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00JCJEATLPGFZDPQCE%2F20250208%2Fnyc3%2Fs3%2Faws4_request&X-Amz-Date=20250208T020547Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=79b561b2dfc1c1acaf7256db5de76cb6e1304b72d3ac577a3d767587507bd6ba",
+                                                                "create_time": "2025-02-08T02:05:46.295338Z",
+                                                                "update_time": "2025-02-08T02:05:46.295338Z",
+                                                                "delete_time": "0001-01-01T00:00:00Z"
+                                                            }
+                                                        ],
                                                             "create_time": "2024-09-08T19:33:41.250318Z",
                                                             "update_time": "2024-09-08T19:33:41.250318Z",
                                                             "delete_time": "2024-09-08T19:33:41.250318Z"
@@ -476,6 +524,12 @@
                                         "content": {
                                             "type": "string",
                                             "example": "Content"
+                                        },
+                                        "object_names": {
+                                            "type": "array",
+                                            "example": [
+                                                "original/photo.jpg"
+                                            ]
                                         }
                                     }
                                 }
@@ -503,6 +557,18 @@
                                                         "user_id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
                                                         "title": "Title",
                                                         "content": "Content",
+                                                        "files": [
+                                                            {
+                                                                "id": "442d91e6-be2a-4b81-96dd-55d99a0126c5",
+                                                                "note_id": "ecb55e26-e595-4800-8aee-cffba508a6a6",
+                                                                "original_file": "original/6b06ab2b-2faf-4f1c-b9f9-35204be29b70.jpg",
+                                                                "processed_file": "",
+                                                                "url": "https://object-storage-service.nyc3.cdn.digitaloceanspaces.com/original/6b06ab2b-2faf-4f1c-b9f9-35204be29b70.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00JCJEATLPGFZDPQCE%2F20250208%2Fnyc3%2Fs3%2Faws4_request&X-Amz-Date=20250208T020547Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=79b561b2dfc1c1acaf7256db5de76cb6e1304b72d3ac577a3d767587507bd6ba",
+                                                                "create_time": "2025-02-08T02:05:46.295338Z",
+                                                                "update_time": "2025-02-08T02:05:46.295338Z",
+                                                                "delete_time": "0001-01-01T00:00:00Z"
+                                                            }
+                                                        ],
                                                         "create_time": "2024-09-08T19:33:41.250318Z",
                                                         "update_time": "2024-09-08T19:33:41.250318Z",
                                                         "delete_time": "2024-09-08T19:33:41.250318Z"
@@ -539,6 +605,16 @@
                                                 "details": {
                                                     "title": "field required",
                                                     "content": "field required"
+                                                },
+                                                "data": {}
+                                            }
+                                        },
+                                        "example3": {
+                                            "summary": "Objects not found",
+                                            "value": {
+                                                "code": 400,
+                                                "message": "One or more objects not found in the object storage service",
+                                                "details": {
                                                 },
                                                 "data": {}
                                             }
@@ -732,6 +808,18 @@
                                                         "user_id": "3267b999-a3bc-482e-aabd-cb2b2b618cb5",
                                                         "title": "Title",
                                                         "content": "Content",
+                                                        "files": [
+                                                            {
+                                                                "id": "442d91e6-be2a-4b81-96dd-55d99a0126c5",
+                                                                "note_id": "ecb55e26-e595-4800-8aee-cffba508a6a6",
+                                                                "original_file": "original/6b06ab2b-2faf-4f1c-b9f9-35204be29b70.jpg",
+                                                                "processed_file": "",
+                                                                "url": "https://object-storage-service.nyc3.cdn.digitaloceanspaces.com/original/6b06ab2b-2faf-4f1c-b9f9-35204be29b70.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00JCJEATLPGFZDPQCE%2F20250208%2Fnyc3%2Fs3%2Faws4_request&X-Amz-Date=20250208T020547Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=79b561b2dfc1c1acaf7256db5de76cb6e1304b72d3ac577a3d767587507bd6ba",
+                                                                "create_time": "2025-02-08T02:05:46.295338Z",
+                                                                "update_time": "2025-02-08T02:05:46.295338Z",
+                                                                "delete_time": "0001-01-01T00:00:00Z"
+                                                            }
+                                                        ],
                                                         "create_time": "2024-09-08T19:33:41.250318Z",
                                                         "update_time": "2024-09-08T19:33:41.250318Z",
                                                         "delete_time": "2024-09-08T19:33:41.250318Z"
@@ -1016,6 +1104,139 @@
                                             "value": {
                                                 "code": 404,
                                                 "message": "Not found",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "/note/presigned-urls": {
+                "post": {
+                    "summary": "Generate presigned URLs to upload files",
+                    "tags": [
+                        "Notes"
+                    ],
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "object_names": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "object_names"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "OK",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "successful",
+                                            "value": {
+                                                "code": 200,
+                                                "message": "OK",
+                                                "details": {},
+                                                "data": {
+                                                    "urls": [
+                                                        {
+                                                            "url": "https://object-storage-service.nyc3.digitaloceanspaces.com/original/646297cd-d2eb-48dc-9266-211ba63613e5.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00JCJEATLPGFZDPQCE%2F20250208%2Fnyc3%2Fs3%2Faws4_request&X-Amz-Date=20250208T015601Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=4fd8916d423d6da56c51de99d385acbb890740031ca7331d9f5b05c346c4cf90",
+                                                            "file": "main.go.jpg",
+                                                            "object_id": "original/646297cd-d2eb-48dc-9266-211ba63613e5.jpg"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "400": {
+                            "description": "Bad request",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example": {
+                                            "summary": "Invalid JSON request",
+                                            "value": {
+                                                "code": 400,
+                                                "message": "Invalid JSON request",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        },
+                                        "example1": {
+                                            "summary": "Field required",
+                                            "value": {
+                                                "code": 400,
+                                                "message": "Bad Request",
+                                                "details": {
+                                                    "object_names": "field required"
+                                                },
+                                                "data": {}
+                                            }
+                                        },
+                                        "example2": {
+                                            "summary": "Maximum objects allowed",
+                                            "value": {
+                                                "code": 400,
+                                                "message": "Bad Request",
+                                                "details": {
+                                                    "object_names": "maximum of 10 objects allowed"
+                                                },
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "401": {
+                            "description": "Unauthorized",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Response"
+                                    },
+                                    "examples": {
+                                        "example1": {
+                                            "summary": "Authorization token has expired",
+                                            "value": {
+                                                "code": 401,
+                                                "message": "Authorization token has expired. Please log in again to continue.",
+                                                "details": {},
+                                                "data": {}
+                                            }
+                                        },
+                                        "example2": {
+                                            "summary": "User not logged",
+                                            "value": {
+                                                "code": 401,
+                                                "message": "User is not logged in. Please log in to access this resource.",
                                                 "details": {},
                                                 "data": {}
                                             }
