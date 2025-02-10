@@ -1,0 +1,26 @@
+meta {
+  name: hard-delete-note
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{host}}/note/{{id}}/hard
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{token}}
+}
+
+body:json {
+  {
+    "title": "test",
+    "content": "test"
+  }
+}
+
+vars:pre-request {
+  id: 44e58f7e-49c9-46e4-b855-9f9696a8e852
+}

@@ -1,0 +1,37 @@
+meta {
+  name: list-trash-notes
+  type: graphql
+  seq: 4
+}
+
+post {
+  url: {{host}}/query
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query ListNotes {
+    listNotes(input: { trash: true }) {
+      cursor
+      notes {
+        id
+        userId
+        title
+        content
+        createTime
+        updateTime
+        files {
+          id
+          noteId
+          originalFile
+          processedFile
+          url
+          createTime
+          updateTime
+        }
+      }
+    }
+  }
+  
+}

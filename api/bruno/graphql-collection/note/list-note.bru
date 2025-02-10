@@ -1,0 +1,37 @@
+meta {
+  name: list-note
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: {{host}}/query
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query ListNotes {
+    listNotes {
+      cursor
+      notes {
+        id
+        userId
+        title
+        content
+        createTime
+        updateTime
+        files {
+          id
+          noteId
+          originalFile
+          processedFile
+          url
+          createTime
+          updateTime
+        }
+      }
+    }
+  }
+  
+}

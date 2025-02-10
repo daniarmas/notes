@@ -13,10 +13,21 @@ This is a backend application for a notes app, developed using Go. The API suppo
 ## How to test
 
 1. Install [Docker](https://docs.docker.com/desktop/)
-2. Install Postman from [here](https://www.postman.com/downloads/).
-3. Download the api postman collection [here](https://github.com/daniarmas/notes/blob/main/assets/notes-api.postman_collection.json)
-4. Configure an object storage service compatible with the Amazon S3 API. [DigitalOcean Spaces](https://docs.digitalocean.com/products/spaces/) was used in the development. Ensure you update the ***access key***, ***secret key*** and ***bucket name*** in the docker compose file enviroment variables.
-5. Download and deploy [docker compose file](https://github.com/daniarmas/notes/blob/main/deploy/docker-compose.yaml) for test 
+2. Install Bruno from [here](https://www.usebruno.com/downloads).
+3. Clone the repo
+   ```sh
+   git clone https://github.com/daniarmas/notes.git
+   ```
+4. Open the Bruno collections at **./api/bruno**.
+5. Download the docker compose file.
+   ```sh
+   curl -o docker-compose.yaml https://raw.githubusercontent.com/daniarmas/notes/refs/heads/main/deploy/docker-compose.yaml
+   ```
+6. Configure an object storage service compatible with the Amazon S3 API. [DigitalOcean Spaces](https://docs.digitalocean.com/products/spaces/) was used in the development. Ensure you update the ***access key***, ***secret key*** and ***bucket name*** in the docker compose file enviroment variables.
+7. Deploy the docker compose file
+   ```sh
+   docker compose up -d
+   ```
 
 ## Setup for development
 

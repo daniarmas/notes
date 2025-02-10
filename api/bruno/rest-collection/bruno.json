@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "notes-rest",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
