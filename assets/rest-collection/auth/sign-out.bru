@@ -1,0 +1,15 @@
+meta {
+  name: sign-out
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/sign-out
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{token}}
+}
