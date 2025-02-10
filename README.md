@@ -19,14 +19,10 @@ This is a backend application for a notes app, developed using Go. The API suppo
    git clone https://github.com/daniarmas/notes.git
    ```
 4. Open the Bruno collections at **./api/bruno**.
-5. Download the docker compose file.
+5. Configure an object storage service compatible with the Amazon S3 API. [DigitalOcean Spaces](https://docs.digitalocean.com/products/spaces/) was used in the development. Ensure you update the ***access key***, ***secret key*** and ***bucket name*** in the docker compose file enviroment variables.
+6. Deploy docker compose file
    ```sh
-   curl -o docker-compose.yaml https://raw.githubusercontent.com/daniarmas/notes/refs/heads/main/deploy/docker-compose.yaml
-   ```
-6. Configure an object storage service compatible with the Amazon S3 API. [DigitalOcean Spaces](https://docs.digitalocean.com/products/spaces/) was used in the development. Ensure you update the ***access key***, ***secret key*** and ***bucket name*** in the docker compose file enviroment variables.
-7. Deploy the docker compose file
-   ```sh
-   docker compose up -d
+   docker compose -f deploy/docker-compose.yaml up -d
    ```
 
 ## Setup for development
