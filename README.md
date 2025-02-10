@@ -20,7 +20,11 @@ This is a backend application for a notes app, developed using Go. The API suppo
    ```
 4. Open the Bruno collections at **./api/bruno**.
 5. Configure an object storage service compatible with the Amazon S3 API. [DigitalOcean Spaces](https://docs.digitalocean.com/products/spaces/) was used in the development. Ensure you update the ***access key***, ***secret key*** and ***bucket name*** in the docker compose file enviroment variables.
-6. Deploy docker compose file
+6. Create the `.env` file with the env vars in example.env
+   ```sh
+   cp example.env .env
+   ```
+7. Deploy docker compose file
    ```sh
    docker compose -f deploy/docker-compose.yaml up -d
    ```
