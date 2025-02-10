@@ -1,0 +1,24 @@
+meta {
+  name: get-presigned-urls
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: {{host}}/query
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation CreatePresignedUrl {
+    createPresignedUrl(objectName: ["main1.go.jpg", "main2.go.jpg"]) {
+      Urls {
+        Url
+        File
+        ObjectId
+      }
+    }
+  }
+  
+}

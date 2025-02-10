@@ -1,0 +1,18 @@
+meta {
+  name: restore-note
+  type: graphql
+  seq: 7
+}
+
+post {
+  url: {{host}}/query
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation RestoreNote {
+    restoreNote(id: "14397eb6-57e2-40b1-8e1b-29e23f581b4c")
+  }
+  
+}

@@ -1,10 +1,10 @@
 {
 	"info": {
 		"_postman_id": "77d797a9-583b-4b0c-8b41-ca43fe4956d9",
-		"name": "Notes API",
+		"name": "notes-rest-api",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "11737807",
-		"_collection_link": "https://lively-satellite-377386.postman.co/workspace/Portafolio-projects~8aa94000-96f3-49de-99ea-7de178437f62/collection/11737807-77d797a9-583b-4b0c-8b41-ca43fe4956d9?action=share&source=collection_link&creator=11737807"
+		"_collection_link": "https://lively-satellite-377386.postman.co/workspace/8aa94000-96f3-49de-99ea-7de178437f62/collection/11737807-77d797a9-583b-4b0c-8b41-ca43fe4956d9?action=share&source=collection_link&creator=11737807"
 	},
 	"item": [
 		{
