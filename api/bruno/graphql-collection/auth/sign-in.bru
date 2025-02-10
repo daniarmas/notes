@@ -1,0 +1,35 @@
+meta {
+  name: sign-in
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: {{host}}/query
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation SignIn($email: String!, $password: String!) {
+    signIn(input: { email: $email, password: $password }) {
+      accessToken
+      refreshToken
+      user {
+        id
+        name
+        email
+        createTime
+        updateTime
+      }
+    }
+  }
+  
+}
+
+body:graphql:vars {
+  {
+    "email": "user1@email.com",
+    "password": "user1"
+  }
+}

@@ -1,0 +1,18 @@
+meta {
+  name: hard-delete-note
+  type: graphql
+  seq: 5
+}
+
+post {
+  url: {{host}}/query
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  mutation DeleteNote {
+    deleteNote(id: "5e5d0aab-9ec1-40ce-84b8-ea7d2103d9e7")
+  }
+  
+}
