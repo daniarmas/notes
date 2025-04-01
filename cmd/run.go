@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -10,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/daniarmas/clogg"
 	"github.com/daniarmas/notes/internal/cache"
 	"github.com/daniarmas/notes/internal/clog"
 	"github.com/daniarmas/notes/internal/config"
@@ -28,8 +30,13 @@ func run(ctx context.Context) error {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
-	// Custom logger
-	clog.NewClog()
+	// Set up clogg
+	handler := slog.NewJSONHandler(os.Stdout, nil)
+	logger := clogg.GetLogger(clogg.LoggerConfig{
+		BufferSize: 100,
+		Handler:    handler,
+	})
+	defer logger.Shutdown()
 
 	// Kubernetes client
 	k8sClient, ck8sError := k8sc.NewClient()
