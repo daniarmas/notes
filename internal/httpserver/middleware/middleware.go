@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/daniarmas/notes/internal/clog"
+	"github.com/daniarmas/clogg"
 	"github.com/daniarmas/notes/internal/domain"
 	"github.com/daniarmas/notes/internal/httpserver/response"
 	"github.com/daniarmas/notes/internal/utils"
@@ -104,15 +104,14 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 
 		// Log the request details, optionally retrieving the request ID from the context
 		// clog.Debug(ctx, "HTTP request", nil)
-		clog.Info(
+		clogg.Info(
 			ctx,
 			"HTTP request",
-			nil,
-			clog.String("method", r.Method),
-			clog.String("path", r.URL.Path),
-			clog.Int("status", rw.statusCode),
-			clog.String("user_agent", r.Header.Get("User-Agent")),
-			clog.String("request_id", requestID),
+			clogg.String("method", r.Method),
+			clogg.String("path", r.URL.Path),
+			clogg.Int("status", rw.statusCode),
+			clogg.String("user_agent", r.Header.Get("User-Agent")),
+			clogg.String("request_id", requestID),
 		)
 	})
 }

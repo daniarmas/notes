@@ -5,8 +5,10 @@ package cmd
 
 import (
 	"context"
-	"log"
+	"log/slog"
+	"os"
 
+	"github.com/daniarmas/clogg"
 	"github.com/daniarmas/notes/internal/config"
 	"github.com/daniarmas/notes/internal/database"
 	"github.com/spf13/cobra"
@@ -25,6 +27,14 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
 
+		// Set up clogg
+		handler := slog.NewJSONHandler(os.Stdout, nil)
+		logger := clogg.GetLogger(clogg.LoggerConfig{
+			BufferSize: 5,
+			Handler:    handler,
+		})
+		defer logger.Shutdown()
+
 		// Config
 		cfg := config.LoadServerConfig()
 
@@ -35,11 +45,13 @@ to quickly create a Cobra application.`,
 		// Create notes_database if not exists
 		stmt, err := db.Prepare("DELETE FROM users;")
 		if err != nil {
-			log.Fatal(err)
+			clogg.Error(ctx, "error preparing sql to delete users", clogg.String("error", err.Error()))
+			os.Exit(1)
 		}
 		_, err = stmt.Exec()
 		if err != nil {
-			log.Fatal(err)
+			clogg.Error(ctx, "error deleting users", clogg.String("error", err.Error()))
+			os.Exit(1)
 		}
 	},
 }

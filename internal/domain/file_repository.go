@@ -12,7 +12,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/daniarmas/notes/internal/clog"
+	"github.com/daniarmas/clogg"
 	"github.com/daniarmas/notes/internal/config"
 	"github.com/daniarmas/notes/internal/oss"
 	"github.com/google/uuid"
@@ -180,7 +180,7 @@ func (r *fileCloudRepository) Process(ctx context.Context, tx *sql.Tx, ossFileId
 		}
 		processedFileId = fmt.Sprintf("processed-audio/%s", filepath.Base(path))
 	default:
-		clog.Error(ctx, "The file is not supported", nil)
+		clogg.Error(ctx, "file not supported")
 		return fmt.Errorf("the file is not supported")
 	}
 
@@ -189,13 +189,13 @@ func (r *fileCloudRepository) Process(ctx context.Context, tx *sql.Tx, ossFileId
 
 	// Upload the processed file to the cloud
 	if err := r.ObjectStorageService.PutObject(ctx, r.Config.ObjectStorageServiceBucket, processedFileId, path); err != nil {
-		clog.Error(ctx, "error uploading processed file to the cloud", err)
+		clogg.Error(ctx, "error uploading processed file to the cloud", clogg.String("error", err.Error()))
 		return err
 	}
 
 	// Update the file on the database
 	if _, err := r.FileDatabaseDs.UpdateFileByOriginalId(ctx, tx, ossFileId, processedFileId); err != nil {
-		clog.Error(ctx, "error updating file by original id", err)
+		clogg.Error(ctx, "error updating file by original id", clogg.String("error", err.Error()))
 		return err
 	}
 
@@ -214,7 +214,7 @@ func CompressAudio(path string) (string, error) {
 
 	// Run the command
 	if err := cmd.Run(); err != nil {
-		clog.Error(context.Background(), "error compressing audio", err)
+		clogg.Error(context.Background(), "error compressing audio", clogg.String("error", err.Error()))
 		return "", fmt.Errorf("error compressing audio: %v", err)
 	}
 

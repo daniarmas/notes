@@ -5,8 +5,10 @@ package cmd
 
 import (
 	"context"
+	"log/slog"
+	"os"
 
-	"github.com/daniarmas/notes/internal/clog"
+	"github.com/daniarmas/clogg"
 	"github.com/daniarmas/notes/internal/config"
 	"github.com/daniarmas/notes/internal/data"
 	"github.com/daniarmas/notes/internal/database"
@@ -21,6 +23,14 @@ var seedCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		// Context
 		ctx := context.Background()
+
+		// Set up clogg
+		handler := slog.NewJSONHandler(os.Stdout, nil)
+		logger := clogg.GetLogger(clogg.LoggerConfig{
+			BufferSize: 5,
+			Handler:    handler,
+		})
+		defer logger.Shutdown()
 
 		// Config
 		cfg := config.LoadServerConfig()
@@ -40,13 +50,13 @@ var seedCmd = &cobra.Command{
 		user2Pass, _ := hashDs.Hash("user2")
 		_, err := queries.CreateUser(ctx, database.CreateUserParams{Name: "user1", Email: "user1@email.com", Password: user1Pass})
 		if err != nil {
-			clog.Error(ctx, "error creating user 1", err)
+			clogg.Error(ctx, "error creating user 1", clogg.String("error", err.Error()))
 		}
 		_, err = queries.CreateUser(ctx, database.CreateUserParams{Name: "user2", Email: "user2@email.com", Password: user2Pass})
 		if err != nil {
-			clog.Error(ctx, "error creating user 2", err)
+			clogg.Error(ctx, "error creating user 2", clogg.String("error", err.Error()))
 		}
-		clog.Info(ctx, "Database seeding completed successfully", nil)
+		clogg.Info(ctx, "Database seeding completed successfully")
 	},
 }
 

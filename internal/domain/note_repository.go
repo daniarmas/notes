@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/daniarmas/notes/internal/clog"
+	"github.com/daniarmas/clogg"
 	"github.com/google/uuid"
 )
 
@@ -40,10 +40,9 @@ func (n *noteRepository) CreateNote(ctx context.Context, tx *sql.Tx, note *Note)
 	// Cache the note
 	err = n.NoteCacheDs.CreateNote(ctx, note)
 	if err != nil {
-		clog.Info(
+		clogg.Info(
 			ctx,
 			err.Error(),
-			nil,
 		)
 	}
 	return note, nil

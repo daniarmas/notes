@@ -6,7 +6,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/daniarmas/notes/internal/clog"
+	"github.com/daniarmas/clogg"
 	"github.com/daniarmas/notes/internal/config"
 	"github.com/redis/go-redis/v9"
 )
@@ -23,13 +23,13 @@ func OpenRedis(ctx context.Context, cfg *config.Configuration) *redis.Client {
 
 	conn, err := net.DialTimeout("tcp", address, timeout)
 	if err != nil {
-		msg := fmt.Sprintf("Could not connect to Redis server at %s: %v\n", address, err)
-		clog.Error(ctx, msg, err)
+		msg := fmt.Sprintf("could not connect to redis server at %s: %v\n", address, err)
+		clogg.Error(ctx, msg)
 	}
 	defer conn.Close()
 
-	msg := fmt.Sprintf("Connected to Redis server at %s", address)
-	clog.Info(ctx, msg, nil)
+	msg := fmt.Sprintf("connected to redis server at %s", address)
+	clogg.Info(ctx, msg)
 
 	return rdb
 }
@@ -38,8 +38,8 @@ func OpenRedis(ctx context.Context, cfg *config.Configuration) *redis.Client {
 func CloseRedis(ctx context.Context, client *redis.Client) {
 	err := client.Close()
 	if err != nil {
-		msg := fmt.Sprintf("Error closing Redis connection: %v", err)
-		clog.Error(ctx, msg, err)
+		msg := fmt.Sprintf("error closing Redis connection")
+		clogg.Error(ctx, msg, clogg.String("error", err.Error()))
 	}
-	clog.Info(ctx, "Redis connection closed", nil)
+	clogg.Info(ctx, "redis connection closed")
 }

@@ -11,7 +11,7 @@ import (
 
 	"errors"
 
-	"github.com/daniarmas/notes/internal/clog"
+	"github.com/daniarmas/clogg"
 	"github.com/daniarmas/notes/internal/config"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -30,7 +30,7 @@ func NewDigitalOceanWithMinio(cfg *config.Configuration) ObjectStorageService {
 		BucketLookup: minio.BucketLookupDNS,
 	})
 	if err != nil {
-		clog.Error(context.Background(), "error creating minio client", err)
+		clogg.Error(context.Background(), "error creating minio client", clogg.String("error", err.Error()))
 	}
 	return &oss{
 		client: minioClient,
@@ -43,10 +43,10 @@ func (o *oss) HealthCheck() error {
 	defer cancel()
 	bucketExists, err := o.client.BucketExists(ctx, o.cfg.ObjectStorageServiceBucket)
 	if err != nil {
-		clog.Info(context.Background(), "Connection error to Object Storage server", err)
+		clogg.Error(context.Background(), "connection error to Object Storage server", clogg.String("error", err.Error()))
 		return err
 	} else if bucketExists {
-		clog.Info(context.Background(), "Connection sucessfull to Object Storage server", err)
+		clogg.Info(context.Background(), "connection sucessfull to Object Storage server")
 		return nil
 	}
 	return nil
@@ -55,7 +55,7 @@ func (o *oss) HealthCheck() error {
 func (o *oss) PresignedGetObject(ctx context.Context, bucketName, objectName string, expiry time.Duration) (string, error) {
 	presignedURL, err := o.client.PresignedGetObject(context.Background(), bucketName, objectName, expiry, nil)
 	if err != nil {
-		clog.Error(context.Background(), "error generating presigned URL", err)
+		clogg.Error(context.Background(), "error generating presigned URL", clogg.String("error", err.Error()))
 		return "", err
 	}
 	// Parse the presigned URL
@@ -77,7 +77,7 @@ func (o *oss) PresignedPutObject(ctx context.Context, bucketName, objectName str
 	expiry := time.Second * 24 * 60 * 60 // 1 day.
 	presignedURL, err := o.client.PresignedPutObject(context.Background(), bucketName, objectName, expiry)
 	if err != nil {
-		clog.Error(context.Background(), "error generating presigned URL", err)
+		clogg.Error(context.Background(), "error generating presigned URL", clogg.String("error", err.Error()))
 		return "", err
 	}
 	return presignedURL.String(), err
@@ -100,7 +100,7 @@ func (i *oss) GetObject(ctx context.Context, bucketName, objectName string) (str
 	// Download the object from the object storage service
 	object, err := i.client.GetObject(context.Background(), bucketName, objectName, minio.GetObjectOptions{})
 	if err != nil {
-		clog.Error(ctx, "error getting object", err)
+		clogg.Error(ctx, "error getting object", clogg.String("error", err.Error()))
 		return "", err
 	}
 	defer object.Close()
@@ -121,7 +121,7 @@ func (i *oss) GetObject(ctx context.Context, bucketName, objectName string) (str
 
 	localFile, err := os.Create(path)
 	if err != nil {
-		clog.Error(ctx, "error creating local file", err)
+		clogg.Error(ctx, "error creating local file", clogg.String("error", err.Error()))
 		return "", err
 	}
 	defer localFile.Close()
@@ -130,7 +130,7 @@ func (i *oss) GetObject(ctx context.Context, bucketName, objectName string) (str
 	if _, err = io.Copy(localFile, object); err != nil {
 		// Remove the file created in case of error
 		os.Remove(path)
-		clog.Error(ctx, "error copying object to local file", err)
+		clogg.Error(ctx, "error copying object to local file", clogg.String("error", err.Error()))
 		return "", err
 	}
 	return path, nil
@@ -141,7 +141,7 @@ func (i *oss) PutObject(ctx context.Context, bucketName, objectName, filePath st
 	// Open the file to upload
 	file, err := os.Open(filePath)
 	if err != nil {
-		clog.Error(ctx, "error opening file", err)
+		clogg.Error(ctx, "error opening file", clogg.String("error", err.Error()))
 		return err
 	}
 	defer file.Close()
@@ -149,14 +149,14 @@ func (i *oss) PutObject(ctx context.Context, bucketName, objectName, filePath st
 	// Get the file stats
 	fileStat, err := file.Stat()
 	if err != nil {
-		clog.Error(ctx, "error getting file stats", err)
+		clogg.Error(ctx, "error getting file stats", clogg.String("error", err.Error()))
 		return err
 	}
 
 	// Upload the object to the object storage service
 	_, err = i.client.PutObject(context.Background(), bucketName, objectName, file, fileStat.Size(), minio.PutObjectOptions{ContentType: "application/octet-stream"})
 	if err != nil {
-		clog.Error(ctx, "error uploading object", err)
+		clogg.Error(ctx, "error uploading object", clogg.String("error", err.Error()))
 		return err
 	}
 
@@ -167,7 +167,7 @@ func (i *oss) RemoveObject(ctx context.Context, bucketName string, objectName st
 	// Remove the object from the object storage service
 	err := i.client.RemoveObject(context.Background(), bucketName, objectName, minio.RemoveObjectOptions{})
 	if err != nil {
-		clog.Error(ctx, "error removing object", err)
+		clogg.Error(ctx, "error removing object", clogg.String("error", err.Error()))
 		return err
 	}
 	return nil

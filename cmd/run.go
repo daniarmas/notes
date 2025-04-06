@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -10,8 +11,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/daniarmas/clogg"
 	"github.com/daniarmas/notes/internal/cache"
-	"github.com/daniarmas/notes/internal/clog"
 	"github.com/daniarmas/notes/internal/config"
 	"github.com/daniarmas/notes/internal/data"
 	"github.com/daniarmas/notes/internal/database"
@@ -28,13 +29,18 @@ func run(ctx context.Context) error {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
-	// Custom logger
-	clog.NewClog()
+	// Set up clogg
+	handler := slog.NewJSONHandler(os.Stdout, nil)
+	logger := clogg.GetLogger(clogg.LoggerConfig{
+		BufferSize: 100,
+		Handler:    handler,
+	})
+	defer logger.Shutdown()
 
 	// Kubernetes client
 	k8sClient, ck8sError := k8sc.NewClient()
 	if ck8sError != nil {
-		clog.Error(ctx, "error creating k8s client", ck8sError)
+		clogg.Error(ctx, "error creating k8s client", clogg.String("error", ck8sError.Error()))
 	}
 
 	// Config
@@ -42,7 +48,7 @@ func run(ctx context.Context) error {
 
 	// Set if running in k8s
 	if k8sClient != nil {
-		clog.Info(ctx, "app is running in k8s", nil)
+		clogg.Info(ctx, "app is running in k8s")
 		cfg.InK8s = true
 	}
 
@@ -61,7 +67,7 @@ func run(ctx context.Context) error {
 	oss := oss.NewDigitalOceanWithMinio(cfg)
 	// Healthcheck
 	if err := oss.HealthCheck(); err != nil {
-		clog.Error(ctx, "error checking object storage service health", err)
+		clogg.Error(ctx, "oss service healthcheck failed", clogg.String("error", err.Error()))
 	}
 
 	// Datasources
@@ -95,18 +101,18 @@ func run(ctx context.Context) error {
 	// Start the Rest server
 	go func() {
 		msg := fmt.Sprintf("Http server listening on %s\n", resSrv.HttpServer.Addr)
-		clog.Info(ctx, msg, nil)
+		clogg.Info(ctx, msg)
 		if err := resSrv.HttpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			clog.Error(ctx, "error listening and serving rest server", err)
+			clogg.Error(ctx, "error listening and serving rest server", clogg.String("error", err.Error()))
 		}
 	}()
 
 	// Start the GraphQL server
 	go func() {
 		msg := fmt.Sprintf("connect to http://localhost:%s/ for GraphQL playground", graphSrv.GraphQLServer.Addr)
-		clog.Info(context.Background(), msg, nil)
+		clogg.Info(ctx, msg)
 		if err := graphSrv.GraphQLServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			clog.Error(ctx, "error listening and serving graphql server", err)
+			clogg.Error(ctx, "error listening and serving graphql server", clogg.String("error", err.Error()))
 		}
 	}()
 
@@ -119,10 +125,10 @@ func run(ctx context.Context) error {
 		shutdownCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 		defer cancel()
 		if err := resSrv.HttpServer.Shutdown(shutdownCtx); err != nil {
-			clog.Error(ctx, "error shutting down http server", err)
+			clogg.Error(ctx, "error shutting down http server", clogg.String("error", err.Error()))
 		}
 		if err := graphSrv.GraphQLServer.Shutdown(shutdownCtx); err != nil {
-			clog.Error(ctx, "error shutting down graphql server", err)
+			clogg.Error(ctx, "error shutting down graphql server", clogg.String("error", err.Error()))
 		}
 	}()
 	wg.Wait()

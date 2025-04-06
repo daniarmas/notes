@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/daniarmas/notes/internal/clog"
+	"github.com/daniarmas/clogg"
 	"github.com/daniarmas/notes/internal/config"
 )
 
@@ -22,8 +22,8 @@ func Open(ctx context.Context, cfg *config.Configuration, showLog bool) *sql.DB 
 	for attempt := 1; attempt <= maxRetries; attempt++ {
 		db, err = sql.Open("pgx", cfg.DatabaseUrl)
 		if err != nil {
-			msg := fmt.Sprintf("Attempt %d: Failed to open the database: %v", attempt, err)
-			clog.Warn(ctx, msg, err)
+			msg := fmt.Sprintf("attempt %d: Failed to open the database: %v", attempt, err)
+			clogg.Warn(ctx, msg)
 			time.Sleep(initialBackoff * time.Duration(attempt))
 			continue
 		}
@@ -36,25 +36,25 @@ func Open(ctx context.Context, cfg *config.Configuration, showLog bool) *sql.DB 
 
 		err = db.Ping()
 		if err != nil {
-			msg := fmt.Sprintf("Attempt %d: Failed to open the database: %v", attempt, err)
-			clog.Warn(ctx, msg, err)
+			msg := fmt.Sprintf("attempt %d: failed to open the database: %v", attempt, err)
+			clogg.Warn(ctx, msg)
 			time.Sleep(initialBackoff * time.Duration(attempt))
 			continue
 		}
 		if showLog {
-			clog.Info(ctx, "Connected to the database", nil)
+			clogg.Info(ctx, "connected to the database")
 		}
 		return db
 	}
 
-	msg := fmt.Sprintf("Exceeded maximum retries. Failed to connect to the database: %v", err)
-	clog.Error(ctx, msg, err)
+	msg := fmt.Sprintf("exceeded maximum retries. failed to connect to the database: %v", err)
+	clogg.Error(ctx, msg)
 	return nil
 }
 
 func Close(ctx context.Context, db *sql.DB, showLog bool) {
 	db.Close()
 	if showLog {
-		clog.Info(ctx, "Database connection closed", nil)
+		clogg.Info(ctx, "database connection closed")
 	}
 }

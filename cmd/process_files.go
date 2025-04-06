@@ -5,9 +5,10 @@ package cmd
 
 import (
 	"context"
+	"log/slog"
 	"os"
 
-	"github.com/daniarmas/notes/internal/clog"
+	"github.com/daniarmas/clogg"
 	"github.com/daniarmas/notes/internal/config"
 	"github.com/daniarmas/notes/internal/data"
 	"github.com/daniarmas/notes/internal/database"
@@ -32,8 +33,13 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
 
-		// Custom logger
-		clog.NewClog()
+		// Set up clogg
+		handler := slog.NewJSONHandler(os.Stdout, nil)
+		logger := clogg.GetLogger(clogg.LoggerConfig{
+			BufferSize: 100,
+			Handler:    handler,
+		})
+		defer logger.Shutdown()
 
 		// Config
 		cfg := config.LoadServerConfig()
@@ -50,7 +56,7 @@ to quickly create a Cobra application.`,
 
 		// Healthcheck
 		if err := oss.HealthCheck(); err != nil {
-			clog.Error(ctx, "error checking object storage service health", err)
+			clogg.Error(ctx, "error checking object storage service health", clogg.String("error", err.Error()))
 		}
 
 		// Datasources
@@ -62,8 +68,8 @@ to quickly create a Cobra application.`,
 		// Access files
 		files, err := cmd.Flags().GetStringSlice("files")
 		if err != nil {
-			clog.Error(ctx, "error getting flag value", err)
-			return
+			clogg.Error(ctx, "error getting files flag", clogg.String("error", err.Error()))
+			os.Exit(1)
 		}
 
 		// Process files concurrently
@@ -71,7 +77,7 @@ to quickly create a Cobra application.`,
 			// Start the sql transaction
 			tx, err := db.BeginTx(ctx, nil)
 			if err != nil {
-				clog.Error(ctx, "error starting transaction", err)
+				clogg.Error(ctx, "error starting transaction", clogg.String("error", err.Error()))
 				os.Exit(0)
 			}
 
@@ -88,15 +94,13 @@ to quickly create a Cobra application.`,
 			}()
 
 			if err := fileRepository.Process(ctx, tx, file); err != nil {
-				clog.Error(ctx, "error processing file", err)
+				clogg.Error(ctx, "error processing file", clogg.String("error", err.Error()))
 			}
 		}
 
 		// Command completed successfully
-		clog.Info(ctx, "All files processed successfully", nil)
-
+		clogg.Info(ctx, "files processed successfully")
 		os.Exit(0)
-
 	},
 }
 
