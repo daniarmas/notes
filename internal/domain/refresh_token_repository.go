@@ -3,8 +3,8 @@ package domain
 import (
 	"context"
 	"database/sql"
-	"log/slog"
 
+	"github.com/daniarmas/clogg"
 	"github.com/daniarmas/notes/internal/utils"
 	"github.com/google/uuid"
 )
@@ -31,15 +31,14 @@ func (r *refreshTokenRepository) GetRefreshToken(ctx context.Context, id uuid.UU
 	// Get the refresh token from cache
 	refreshToken, err := r.RefreshTokenCacheDs.GetRefreshToken(ctx, id)
 	if err != nil {
-		slog.LogAttrs(
-			context.Background(),
-			slog.LevelError,
-			"Failed to get refresh token from cache",
-			slog.String("error", err.Error()),
-			slog.String("request_id", utils.ExtractRequestIdFromContext(ctx)),
-			slog.String("file", utils.GetFileName()),
-			slog.String("function", utils.GetFunctionName()),
-			slog.Int("line", utils.GetLineNumber()),
+		clogg.Error(
+			ctx,
+			"failed to get refresh token from cache",
+			clogg.String("error", err.Error()),
+			clogg.String("request_id", utils.ExtractRequestIdFromContext(ctx)),
+			clogg.String("file", utils.GetFileName()),
+			clogg.String("function", utils.GetFunctionName()),
+			clogg.Int("line", utils.GetLineNumber()),
 		)
 		// Get the refresh from the database
 		refreshToken, err = r.RefreshTokenDatabaseDs.GetRefreshTokenById(ctx, id)
@@ -59,15 +58,14 @@ func (r *refreshTokenRepository) CreateRefreshToken(ctx context.Context, tx *sql
 	// Cache the refresh token
 	err = r.RefreshTokenCacheDs.CreateRefreshToken(ctx, user)
 	if err != nil {
-		slog.LogAttrs(
-			context.Background(),
-			slog.LevelError,
-			"Failed to cache refresh token",
-			slog.String("error", err.Error()),
-			slog.String("request_id", utils.ExtractRequestIdFromContext(ctx)),
-			slog.String("file", utils.GetFileName()),
-			slog.String("function", utils.GetFunctionName()),
-			slog.Int("line", utils.GetLineNumber()),
+		clogg.Error(
+			ctx,
+			"failed to cache refresh token",
+			clogg.String("error", err.Error()),
+			clogg.String("request_id", utils.ExtractRequestIdFromContext(ctx)),
+			clogg.String("file", utils.GetFileName()),
+			clogg.String("function", utils.GetFunctionName()),
+			clogg.Int("line", utils.GetLineNumber()),
 		)
 	}
 	return user, nil
