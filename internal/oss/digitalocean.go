@@ -46,7 +46,7 @@ func (o *oss) HealthCheck() error {
 		clogg.Error(context.Background(), "connection error to Object Storage server", clogg.String("error", err.Error()))
 		return err
 	} else if bucketExists {
-		clogg.Error(context.Background(), "connection sucessfull to Object Storage server", clogg.String("error", err.Error()))
+		clogg.Info(context.Background(), "connection sucessfull to Object Storage server")
 		return nil
 	}
 	return nil
