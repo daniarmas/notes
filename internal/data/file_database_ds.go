@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/daniarmas/notes/internal/clog"
+	"github.com/daniarmas/clogg"
 	"github.com/daniarmas/notes/internal/database"
 	"github.com/daniarmas/notes/internal/domain"
 	"github.com/google/uuid"
@@ -90,7 +90,7 @@ func (d *fileDatabaseDs) UpdateFileByOriginalId(ctx context.Context, tx *sql.Tx,
 
 	res, err := d.queries.WithTx(tx).UpdateFileByOriginalId(ctx, database.UpdateFileByOriginalIdParams{OriginalFile: originalFileId, ProcessedFile: sql.NullString{String: processFileId, Valid: true}, UpdateTime: timeNow})
 	if err != nil {
-		clog.Error(ctx, "error updating file by original id", err)
+		clogg.Error(ctx, "error updating file by original id")
 		return nil, err
 	}
 
