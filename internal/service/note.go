@@ -12,7 +12,7 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/daniarmas/notes/internal/clog"
+	"github.com/daniarmas/clogg"
 	"github.com/daniarmas/notes/internal/config"
 	"github.com/daniarmas/notes/internal/customerrors"
 	"github.com/daniarmas/notes/internal/domain"
@@ -170,14 +170,14 @@ func (s *noteService) CreateNote(ctx context.Context, title string, content stri
 
 		err := s.K8sClient.CreateJob(ctx, jobName, namespace, imageName, args, envs)
 		if err != nil {
-			clog.Error(ctx, "error creating k8s job", err)
+			clogg.Error(ctx, "error creating k8s job", clogg.String("error", err.Error()))
 			return nil, err
 		}
 	} else {
 		// This is a mock for the k8s job on dev environment
 		for _, file := range objectNames {
 			if err := s.FileRepository.Process(ctx, tx, file); err != nil {
-				clog.Error(ctx, "error processing file", err)
+				clogg.Error(ctx, "error processing file", clogg.String("error", err.Error()))
 			}
 		}
 	}
