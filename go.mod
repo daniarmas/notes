@@ -87,6 +87,7 @@ require (
 
 require (
 	github.com/daniarmas/clogg v0.2.1-alpha
+	github.com/daniarmas/http v0.6.2-alpha
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect

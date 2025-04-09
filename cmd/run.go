@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,12 +13,16 @@ import (
 	"time"
 
 	"github.com/daniarmas/clogg"
+	httpw "github.com/daniarmas/http"
+	httpm "github.com/daniarmas/http/middleware"
 	"github.com/daniarmas/notes/internal/cache"
 	"github.com/daniarmas/notes/internal/config"
 	"github.com/daniarmas/notes/internal/data"
 	"github.com/daniarmas/notes/internal/database"
 	"github.com/daniarmas/notes/internal/domain"
 	"github.com/daniarmas/notes/internal/httpserver"
+	"github.com/daniarmas/notes/internal/httpserver/handler"
+	"github.com/daniarmas/notes/internal/httpserver/middleware"
 	"github.com/daniarmas/notes/internal/k8sc"
 	"github.com/daniarmas/notes/internal/oss"
 	"github.com/daniarmas/notes/internal/service"
@@ -30,10 +35,10 @@ func run(ctx context.Context) error {
 	defer cancel()
 
 	// Set up clogg
-	handler := slog.NewJSONHandler(os.Stdout, nil)
+	jsonhandler := slog.NewJSONHandler(os.Stdout, nil)
 	logger := clogg.GetLogger(clogg.LoggerConfig{
 		BufferSize: 100,
-		Handler:    handler,
+		Handler:    jsonhandler,
 	})
 	defer logger.Shutdown()
 
@@ -94,21 +99,58 @@ func run(ctx context.Context) error {
 	authenticationService := service.NewAuthenticationService(jwtDatasource, hashDatasource, userRepository, accessTokenRepository, refreshTokenRepository, db)
 	noteService := service.NewNoteService(noteRepository, oss, fileRepository, *cfg, k8sClient, db)
 
+	// Httpw server
+	routes := []httpw.HandleFunc{
+		// OpenAPI specification
+		{Pattern: "GET /swagger.json", Handler: handler.OpenApiHanlder},
+		// Authentication
+		{Pattern: "GET /me", Handler: middleware.LoggedOnly(handler.Me(authenticationService)).(http.HandlerFunc)},
+		{Pattern: "POST /sign-in", Handler: handler.SignIn(authenticationService)},
+		{Pattern: "POST /sign-out", Handler: middleware.LoggedOnly(handler.SignOut(authenticationService)).(http.HandlerFunc)},
+		// Note
+		{Pattern: "GET /note/trash", Handler: middleware.LoggedOnly(handler.ListTrashNotesByUser(noteService)).(http.HandlerFunc)},
+		{Pattern: "GET /note", Handler: middleware.LoggedOnly(handler.ListNotesByUser(noteService)).(http.HandlerFunc)},
+		{Pattern: "POST /note", Handler: middleware.LoggedOnly(handler.CreateNote(noteService)).(http.HandlerFunc)},
+		{Pattern: "DELETE /note/{id}/hard", Handler: middleware.LoggedOnly(handler.HardDeleteNote(noteService)).(http.HandlerFunc)},
+		{Pattern: "DELETE /note/{id}", Handler: middleware.LoggedOnly(handler.SoftDeleteNote(noteService)).(http.HandlerFunc)},
+		{Pattern: "PATCH /note/{id}", Handler: middleware.LoggedOnly(handler.UpdateNote(noteService)).(http.HandlerFunc)},
+		{Pattern: "PATCH /note/{id}/restore", Handler: middleware.LoggedOnly(handler.RestoreNote(noteService)).(http.HandlerFunc)},
+		{Pattern: "POST /note/presigned-urls", Handler: middleware.LoggedOnly(handler.GetPresignedUrls(noteService)).(http.HandlerFunc)},
+	}
+
+	httpwServer := httpw.New(httpw.Options{
+		Addr:         net.JoinHostPort("0.0.0.0", cfg.RestServerPort),
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  10 * time.Second,
+		Middlewares: []httpm.Middleware{
+			httpm.LoggingMiddleware,
+			httpm.AllowCors(httpm.CorsOptions{
+				AllowedOrigin:  fmt.Sprintf("http://localhost:%s", cfg.RestServerPort),
+				AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+				AllowedHeaders: []string{"Content-Type", "Authorization"},
+			}),
+			httpm.RecoverMiddleware,
+		},
+	}, routes...)
+
 	// Http server
-	resSrv := httpserver.NewRestServer(authenticationService, noteService, jwtDatasource, *cfg)
 	graphSrv := httpserver.NewGraphQLServer(authenticationService, noteService, *cfg, jwtDatasource)
 
-	// Start the Rest server
+	var wg sync.WaitGroup
+	wg.Add(3)
+
+	// Start the rest server in a separate goroutine.
 	go func() {
-		msg := fmt.Sprintf("Http server listening on %s\n", resSrv.HttpServer.Addr)
-		clogg.Info(ctx, msg)
-		if err := resSrv.HttpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		defer wg.Done()
+		if err := httpwServer.Run(ctx); err != nil {
 			clogg.Error(ctx, "error listening and serving rest server", clogg.String("error", err.Error()))
 		}
 	}()
 
 	// Start the GraphQL server
 	go func() {
+		defer wg.Done()
 		msg := fmt.Sprintf("connect to http://localhost:%s/ for GraphQL playground", graphSrv.GraphQLServer.Addr)
 		clogg.Info(ctx, msg)
 		if err := graphSrv.GraphQLServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -117,22 +159,19 @@ func run(ctx context.Context) error {
 	}()
 
 	// Graceful shutdown
-	var wg sync.WaitGroup
-	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		<-ctx.Done()
 		shutdownCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 		defer cancel()
-		if err := resSrv.HttpServer.Shutdown(shutdownCtx); err != nil {
-			clogg.Error(ctx, "error shutting down http server", clogg.String("error", err.Error()))
-		}
+		
+		// Shutdown the rest server
 		if err := graphSrv.GraphQLServer.Shutdown(shutdownCtx); err != nil {
 			clogg.Error(ctx, "error shutting down graphql server", clogg.String("error", err.Error()))
 		}
 	}()
+	
 	wg.Wait()
-
 	return nil
 }
 
