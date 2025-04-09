@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/daniarmas/notes/internal/httpserver/response"
+	"github.com/daniarmas/http/response"
 )
 
 // OpenApiHanlder handles requests for the OpenAPI specification.

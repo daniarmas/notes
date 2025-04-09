@@ -14,7 +14,7 @@ import (
 
 	"github.com/daniarmas/clogg"
 	httpw "github.com/daniarmas/http"
-	httpm "github.com/daniarmas/http/middleware"
+	cmiddleware "github.com/daniarmas/http/middleware"
 	"github.com/daniarmas/notes/internal/cache"
 	"github.com/daniarmas/notes/internal/config"
 	"github.com/daniarmas/notes/internal/data"
@@ -123,14 +123,15 @@ func run(ctx context.Context) error {
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  10 * time.Second,
-		Middlewares: []httpm.Middleware{
-			httpm.LoggingMiddleware,
-			httpm.AllowCors(httpm.CorsOptions{
+		Middlewares: []cmiddleware.Middleware{
+			cmiddleware.LoggingMiddleware,
+			middleware.SetUserInContext(jwtDatasource),
+			cmiddleware.AllowCors(cmiddleware.CorsOptions{
 				AllowedOrigin:  fmt.Sprintf("http://localhost:%s", cfg.RestServerPort),
 				AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 				AllowedHeaders: []string{"Content-Type", "Authorization"},
 			}),
-			httpm.RecoverMiddleware,
+			cmiddleware.RecoverMiddleware,
 		},
 	}, routes...)
 
@@ -164,13 +165,13 @@ func run(ctx context.Context) error {
 		<-ctx.Done()
 		shutdownCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 		defer cancel()
-		
+
 		// Shutdown the rest server
 		if err := graphSrv.GraphQLServer.Shutdown(shutdownCtx); err != nil {
 			clogg.Error(ctx, "error shutting down graphql server", clogg.String("error", err.Error()))
 		}
 	}()
-	
+
 	wg.Wait()
 	return nil
 }

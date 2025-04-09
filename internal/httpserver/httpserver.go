@@ -45,7 +45,7 @@ func NewRestServer(authenticationService service.AuthenticationService, noteServ
 	// Add middlewares
 	handler = middleware.LoggingMiddleware(handler)
 	handler = middleware.AllowCORS(handler)
-	handler = middleware.SetUserInContext(handler, jwtDatasource)
+	// handler = middleware.SetUserInContext(handler, jwtDatasource)
 
 	// Create the HTTP server
 	readTimeOut := 10 * time.Second
@@ -95,7 +95,7 @@ func NewGraphQLServer(authenticationService service.AuthenticationService, noteS
 
 	var handler http.Handler = mux
 	// Add middlewares
-	handler = middleware.SetUserInContext(handler, jwtDatasource)
+	// handler = middleware.SetUserInContext(handler, jwtDatasource)
 
 	// Create the HTTP server
 	readTimeOut := 10 * time.Second

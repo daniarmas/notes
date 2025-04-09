@@ -6,8 +6,9 @@ import (
 	"strings"
 
 	"github.com/daniarmas/clogg"
+	cmiddleware "github.com/daniarmas/http/middleware"
+	"github.com/daniarmas/http/response"
 	"github.com/daniarmas/notes/internal/domain"
-	"github.com/daniarmas/notes/internal/httpserver/response"
 	"github.com/daniarmas/notes/internal/utils"
 	"github.com/google/uuid"
 	"github.com/rs/xid"
@@ -26,47 +27,49 @@ func (rw *responseWriter) WriteHeader(code int) {
 }
 
 // SetUserInContext is a middleware that sets the user in the context
-func SetUserInContext(next http.Handler, jwtDatasource domain.JwtDatasource) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Get the Authorization header from the request
-		authHeader := r.Header.Get("Authorization")
-		if authHeader != "" {
-			// Split the header to get the token
-			parts := strings.Split(authHeader, " ")
-			if len(parts) != 2 || parts[0] != "Bearer" {
-				response.Unauthorized(w, r, "Authorization header format is invalid. It must be in the format: 'Bearer {token}'.", nil)
-				return
-			}
-			token := parts[1]
-			jwtMetadata := domain.JWTMetadata{Token: token}
-			err := jwtDatasource.ParseJWT(&jwtMetadata)
-			if err != nil {
-				switch err.Error() {
-				case "Token is expired":
-					response.Unauthorized(w, r, "Authorization token has expired. Please log in again to continue.", nil)
-					return
-				case "signature is invalid":
-					response.Unauthorized(w, r, "Authorization token signature is invalid. Please provide a valid token.", nil)
-					return
-				case "token contains an invalid number of segments":
-					response.Unauthorized(w, r, "Authorization token provided is invalid. Please provide a valid token.", nil)
-					return
-				default:
-					response.InternalServerError(w, r)
+func SetUserInContext(jwtDatasource domain.JwtDatasource) cmiddleware.Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Get the Authorization header from the request
+			authHeader := r.Header.Get("Authorization")
+			if authHeader != "" {
+				// Split the header to get the token
+				parts := strings.Split(authHeader, " ")
+				if len(parts) != 2 || parts[0] != "Bearer" {
+					response.Unauthorized(w, r, "Authorization header format is invalid. It must be in the format: 'Bearer {token}'.", nil)
 					return
 				}
+				token := parts[1]
+				jwtMetadata := domain.JWTMetadata{Token: token}
+				err := jwtDatasource.ParseJWT(&jwtMetadata)
+				if err != nil {
+					switch err.Error() {
+					case "Token is expired":
+						response.Unauthorized(w, r, "Authorization token has expired. Please log in again to continue.", nil)
+						return
+					case "signature is invalid":
+						response.Unauthorized(w, r, "Authorization token signature is invalid. Please provide a valid token.", nil)
+						return
+					case "token contains an invalid number of segments":
+						response.Unauthorized(w, r, "Authorization token provided is invalid. Please provide a valid token.", nil)
+						return
+					default:
+						response.InternalServerError(w, r)
+						return
+					}
+				}
+
+				// Set the user in the context
+				ctx := domain.SetUserInContext(r.Context(), jwtMetadata.UserId)
+
+				// Call the next handler with the modified context
+				next.ServeHTTP(w, r.WithContext(ctx))
+			} else {
+				// Call the next handler
+				next.ServeHTTP(w, r)
 			}
-
-			// Set the user in the context
-			ctx := domain.SetUserInContext(r.Context(), jwtMetadata.UserId)
-
-			// Call the next handler with the modified context
-			next.ServeHTTP(w, r.WithContext(ctx))
-		} else {
-			// Call the next handler
-			next.ServeHTTP(w, r)
-		}
-	})
+		})
+	}
 }
 
 // AllowCORS is a middleware that sets the CORS headers

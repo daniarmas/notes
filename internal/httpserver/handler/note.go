@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/daniarmas/notes/internal/domain"
-	"github.com/daniarmas/notes/internal/httpserver/response"
+	"github.com/daniarmas/http/response"
 	"github.com/daniarmas/notes/internal/service"
 	"github.com/daniarmas/notes/internal/utils"
 	"github.com/google/uuid"
