@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/daniarmas/notes/internal/httpserver/response"
+	"github.com/daniarmas/http/response"
 	"github.com/daniarmas/notes/internal/service"
 	"github.com/daniarmas/notes/internal/validate"
 )

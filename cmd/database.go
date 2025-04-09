@@ -5,8 +5,10 @@ package cmd
 
 import (
 	"context"
+	"log/slog"
+	"os"
 
-	"github.com/daniarmas/notes/internal/clog"
+	"github.com/daniarmas/clogg"
 	"github.com/daniarmas/notes/internal/config"
 	"github.com/daniarmas/notes/internal/database"
 	"github.com/spf13/cobra"
@@ -24,6 +26,14 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
+
+		// Set up clogg
+		handler := slog.NewJSONHandler(os.Stdout, nil)
+		logger := clogg.GetLogger(clogg.LoggerConfig{
+			BufferSize: 100,
+			Handler:    handler,
+		})
+		defer logger.Shutdown()
 
 		// Config
 		cfg := config.LoadServerConfig()
@@ -43,11 +53,11 @@ to quickly create a Cobra application.`,
 			END
 			$$;`)
 		if err != nil {
-			clog.Error(ctx, "error preparing sql to create notes_database", err)
+			clogg.Error(ctx, "error preparing sql to create notes_database", clogg.String("error", err.Error()))
 		}
 		_, err = stmt.Exec()
 		if err != nil {
-			clog.Error(ctx, "error creating notes_database", err)
+			clogg.Error(ctx, "error creating notes_database", clogg.String("error", err.Error()))
 		}
 
 		// Create users table if not exists
@@ -62,11 +72,11 @@ to quickly create a Cobra application.`,
 			CONSTRAINT users_pk PRIMARY KEY (id)
 		);`)
 		if err != nil {
-			clog.Error(ctx, "error preparing sql to create users table", err)
+			clogg.Error(ctx, "error preparing sql to create users table", clogg.String("error", err.Error()))
 		}
 		_, err = stmt.Exec()
 		if err != nil {
-			clog.Error(ctx, "error exec sql to create users table", err)
+			clogg.Error(ctx, "error creating users table", clogg.String("error", err.Error()))
 		}
 
 		// Create refresh tokens table if not exists
@@ -84,11 +94,11 @@ to quickly create a Cobra application.`,
 			)
 		`)
 		if err != nil {
-			clog.Error(ctx, "error preparing sql to create refresh_tokens table", err)
+			clogg.Error(ctx, "error preparing sql to create refresh_tokens table", clogg.String("error", err.Error()))
 		}
 		_, err = stmt.Exec()
 		if err != nil {
-			clog.Error(ctx, "error exec sql to create refresh_tokens table", err)
+			clogg.Error(ctx, "error creating refresh_tokens table", clogg.String("error", err.Error()))
 		}
 
 		// Create access tokens table if not exists
@@ -111,11 +121,11 @@ to quickly create a Cobra application.`,
 			)
 		`)
 		if err != nil {
-			clog.Error(ctx, "error preparing sql to create access_tokens table", err)
+			clogg.Error(ctx, "error preparing sql to create access_tokens table", clogg.String("error", err.Error()))
 		}
 		_, err = stmt.Exec()
 		if err != nil {
-			clog.Error(ctx, "error exec sql to create access_tokens table", err)
+			clogg.Error(ctx, "error creating access_tokens table", clogg.String("error", err.Error()))
 		}
 
 		// Create notes table if not exists
@@ -136,11 +146,11 @@ to quickly create a Cobra application.`,
 			)
 		`)
 		if err != nil {
-			clog.Error(ctx, "error preparing sql to create notes table", err)
+			clogg.Error(ctx, "error preparing sql to create notes table", clogg.String("error", err.Error()))
 		}
 		_, err = stmt.Exec()
 		if err != nil {
-			clog.Error(ctx, "error exec sql to create notes table", err)
+			clogg.Error(ctx, "error creating notes table", clogg.String("error", err.Error()))
 		}
 
 		// Create files table if not exists
@@ -161,14 +171,14 @@ to quickly create a Cobra application.`,
 			)
 		`)
 		if err != nil {
-			clog.Error(ctx, "error preparing sql to create files table", err)
+			clogg.Error(ctx, "error preparing sql to create files table", clogg.String("error", err.Error()))
 		}
 		_, err = stmt.Exec()
 		if err != nil {
-			clog.Error(ctx, "error exec sql to create files table", err)
+			clogg.Error(ctx, "error creating files table", clogg.String("error", err.Error()))
 		}
 
-		clog.Info(ctx, "Database tables created successfully", nil)
+		clogg.Info(ctx, "Database tables created successfully")
 	},
 }
 

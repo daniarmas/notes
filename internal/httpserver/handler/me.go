@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"github.com/daniarmas/notes/internal/httpserver/response"
+	"github.com/daniarmas/http/response"
 	"github.com/daniarmas/notes/internal/service"
 )
 

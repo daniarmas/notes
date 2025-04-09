@@ -5,7 +5,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/daniarmas/notes/internal/clog"
+	"github.com/daniarmas/clogg"
 )
 
 type Configuration struct {
@@ -59,22 +59,22 @@ func LoadServerConfig() *Configuration {
 		config.DockerImageName = "ghcr.io/daniarmas/notes"
 	}
 	if config.ObjectStorageServiceAccessKey == "" {
-		clog.Warn(ctx, "OBJECT_STORAGE_SERVICE_ACCESS_KEY enviroment variable is required", nil)
+		clogg.Warn(ctx, "OBJECT_STORAGE_SERVICE_ACCESS_KEY enviroment variable is required")
 	}
 	if config.ObjectStorageServiceSecretKey == "" {
-		clog.Warn(ctx, "OBJECT_STORAGE_SERVICE_SECRET_KEY enviroment variable is required", nil)
+		clogg.Warn(ctx, "OBJECT_STORAGE_SERVICE_SECRET_KEY enviroment variable is required")
 	}
 	if config.ObjectStorageServiceEndpoint == "" {
-		clog.Warn(ctx, "OBJECT_STORAGE_SERVICE_ENDPOINT enviroment variable is required", nil)
+		clogg.Warn(ctx, "OBJECT_STORAGE_SERVICE_ENDPOINT enviroment variable is required")
 	}
 	if config.ObjectStorageServiceRegion == "" {
-		clog.Warn(ctx, "OBJECT_STORAGE_SERVICE_REGION enviroment variable is required", nil)
+		clogg.Warn(ctx, "OBJECT_STORAGE_SERVICE_REGION enviroment variable is required")
 	}
 	if config.ObjectStorageServiceBucket == "" {
-		clog.Warn(ctx, "OBJECT_STORAGE_SERVICE_BUCKET enviroment variable is required", nil)
+		clogg.Warn(ctx, "OBJECT_STORAGE_SERVICE_BUCKET enviroment variable is required")
 	}
 	if config.JwtSecret == "" {
-		clog.Warn(ctx, "JWT_SECRET enviroment variable is required", nil)
+		clogg.Warn(ctx, "JWT_SECRET enviroment variable is required")
 	}
 	if config.DatabaseUrl == "" {
 		config.DatabaseUrl = "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable"
@@ -88,7 +88,7 @@ func LoadServerConfig() *Configuration {
 	if os.Getenv("REDIS_DB") == "" {
 		config.RedisDb = 0
 	} else if number, err := strconv.Atoi(os.Getenv("REDIS_DB")); err != nil {
-		clog.Error(ctx, "REDIS_DB enviroment variable must be a valid integer value", err)
+		clogg.Error(ctx, "REDIS_DB enviroment variable must be a valid integer value")
 	} else {
 		config.RedisDb = number
 	}

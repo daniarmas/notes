@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/daniarmas/notes/internal/clog"
+	"github.com/daniarmas/clogg"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -27,13 +27,13 @@ func NewClient() (K8sC, error) {
 	// creates the in-cluster config
 	config, configErr := rest.InClusterConfig()
 	if configErr != nil {
-		clog.Error(context.Background(), "error creating in-cluster config", configErr)
+		clogg.Error(context.Background(), "error creating in-cluster config", clogg.String("error", configErr.Error()))
 		return nil, configErr
 	}
 	// creates the clientset
 	clientset, clientsetError = kubernetes.NewForConfig(config)
 	if clientsetError != nil {
-		clog.Error(context.Background(), "error creating kubernetes clientset", clientsetError)
+		clogg.Error(context.Background(), "error creating kubernetes clientset", clogg.String("error", clientsetError.Error()))
 		return nil, clientsetError
 	}
 
@@ -77,10 +77,10 @@ func (c *k8sc) CreateJob(ctx context.Context, jobName, namespace, imageName stri
 	// Create the job
 	job, err := c.Clientset.BatchV1().Jobs(namespace).Create(ctx, job, metav1.CreateOptions{})
 	if err != nil {
-		clog.Error(context.Background(), "error creating job", err)
+		clogg.Error(ctx, "error creating job", clogg.String("error", err.Error()))
 		return err
 	}
 
-	clog.Info(context.Background(), fmt.Sprintf("job created successful: %s", job.Name), nil)
+	clogg.Info(ctx, fmt.Sprintf("job created successful: %s", job.Name))
 	return nil
 }
