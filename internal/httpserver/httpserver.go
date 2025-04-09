@@ -26,49 +26,7 @@ type HandleFunc struct {
 
 type Server struct {
 	Mux           *http.ServeMux
-	HttpServer    *http.Server
 	GraphQLServer *http.Server
-}
-
-// NewRestServer creates and configures a new HTTP server with the specified address.
-func NewRestServer(authenticationService service.AuthenticationService, noteService service.NoteService, jwtDatasource domain.JwtDatasource, cfg config.Configuration) *Server {
-	// Create a new ServeMux
-	mux := http.NewServeMux()
-
-	// Routes
-	routes := Routes(authenticationService, noteService)
-	for _, h := range routes {
-		mux.HandleFunc(h.Pattern, h.Handler)
-	}
-
-	var handler http.Handler = mux
-	// Add middlewares
-	handler = middleware.LoggingMiddleware(handler)
-	handler = middleware.AllowCORS(handler)
-	// handler = middleware.SetUserInContext(handler, jwtDatasource)
-
-	// Create the HTTP server
-	readTimeOut := 10 * time.Second
-	writeTimeOut := 10 * time.Second
-	idleTimeOut := 10 * time.Second
-
-	if cfg.Environment == "development" {
-		readTimeOut = 10 * time.Minute
-		writeTimeOut = 10 * time.Minute
-		idleTimeOut = 10 * time.Minute
-	}
-
-	httpServer := &http.Server{
-		Addr:         net.JoinHostPort("0.0.0.0", cfg.RestServerPort),
-		Handler:      handler,
-		ReadTimeout:  readTimeOut,
-		WriteTimeout: writeTimeOut,
-		IdleTimeout:  idleTimeOut,
-	}
-	return &Server{
-		Mux:        mux,
-		HttpServer: httpServer,
-	}
 }
 
 // NewGraphQLServer creates and configures a new GraphQL server with the specified address.
@@ -95,7 +53,7 @@ func NewGraphQLServer(authenticationService service.AuthenticationService, noteS
 
 	var handler http.Handler = mux
 	// Add middlewares
-	// handler = middleware.SetUserInContext(handler, jwtDatasource)
+	handler = middleware.SetUserInContext(jwtDatasource)(handler)
 
 	// Create the HTTP server
 	readTimeOut := 10 * time.Second

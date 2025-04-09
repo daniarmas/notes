@@ -1,17 +1,13 @@
 package middleware
 
 import (
-	"context"
 	"net/http"
 	"strings"
 
-	"github.com/daniarmas/clogg"
 	cmiddleware "github.com/daniarmas/http/middleware"
 	"github.com/daniarmas/http/response"
 	"github.com/daniarmas/notes/internal/domain"
-	"github.com/daniarmas/notes/internal/utils"
 	"github.com/google/uuid"
-	"github.com/rs/xid"
 )
 
 // responseWriter is a custom http.ResponseWriter that captures the status code
@@ -70,53 +66,6 @@ func SetUserInContext(jwtDatasource domain.JwtDatasource) cmiddleware.Middleware
 			}
 		})
 	}
-}
-
-// AllowCORS is a middleware that sets the CORS headers
-func AllowCORS(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Set the CORS headers
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-		// If the request is an OPTIONS request, return immediately
-		if r.Method == "OPTIONS" {
-			return
-		}
-
-		// Call the next handler
-		next.ServeHTTP(w, r)
-	})
-}
-
-// LoggingMiddleware injects the request ID into the context and logs the request details
-func LoggingMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Generate a unique request ID
-		requestID := xid.New().String()
-
-		// Add the request ID to the context
-		ctx := context.WithValue(r.Context(), utils.RequestIDKey, requestID)
-
-		// Create a custom response writer to capture the status code
-		rw := &responseWriter{ResponseWriter: w}
-
-		// Call the next handler with the modified context
-		next.ServeHTTP(rw, r.WithContext(ctx))
-
-		// Log the request details, optionally retrieving the request ID from the context
-		// clog.Debug(ctx, "HTTP request", nil)
-		clogg.Info(
-			ctx,
-			"HTTP request",
-			clogg.String("method", r.Method),
-			clogg.String("path", r.URL.Path),
-			clogg.Int("status", rw.statusCode),
-			clogg.String("user_agent", r.Header.Get("User-Agent")),
-			clogg.String("request_id", requestID),
-		)
-	})
 }
 
 func LoggedOnly(h http.Handler) http.Handler {
