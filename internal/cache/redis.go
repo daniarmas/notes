@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"time"
 
 	"github.com/daniarmas/clogg"
 	"github.com/daniarmas/notes/internal/config"
@@ -19,13 +18,10 @@ func OpenRedis(ctx context.Context, cfg *config.Configuration) (*redis.Client, e
 		Password: cfg.RedisPassword,
 		DB:       cfg.RedisDb,
 	})
-	timeout := 5 * time.Second
 
-	conn, err := net.DialTimeout("tcp", address, timeout)
-	if err != nil {
+	if err := rdb.Ping(ctx).Err(); err != nil {
 		return nil, err
 	}
-	defer conn.Close()
 
 	return rdb, nil
 }
