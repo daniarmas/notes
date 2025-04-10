@@ -71,7 +71,16 @@ func run(ctx context.Context) error {
 		os.Exit(1)
 	}
 	clogg.Info(ctx, "connected to redis", clogg.String("host", cfg.RedisHost), clogg.String("port", cfg.RedisPort))
-	defer cache.CloseRedis(ctx, rdb)
+
+	// Close redis connection
+	defer func() {
+		err := rdb.Close()
+		if err != nil {
+			clogg.Error(ctx, "error closing redis connection", clogg.String("error", err.Error()))
+			os.Exit(1)
+		}
+		clogg.Info(ctx, "redis connection closed")
+	}()
 
 	// Object storage service
 	oss := oss.NewDigitalOceanWithMinio(cfg)
