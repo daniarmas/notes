@@ -65,7 +65,12 @@ func run(ctx context.Context) error {
 	dbQueries := database.New(db)
 
 	// Cache connection
-	rdb := cache.OpenRedis(ctx, cfg)
+	rdb, err := cache.OpenRedis(ctx, cfg)
+	if err != nil {
+		clogg.Error(ctx, "error connecting to redis", clogg.String("error", err.Error()))
+		os.Exit(1)
+	}
+	clogg.Info(ctx, "connected to redis", clogg.String("host", cfg.RedisHost), clogg.String("port", cfg.RedisPort))
 	defer cache.CloseRedis(ctx, rdb)
 
 	// Object storage service

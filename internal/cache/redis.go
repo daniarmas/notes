@@ -12,7 +12,7 @@ import (
 )
 
 // Open the redis connection
-func OpenRedis(ctx context.Context, cfg *config.Configuration) *redis.Client {
+func OpenRedis(ctx context.Context, cfg *config.Configuration) (*redis.Client, error) {
 	address := net.JoinHostPort(cfg.RedisHost, cfg.RedisPort)
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     address,
@@ -23,15 +23,11 @@ func OpenRedis(ctx context.Context, cfg *config.Configuration) *redis.Client {
 
 	conn, err := net.DialTimeout("tcp", address, timeout)
 	if err != nil {
-		msg := fmt.Sprintf("could not connect to redis server at %s: %v\n", address, err)
-		clogg.Error(ctx, msg)
+		return nil, err
 	}
 	defer conn.Close()
 
-	msg := fmt.Sprintf("connected to redis server at %s", address)
-	clogg.Info(ctx, msg)
-
-	return rdb
+	return rdb, nil
 }
 
 // Close the Redis connection gracefully
