@@ -32,7 +32,7 @@ func Open(ctx context.Context, cfg *config.Configuration, showLog bool) (*sql.DB
 		db.SetConnMaxLifetime(30 * time.Minute)
 		db.SetConnMaxIdleTime(30 * time.Minute)
 
-		err = db.Ping()
+		err = db.PingContext(ctx)
 		if err != nil {
 			clogg.Warn(ctx, "Failed to open the database", clogg.Int("attempt", attempt), clogg.String("error", err.Error()))
 			time.Sleep(initialBackoff * time.Duration(attempt))
