@@ -36,7 +36,7 @@ var seedCmd = &cobra.Command{
 		cfg := config.LoadServerConfig()
 
 		// Database connection
-		db, err := database.Open(ctx, cfg)
+		db, err := database.Open(ctx, cfg.DatabaseUrl)
 		if err != nil {
 			clogg.Error(ctx, "error opening database", clogg.String("error", err.Error()))
 			os.Exit(1)

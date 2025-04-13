@@ -6,11 +6,10 @@ import (
 	"time"
 
 	"github.com/daniarmas/clogg"
-	"github.com/daniarmas/notes/internal/config"
 )
 
 // Open opens a database specified by its database driver name and a driver-specific data source name, usually consisting of at least a database name and connection information.
-func Open(ctx context.Context, cfg *config.Configuration) (*sql.DB, error) {
+func Open(ctx context.Context, databaseUrl string) (*sql.DB, error) {
 	var db *sql.DB
 	var err error
 
@@ -21,7 +20,7 @@ func Open(ctx context.Context, cfg *config.Configuration) (*sql.DB, error) {
 	backoff := initialBackoff
 
 	for attempt := 1; attempt <= maxRetries; attempt++ {
-		db, err = sql.Open("pgx", cfg.DatabaseUrl)
+		db, err = sql.Open("pgx", databaseUrl)
 		if err != nil {
 			clogg.Warn(ctx, "Failed to open the database", clogg.Int("attempt", attempt), clogg.String("error", err.Error()))
 			time.Sleep(backoff)
