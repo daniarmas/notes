@@ -39,7 +39,11 @@ to quickly create a Cobra application.`,
 		cfg := config.LoadServerConfig()
 
 		// Database connection
-		db := database.Open(ctx, cfg, false)
+		db, err := database.Open(ctx, cfg, false)
+		if err != nil {
+			clogg.Error(ctx, "error opening database", clogg.String("error", err.Error()))
+			os.Exit(1)
+		}
 		defer database.Close(ctx, db, false)
 
 		// Create notes_database if not exists

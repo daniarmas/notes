@@ -58,7 +58,11 @@ func run(ctx context.Context) error {
 	}
 
 	// Database connection
-	db := database.Open(ctx, cfg, true)
+	db, err := database.Open(ctx, cfg, false)
+	if err != nil {
+		clogg.Error(ctx, "error opening database", clogg.String("error", err.Error()))
+		os.Exit(1)
+	}
 	defer database.Close(ctx, db, true)
 
 	// Database queries
