@@ -58,15 +58,33 @@ func run(ctx context.Context) error {
 	}
 
 	// Database connection
-	db := database.Open(ctx, cfg, true)
-	defer database.Close(ctx, db, true)
+	db, err := database.Open(ctx, cfg.DatabaseUrl)
+	if err != nil {
+		clogg.Error(ctx, "error opening database", clogg.String("error", err.Error()))
+		os.Exit(1)
+	}
+	defer database.Close(ctx, db)
 
 	// Database queries
 	dbQueries := database.New(db)
 
 	// Cache connection
-	rdb := cache.OpenRedis(ctx, cfg)
-	defer cache.CloseRedis(ctx, rdb)
+	rdb, err := cache.OpenRedis(ctx, cfg.RedisHost, cfg.RedisPort, cfg.RedisPassword, cfg.RedisDb)
+	if err != nil {
+		clogg.Error(ctx, "error connecting to redis", clogg.String("error", err.Error()))
+		os.Exit(1)
+	}
+	clogg.Info(ctx, "connected to redis", clogg.String("host", cfg.RedisHost), clogg.String("port", cfg.RedisPort))
+
+	// Close redis connection
+	defer func() {
+		err := rdb.Close()
+		if err != nil {
+			clogg.Error(ctx, "error closing redis connection", clogg.String("error", err.Error()))
+			os.Exit(1)
+		}
+		clogg.Info(ctx, "redis connection closed")
+	}()
 
 	// Object storage service
 	oss := oss.NewDigitalOceanWithMinio(cfg)

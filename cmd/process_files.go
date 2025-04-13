@@ -45,8 +45,12 @@ to quickly create a Cobra application.`,
 		cfg := config.LoadServerConfig()
 
 		// Database connection
-		db := database.Open(ctx, cfg, true)
-		defer database.Close(ctx, db, true)
+		db, err := database.Open(ctx, cfg.DatabaseUrl)
+		if err != nil {
+			clogg.Error(ctx, "error opening database", clogg.String("error", err.Error()))
+			os.Exit(1)
+		}
+		defer database.Close(ctx, db)
 
 		// Database queries
 		dbQueries := database.New(db)

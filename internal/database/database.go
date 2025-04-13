@@ -3,28 +3,31 @@ package database
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/daniarmas/clogg"
-	"github.com/daniarmas/notes/internal/config"
 )
 
 // Open opens a database specified by its database driver name and a driver-specific data source name, usually consisting of at least a database name and connection information.
-func Open(ctx context.Context, cfg *config.Configuration, showLog bool) *sql.DB {
+func Open(ctx context.Context, databaseUrl string) (*sql.DB, error) {
 	var db *sql.DB
 	var err error
 
 	// Retry settings
 	const maxRetries = 5
 	const initialBackoff = 1 * time.Second
+	const maxBackoff = 10 * time.Second
+	backoff := initialBackoff
 
 	for attempt := 1; attempt <= maxRetries; attempt++ {
-		db, err = sql.Open("pgx", cfg.DatabaseUrl)
+		db, err = sql.Open("pgx", databaseUrl)
 		if err != nil {
-			msg := fmt.Sprintf("attempt %d: Failed to open the database: %v", attempt, err)
-			clogg.Warn(ctx, msg)
-			time.Sleep(initialBackoff * time.Duration(attempt))
+			clogg.Warn(ctx, "Failed to open the database", clogg.Int("attempt", attempt), clogg.String("error", err.Error()))
+			time.Sleep(backoff)
+			backoff = time.Duration(float64(backoff) * 1.5)
+			if backoff > maxBackoff {
+				backoff = maxBackoff
+			}
 			continue
 		}
 
@@ -34,27 +37,29 @@ func Open(ctx context.Context, cfg *config.Configuration, showLog bool) *sql.DB 
 		db.SetConnMaxLifetime(30 * time.Minute)
 		db.SetConnMaxIdleTime(30 * time.Minute)
 
-		err = db.Ping()
+		err = db.PingContext(ctx)
 		if err != nil {
-			msg := fmt.Sprintf("attempt %d: failed to open the database: %v", attempt, err)
-			clogg.Warn(ctx, msg)
-			time.Sleep(initialBackoff * time.Duration(attempt))
+			clogg.Warn(ctx, "Failed to open the database", clogg.Int("attempt", attempt), clogg.String("error", err.Error()))
+			time.Sleep(backoff)
+			backoff = time.Duration(float64(backoff) * 1.5)
+			if backoff > maxBackoff {
+				backoff = maxBackoff
+			}
 			continue
 		}
-		if showLog {
-			clogg.Info(ctx, "connected to the database")
-		}
-		return db
 	}
 
-	msg := fmt.Sprintf("exceeded maximum retries. failed to connect to the database: %v", err)
-	clogg.Error(ctx, msg)
-	return nil
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
 }
 
-func Close(ctx context.Context, db *sql.DB, showLog bool) {
-	db.Close()
-	if showLog {
-		clogg.Info(ctx, "database connection closed")
+func Close(ctx context.Context, db *sql.DB) error {
+	err := db.Close()
+	if err != nil {
+		return err
 	}
+	return nil
 }

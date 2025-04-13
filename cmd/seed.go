@@ -36,8 +36,12 @@ var seedCmd = &cobra.Command{
 		cfg := config.LoadServerConfig()
 
 		// Database connection
-		db := database.Open(ctx, cfg, false)
-		defer database.Close(ctx, db, false)
+		db, err := database.Open(ctx, cfg.DatabaseUrl)
+		if err != nil {
+			clogg.Error(ctx, "error opening database", clogg.String("error", err.Error()))
+			os.Exit(1)
+		}
+		defer database.Close(ctx, db)
 
 		// Get sqlc queries
 		queries := database.New(db)
@@ -48,7 +52,7 @@ var seedCmd = &cobra.Command{
 		// Create users
 		user1Pass, _ := hashDs.Hash("user1")
 		user2Pass, _ := hashDs.Hash("user2")
-		_, err := queries.CreateUser(ctx, database.CreateUserParams{Name: "user1", Email: "user1@email.com", Password: user1Pass})
+		_, err = queries.CreateUser(ctx, database.CreateUserParams{Name: "user1", Email: "user1@email.com", Password: user1Pass})
 		if err != nil {
 			clogg.Error(ctx, "error creating user 1", clogg.String("error", err.Error()))
 		}
