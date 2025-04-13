@@ -17,12 +17,18 @@ func Open(ctx context.Context, cfg *config.Configuration, showLog bool) (*sql.DB
 	// Retry settings
 	const maxRetries = 5
 	const initialBackoff = 1 * time.Second
+	const maxBackoff = 10 * time.Second
+	backoff := initialBackoff
 
 	for attempt := 1; attempt <= maxRetries; attempt++ {
 		db, err = sql.Open("pgx", cfg.DatabaseUrl)
 		if err != nil {
 			clogg.Warn(ctx, "Failed to open the database", clogg.Int("attempt", attempt), clogg.String("error", err.Error()))
-			time.Sleep(initialBackoff * time.Duration(attempt))
+			time.Sleep(backoff)
+			backoff = time.Duration(float64(backoff) * 1.5)
+			if backoff > maxBackoff {
+				backoff = maxBackoff
+			}
 			continue
 		}
 
@@ -35,7 +41,11 @@ func Open(ctx context.Context, cfg *config.Configuration, showLog bool) (*sql.DB
 		err = db.PingContext(ctx)
 		if err != nil {
 			clogg.Warn(ctx, "Failed to open the database", clogg.Int("attempt", attempt), clogg.String("error", err.Error()))
-			time.Sleep(initialBackoff * time.Duration(attempt))
+			time.Sleep(backoff)
+			backoff = time.Duration(float64(backoff) * 1.5)
+			if backoff > maxBackoff {
+				backoff = maxBackoff
+			}
 			continue
 		}
 	}
