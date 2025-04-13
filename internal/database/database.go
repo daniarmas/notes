@@ -57,9 +57,10 @@ func Open(ctx context.Context, cfg *config.Configuration, showLog bool) (*sql.DB
 	return db, nil
 }
 
-func Close(ctx context.Context, db *sql.DB, showLog bool) {
-	db.Close()
-	if showLog {
-		clogg.Info(ctx, "database connection closed")
+func Close(ctx context.Context, db *sql.DB, showLog bool) error {
+	err := db.Close()
+	if err != nil {
+		return err
 	}
+	return nil
 }
