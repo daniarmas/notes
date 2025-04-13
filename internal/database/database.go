@@ -10,7 +10,7 @@ import (
 )
 
 // Open opens a database specified by its database driver name and a driver-specific data source name, usually consisting of at least a database name and connection information.
-func Open(ctx context.Context, cfg *config.Configuration, showLog bool) (*sql.DB, error) {
+func Open(ctx context.Context, cfg *config.Configuration) (*sql.DB, error) {
 	var db *sql.DB
 	var err error
 
@@ -57,7 +57,7 @@ func Open(ctx context.Context, cfg *config.Configuration, showLog bool) (*sql.DB
 	return db, nil
 }
 
-func Close(ctx context.Context, db *sql.DB, showLog bool) error {
+func Close(ctx context.Context, db *sql.DB) error {
 	err := db.Close()
 	if err != nil {
 		return err

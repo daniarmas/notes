@@ -36,12 +36,12 @@ var seedCmd = &cobra.Command{
 		cfg := config.LoadServerConfig()
 
 		// Database connection
-		db, err := database.Open(ctx, cfg, false)
+		db, err := database.Open(ctx, cfg)
 		if err != nil {
 			clogg.Error(ctx, "error opening database", clogg.String("error", err.Error()))
 			os.Exit(1)
 		}
-		defer database.Close(ctx, db, false)
+		defer database.Close(ctx, db)
 
 		// Get sqlc queries
 		queries := database.New(db)
